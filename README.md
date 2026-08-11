@@ -179,7 +179,7 @@ O sistema será dividido em módulos:
 
 | Nome | Função | GitHub |
 |------|--------|--------|
-| Nome 1 | Scrum Master | @usuario |
+| Nome 1 | Scrum Master | @regrabru |
 | Nome 2 | Product Owner | @usuario |
 | Nome 3 | Developer | @usuario |
 | Nome 4 | Developer | @usuario |
