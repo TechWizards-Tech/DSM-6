@@ -180,10 +180,12 @@ O sistema será dividido em módulos:
 | Nome | Função | GitHub |
 |------|--------|--------|
 | Bruna Regra | Scrum Master | @regrabru |
-| Nome 2 | Product Owner | @usuario |
-| Nome 3 | Developer | @usuario |
-| Nome 4 | Developer | @usuario |
-| Nome 5 | Developer | @usuario |
+| Pamela Freitas | Product Owner | @PaamFreitas18 |
+| Raquel Massae | Developer | @nakamuraraquel |
+| Pollyana Roberta | Developer | @Pollymeowth |
+| Maria Eduarda | Developer | @ferreira-me |
+| Felipe Correa | Developer | @turnupthetaste |
+| Leandro Barbosa | Developer | @gmlebc |
 
 # DOCUMENTAÇÃO
 
