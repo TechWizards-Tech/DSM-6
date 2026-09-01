@@ -26,10 +26,6 @@ O projeto será desenvolvido utilizando metodologias ágeis, seguindo o framewor
 Facilitar o acesso dos cidadãos às orientações do PROCON, reduzir a quantidade de
 atendimentos repetitivos e melhorar a eficiência do atendimento.
 
-## LINK PARA O TRELLO
-
-[Em breve](#)
-
 ## SPRINTS
 
 | Sprint | Início | Entrega | Status |
