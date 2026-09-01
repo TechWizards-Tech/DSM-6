@@ -26,10 +26,10 @@ O projeto será desenvolvido utilizando metodologias ágeis, seguindo o framewor
 Facilitar o acesso dos cidadãos às orientações do PROCON, reduzir a quantidade de
 atendimentos repetitivos e melhorar a eficiência do atendimento.
 
-## GESTÃO DO PROJETO (GITHUB PROJECTS)
-Acompanhe o roadmap, tarefas em andamento e o progresso do desenvolvimento da nossa equipe no quadro oficial:
+## GESTÃO DO PROJETO
+GITHUB PROJECTS: Acompanhe o roadmap, tarefas em andamento e o progresso do desenvolvimento da nossa equipe no quadro oficial:
 
-👉 [Acessar o GitHub Project do TechWizards](https://github.com/users/TechWizards-Tech/projects/1)
+📍​ [Acessar o GitHub Project do TechWizards](https://github.com/users/TechWizards-Tech/projects/1)
 
 ## SPRINTS
 
