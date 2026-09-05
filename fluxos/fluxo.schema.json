@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fatec-jacarei.abp/procon/schema/fluxo.schema.json",
+  "title": "Fluxo decisório PROCON",
+  "description": "Estrutura de um caso de orientação ao consumidor, modelado como máquina de estados finita.",
+  "type": "object",
+  "required": ["id", "versao", "titulo", "categoria", "no_inicial", "nos", "fonte"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Identificador único do fluxo, em kebab-case. Deve ser igual ao nome do arquivo."
+    },
+    "versao": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "titulo": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 60,
+      "description": "Texto exibido no menu principal. Limite de 60 caracteres (item de lista do WhatsApp)."
+    },
+    "categoria": {
+      "type": "string",
+      "enum": [
+        "cobranca_indevida",
+        "contrato",
+        "garantia_e_vicios",
+        "entrega_e_oferta",
+        "arrependimento",
+        "fora_de_escopo"
+      ]
+    },
+    "palavras_chave": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Termos usados para roteamento por texto livre (opcional na Sprint 1)."
+    },
+    "resumo": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "Descrição curta do caso, exibida abaixo do título no menu."
+    },
+    "fonte": {
+      "type": "string",
+      "description": "Rastreabilidade: de onde no material do PROCON este fluxo foi extraído."
+    },
+    "no_inicial": {
+      "type": "string",
+      "description": "Chave do nó por onde a conversa começa. Deve existir em 'nos'."
+    },
+    "nos": {
+      "type": "object",
+      "minProperties": 2,
+      "propertyNames": { "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$" },
+      "additionalProperties": { "$ref": "#/$defs/no" }
+    }
+  },
+  "$defs": {
+    "no": {
+      "type": "object",
+      "required": ["tipo", "texto"],
+      "properties": {
+        "tipo": {
+          "type": "string",
+          "enum": ["pergunta", "orientacao", "encaminhamento"],
+          "description": "pergunta = coleta uma escolha; orientacao = entrega conteúdo e segue; encaminhamento = nó terminal."
+        },
+        "texto": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 1024,
+          "description": "Texto enviado ao cidadão. Linguagem simples, sem juridiquês (RNF01)."
+        },
+        "opcoes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": { "$ref": "#/$defs/opcao" },
+          "description": "Máximo de 3 opções: limite de botões de resposta rápida do WhatsApp."
+        },
+        "documentos": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Documentos que o consumidor deve reunir."
+        },
+        "ressalvas": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Variações e limites do caso, conforme material do PROCON."
+        },
+        "base_legal": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/base_legal" },
+          "description": "Metadado. NÃO deve ser enviado ao cidadão na Sprint 1."
+        },
+        "acao": {
+          "type": "string",
+          "enum": ["agendar_presencial", "encerrar", "orientar_canal_externo", "voltar_ao_menu"],
+          "description": "Obrigatório quando tipo = encaminhamento."
+        },
+        "gerado_por_llm": {
+          "type": "boolean",
+          "default": false,
+          "description": "RNF05. Todo conteúdo desta pasta é determinístico; sempre false."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "tipo": { "const": "pergunta" } } },
+          "then": { "required": ["opcoes"] }
+        },
+        {
+          "if": { "properties": { "tipo": { "const": "encaminhamento" } } },
+          "then": { "required": ["acao"] }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "opcao": {
+      "type": "object",
+      "required": ["id", "rotulo", "proximo"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+        "rotulo": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20,
+          "description": "Texto do botão. Limite de 20 caracteres no WhatsApp."
+        },
+        "proximo": { "type": "string", "description": "Chave do nó de destino." }
+      }
+    },
+    "base_legal": {
+      "type": "object",
+      "required": ["norma", "dispositivo"],
+      "additionalProperties": false,
+      "properties": {
+        "norma": { "type": "string" },
+        "dispositivo": { "type": "string" },
+        "sintese": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,266 @@
+{
+  "id": "descontos-folha-beneficio",
+  "versao": "1.0.0",
+  "titulo": "Desconto indevido na folha de pagamento ou no benefício",
+  "categoria": "cobranca-indevida",
+  "palavras_chave": [
+    "consignado",
+    "INSS",
+    "benefício",
+    "folha",
+    "empréstimo",
+    "RMC",
+    "RCC",
+    "aposentadoria",
+    "desconto"
+  ],
+  "resumo": "Descontos de empréstimo já quitado, empréstimo não contratado ou reserva de margem (RMC/RCC) em folha ou benefício.",
+  "fonte": "Dúvidas Frequentes PROCON Jacareí — casos 2, 3 e 6",
+  "no_inicial": "inicio",
+  "nos": {
+    "inicio": {
+      "tipo": "pergunta",
+      "texto": "Vamos entender de onde está saindo esse valor.\n\nO desconto aparece em qual lugar?",
+      "opcoes": [
+        {
+          "id": "folha",
+          "rotulo": "Folha de pagamento",
+          "proximo": "tipo_folha"
+        },
+        {
+          "id": "beneficio",
+          "rotulo": "Benefício do INSS",
+          "proximo": "tipo_beneficio"
+        },
+        {
+          "id": "nao_sei",
+          "rotulo": "Não sei dizer",
+          "proximo": "orienta_extrato"
+        }
+      ]
+    },
+    "tipo_folha": {
+      "tipo": "pergunta",
+      "texto": "E qual é a situação desse empréstimo descontado na sua folha?",
+      "opcoes": [
+        {
+          "id": "quitado",
+          "rotulo": "Já quitei",
+          "proximo": "orienta_quitado"
+        },
+        {
+          "id": "nao_contratado",
+          "rotulo": "Nunca contratei",
+          "proximo": "orienta_folha_nao_contratado"
+        }
+      ]
+    },
+    "tipo_beneficio": {
+      "tipo": "pergunta",
+      "texto": "Qual é a natureza do desconto no seu benefício?",
+      "opcoes": [
+        {
+          "id": "consignado",
+          "rotulo": "Empréstimo",
+          "proximo": "recebeu_valor"
+        },
+        {
+          "id": "rmc_rcc",
+          "rotulo": "RMC ou RCC",
+          "proximo": "orienta_rmc_rcc"
+        },
+        {
+          "id": "nao_sei",
+          "rotulo": "Não sei identificar",
+          "proximo": "orienta_extrato"
+        }
+      ]
+    },
+    "recebeu_valor": {
+      "tipo": "pergunta",
+      "texto": "Esse é um ponto importante para o seu caso.\n\nO dinheiro desse empréstimo chegou a cair na sua conta?",
+      "opcoes": [
+        {
+          "id": "nao",
+          "rotulo": "Não recebi nada",
+          "proximo": "orienta_consignado_nao_recebido"
+        },
+        {
+          "id": "sim",
+          "rotulo": "Recebi e usei",
+          "proximo": "orienta_consignado_usado"
+        },
+        {
+          "id": "nao_sei",
+          "rotulo": "Não sei",
+          "proximo": "orienta_extrato"
+        }
+      ]
+    },
+    "orienta_quitado": {
+      "tipo": "orientacao",
+      "texto": "Se o empréstimo já foi quitado, os descontos que continuaram sendo feitos são indevidos.\n\nVocê pode abrir uma reclamação no PROCON pedindo a interrupção imediata dos descontos e a devolução em dobro dos valores retirados depois da quitação.\n\nO comprovante de quitação é a peça central do seu caso. Se você não tiver, peça à instituição financeira uma declaração de quitação ou o extrato do contrato.",
+      "documentos": [
+        "RG com CPF",
+        "Contracheques mostrando os descontos na folha",
+        "Comprovantes de pagamento e comprovante de quitação do empréstimo",
+        "Mensagens e e-mails trocados com a empresa, se tiver",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "Cada caso tem particularidades. É necessário comparecer presencialmente ao PROCON para uma análise detalhada."
+      ],
+      "base_legal": [
+        {
+          "norma": "CDC",
+          "dispositivo": "Art. 14",
+          "resumo": "Responsabilidade objetiva do fornecedor de serviços"
+        },
+        {
+          "norma": "CDC",
+          "dispositivo": "Art. 42, parágrafo único",
+          "resumo": "Repetição em dobro do valor cobrado indevidamente"
+        }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_folha_nao_contratado": {
+      "tipo": "orientacao",
+      "texto": "Um empréstimo que você não contratou não pode ser descontado da sua folha.\n\nVocê pode abrir uma reclamação no PROCON pedindo o cancelamento imediato do contrato, a devolução em dobro dos valores descontados e o envio do contrato que a instituição alega existir. É justamente esse contrato que vai mostrar se houve fraude ou erro.",
+      "documentos": [
+        "RG com CPF",
+        "Contracheques mostrando os descontos na folha",
+        "Extrato bancário com a data de inclusão do desconto",
+        "Comprovantes de pagamento",
+        "Mensagens e e-mails trocados com a empresa, se tiver",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "Cada caso tem particularidades. É necessário comparecer presencialmente ao PROCON para uma análise detalhada."
+      ],
+      "base_legal": [
+        {
+          "norma": "CDC",
+          "dispositivo": "Art. 14, caput"
+        },
+        {
+          "norma": "CDC",
+          "dispositivo": "Art. 39, III"
+        },
+        {
+          "norma": "CDC",
+          "dispositivo": "Art. 42, parágrafo único"
+        }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_consignado_nao_recebido": {
+      "tipo": "orientacao",
+      "texto": "Se o valor nunca caiu na sua conta e mesmo assim há desconto no benefício, a situação é de empréstimo não reconhecido.\n\nVocê pode abrir uma reclamação no PROCON pedindo o cancelamento imediato, a devolução em dobro dos valores descontados e o envio do contrato.\n\nO extrato bancário do período é essencial: é ele que mostra que o dinheiro não entrou.",
+      "documentos": [
+        "RG com CPF",
+        "Extrato de empréstimo consignado do INSS",
+        "Extrato bancário com a data de inclusão do desconto",
+        "Histórico de crédito",
+        "Mensagens e e-mails trocados com a empresa, se tiver",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "Cada caso tem particularidades. É necessário comparecer presencialmente ao PROCON para uma análise detalhada."
+      ],
+      "base_legal": [
+        {
+          "norma": "CDC",
+          "dispositivo": "Art. 4º, I"
+        },
+        {
+          "norma": "CDC",
+          "dispositivo": "Art. 14, caput"
+        },
+        {
+          "norma": "CDC",
+          "dispositivo": "Art. 39, III"
+        },
+        {
+          "norma": "CDC",
+          "dispositivo": "Art. 42, parágrafo único"
+        }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_consignado_usado": {
+      "tipo": "orientacao",
+      "texto": "Preciso ser transparente com você sobre esse ponto.\n\nQuando o valor do empréstimo entrou na conta e foi utilizado, o desfecho muda. Nesse cenário o PROCON não consegue simplesmente cancelar a dívida e devolver os valores em dobro, porque o dinheiro foi efetivamente usado. O que o PROCON pode fazer é solicitar à instituição uma proposta de quitação em condições mais favoráveis.\n\nPor isso é importante você comparecer ao PROCON: um atendente vai analisar o seu caso concreto e verificar quais alternativas existem.",
+      "documentos": [
+        "RG com CPF",
+        "Extrato de empréstimo consignado do INSS",
+        "Extrato bancário com a data de inclusão do desconto",
+        "Histórico de crédito",
+        "Mensagens e e-mails trocados com a empresa, se tiver",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "Se o dinheiro foi usado, o PROCON só poderá requerer uma proposta de quitação.",
+        "É necessário comparecer presencialmente ao PROCON para a análise do caso."
+      ],
+      "base_legal": [
+        {
+          "norma": "CDC",
+          "dispositivo": "Art. 4º, I"
+        },
+        {
+          "norma": "CDC",
+          "dispositivo": "Art. 14, caput"
+        }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_rmc_rcc": {
+      "tipo": "orientacao",
+      "texto": "RMC e RCC são reservas de margem ligadas a um cartão de crédito consignado. Muita gente contrata acreditando que está fazendo um empréstimo comum e só descobre depois, ao ver o desconto mensal no benefício.\n\nSe você não reconhece essa contratação, pode abrir uma reclamação no PROCON pedindo a interrupção imediata dos descontos e a devolução em dobro dos valores cobrados.",
+      "documentos": [
+        "RG com CPF",
+        "Extrato de empréstimo consignado do INSS",
+        "Extrato bancário com a data de inclusão do desconto",
+        "Histórico de crédito",
+        "Mensagens e e-mails trocados com a empresa, se tiver",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "Se o valor do cartão consignado chegou a ser usado, o PROCON só poderá requerer uma proposta de quitação.",
+        "É necessário comparecer presencialmente ao PROCON para a análise do caso."
+      ],
+      "base_legal": [
+        {
+          "norma": "CDC",
+          "dispositivo": "Art. 14"
+        },
+        {
+          "norma": "CDC",
+          "dispositivo": "Art. 39, III"
+        },
+        {
+          "norma": "CDC",
+          "dispositivo": "Art. 42",
+          "resumo": "Devolução em dobro, salvo engano justificável"
+        }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_extrato": {
+      "tipo": "orientacao",
+      "texto": "Para orientar você com precisão, primeiro é preciso identificar exatamente qual é o desconto.\n\nDuas formas de descobrir: peça o extrato de empréstimos consignados pelo aplicativo Meu INSS ou pela central 135, se o desconto for no benefício; ou verifique o contracheque detalhado com o setor de recursos humanos, se for na folha de pagamento.\n\nCom o extrato em mãos você saberá o nome da instituição, o tipo de contrato e desde quando o desconto começou. Traga esse documento ao PROCON.",
+      "documentos": [
+        "RG com CPF",
+        "Extrato de empréstimo consignado do INSS ou contracheque detalhado",
+        "Extrato bancário do período",
+        "CNPJ da matriz do fornecedor, se já souber"
+      ],
+      "ressalvas": [
+        "Sem identificar o desconto não é possível definir a orientação correta.",
+        "É necessário comparecer presencialmente ao PROCON para a análise do caso."
+      ],
+      "encaminhamento": "agendamento_presencial"
+    }
+  }
+}

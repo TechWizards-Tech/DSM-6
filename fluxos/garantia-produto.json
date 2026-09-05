@@ -1,0 +1,178 @@
+{
+  "id": "garantia-produto",
+  "versao": "1.0.0",
+  "titulo": "Produto ou serviço com defeito (garantia)",
+  "categoria": "produto",
+  "palavras_chave": ["garantia", "defeito", "vício", "assistência técnica", "30 dias", "90 dias", "troca", "conserto"],
+  "resumo": "Produto ou serviço apresentou defeito. Trata prazos de garantia legal, vício oculto e as opções após 30 dias sem reparo.",
+  "fonte": "Dúvidas Frequentes PROCON Jacareí — casos 16 a 22, 28 a 37, 44 e 45",
+  "no_inicial": "inicio",
+  "nos": {
+    "inicio": {
+      "tipo": "pergunta",
+      "texto": "Vamos ver em que ponto está o seu caso.\n\nVocê já levou o produto à assistência técnica ou à loja para reparo?",
+      "opcoes": [
+        { "id": "mais_30", "rotulo": "Sim, há +30 dias", "proximo": "opcao_apos_30" },
+        { "id": "menos_30", "rotulo": "Sim, há -30 dias", "proximo": "orienta_aguardar_30" },
+        { "id": "nao", "rotulo": "Ainda não levei", "proximo": "tipo_produto" }
+      ]
+    },
+    "tipo_produto": {
+      "tipo": "pergunta",
+      "texto": "Os prazos de garantia mudam conforme o tipo do que foi comprado.\n\nQual das opções descreve melhor a sua situação?",
+      "opcoes": [
+        { "id": "duravel", "rotulo": "Produto durável", "proximo": "orienta_garantia_90" },
+        { "id": "nao_duravel", "rotulo": "Não durável", "proximo": "orienta_garantia_30" },
+        { "id": "oculto", "rotulo": "Defeito só apareceu", "proximo": "orienta_vicio_oculto" }
+      ]
+    },
+    "opcao_apos_30": {
+      "tipo": "pergunta",
+      "texto": "Se o defeito não foi resolvido em até 30 dias, a lei permite que você escolha entre três alternativas. A escolha é sua, não da loja.\n\nO que você prefere?",
+      "opcoes": [
+        { "id": "troca", "rotulo": "Trocar por outro", "proximo": "orienta_substituicao" },
+        { "id": "dinheiro", "rotulo": "Dinheiro de volta", "proximo": "orienta_restituicao" },
+        { "id": "abatimento", "rotulo": "Desconto no preço", "proximo": "orienta_abatimento" }
+      ]
+    },
+    "orienta_aguardar_30": {
+      "tipo": "orientacao",
+      "texto": "O fornecedor tem até 30 dias para sanar o defeito. Como esse prazo ainda está correndo, o caminho por enquanto é aguardar.\n\nEnquanto isso, guarde a ordem de serviço da assistência técnica, com a data de entrada do produto. Esse documento é o que comprova quando o prazo começou a contar.\n\nSe os 30 dias passarem sem solução, você poderá escolher entre trocar o produto por outro novo, receber o dinheiro de volta corrigido ou obter um abatimento no preço. Volte a falar comigo nesse caso.",
+      "documentos": [
+        "Ordem de serviço da assistência técnica com a data de entrada",
+        "Nota fiscal ou comprovante da compra",
+        "Termo de garantia, se houver"
+      ],
+      "ressalvas": [
+        "O prazo de 30 dias conta a partir da entrega do produto para reparo."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 18, § 1º", "resumo": "Prazo de 30 dias para sanar o vício" }
+      ],
+      "encaminhamento": "informativo"
+    },
+    "orienta_garantia_90": {
+      "tipo": "orientacao",
+      "texto": "Produtos duráveis, como eletrodomésticos, celulares, móveis e veículos, têm garantia legal de 90 dias, contados da entrega efetiva do produto. Essa garantia independe de qualquer termo escrito e não pode ser afastada pelo fornecedor.\n\nSe o fabricante ou a loja oferecerem garantia contratual, ela é complementar e se soma à legal.\n\nO primeiro passo é levar o produto à assistência técnica autorizada e exigir a ordem de serviço com a data. A partir daí, o fornecedor tem 30 dias para resolver.",
+      "documentos": [
+        "RG com CPF",
+        "Nota fiscal ou outro comprovante da compra",
+        "Termo de garantia, se houver",
+        "Ordem de serviço da assistência técnica",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "A nota fiscal facilita a prova da compra, mas extrato bancário, fatura do cartão ou comprovante de pedido também servem.",
+        "Produtos usados também têm garantia legal de 90 dias, salvo limitação informada de forma clara e prévia.",
+        "O fornecedor pode negar a garantia em caso de mau uso, alteração por terceiros ou dano por acidente, mas cabe a ele comprovar."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 26, II", "resumo": "90 dias para produtos e serviços duráveis" },
+        { "norma": "CDC", "dispositivo": "Art. 26, § 1º", "resumo": "Contagem a partir da entrega efetiva" },
+        { "norma": "CDC", "dispositivo": "Art. 24", "resumo": "Garantia legal independe de termo expresso" },
+        { "norma": "CDC", "dispositivo": "Art. 50", "resumo": "Garantia contratual é complementar à legal" },
+        { "norma": "CDC", "dispositivo": "Art. 12, § 3º, III", "resumo": "Fornecedor deve provar culpa exclusiva do consumidor" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_garantia_30": {
+      "tipo": "orientacao",
+      "texto": "Produtos e serviços não duráveis, como alimentos, serviços de estética e lavanderia, têm garantia legal de 30 dias, contados da entrega do produto ou da conclusão do serviço.\n\nComo o prazo é curto, procure o fornecedor o quanto antes e registre a reclamação por escrito, guardando o protocolo. Isso interrompe a fluência do prazo e protege o seu direito.\n\nSe o fornecedor não resolver, você pode abrir uma reclamação no PROCON.",
+      "documentos": [
+        "RG com CPF",
+        "Nota fiscal ou outro comprovante da compra",
+        "Registro da reclamação feita ao fornecedor",
+        "Fotos ou evidências do problema",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "Serviços também têm garantia legal: 30 dias para não duráveis e 90 dias para duráveis.",
+        "Cada caso tem particularidades. É necessário comparecer presencialmente ao PROCON para uma análise detalhada."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 26, I", "resumo": "30 dias para produtos e serviços não duráveis" },
+        { "norma": "CDC", "dispositivo": "Art. 26, § 1º" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_vicio_oculto": {
+      "tipo": "orientacao",
+      "texto": "Quando o defeito não era visível no momento da compra e só apareceu com o uso, ele é chamado de vício oculto. É o caso, por exemplo, de um motor que falha depois de algum tempo de funcionamento.\n\nA regra de contagem é diferente e favorece você: o prazo para reclamar começa a contar no momento em que o defeito ficou evidente, e não na data da compra. Continuam valendo os prazos de 30 dias para não duráveis e 90 dias para duráveis.\n\nProcure o fornecedor, registre a reclamação por escrito e anote a data em que percebeu o problema.",
+      "documentos": [
+        "RG com CPF",
+        "Nota fiscal ou outro comprovante da compra",
+        "Registro da reclamação com a data em que o defeito apareceu",
+        "Ordem de serviço da assistência técnica, se já houver",
+        "Fotos ou evidências do problema",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "Em veículos seminovos, o vício oculto dá direito ao cumprimento da garantia, mas não à troca do veículo ou ao cancelamento da compra.",
+        "Cada caso tem particularidades. É necessário comparecer presencialmente ao PROCON para uma análise detalhada."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 26, § 3º", "resumo": "Prazo decadencial inicia quando evidenciado o defeito" },
+        { "norma": "CDC", "dispositivo": "Art. 18", "resumo": "Responsabilidade por vício do produto" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_substituicao": {
+      "tipo": "orientacao",
+      "texto": "Você optou pela substituição do produto por outro da mesma espécie, em perfeitas condições de uso.\n\nSe o modelo idêntico não estiver disponível, você não fica sem alternativa: a substituição pode ser feita por produto de espécie, marca ou modelo diferentes, com você complementando ou recebendo de volta a diferença de preço.\n\nSobre a garantia do produto novo: ela não recomeça do zero necessariamente, mas também não pode ser menor do que a que restava. Se o produto foi trocado com 9 meses de garantia restantes, o novo mantém esses 9 meses.",
+      "documentos": [
+        "RG com CPF",
+        "Nota fiscal ou comprovante da compra",
+        "Ordem de serviço da assistência técnica com as datas",
+        "Termo de garantia, se houver",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "Se você mudar de ideia, ainda pode optar pela restituição do valor ou pelo abatimento do preço.",
+        "Cada caso tem particularidades. É necessário comparecer presencialmente ao PROCON para uma análise detalhada."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 18, § 1º, I", "resumo": "Substituição por outro da mesma espécie" },
+        { "norma": "CDC", "dispositivo": "Art. 18, § 4º", "resumo": "Substituição por espécie, marca ou modelo diversos com ajuste de preço" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_restituicao": {
+      "tipo": "orientacao",
+      "texto": "Você optou pela devolução do dinheiro.\n\nA restituição deve ser imediata e o valor precisa vir monetariamente atualizado, ou seja, corrigido. Isso não impede que você busque indenização por eventuais perdas e danos, se o defeito tiver causado prejuízos comprováveis.\n\nA ordem de serviço da assistência técnica é o documento central aqui, porque comprova que o produto ficou mais de 30 dias sem solução.",
+      "documentos": [
+        "RG com CPF",
+        "Nota fiscal ou comprovante da compra",
+        "Ordem de serviço da assistência técnica com as datas de entrada e retorno",
+        "Comprovantes de pagamento",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "Se você mudar de ideia, ainda pode optar pela substituição do produto ou pelo abatimento do preço.",
+        "Cada caso tem particularidades. É necessário comparecer presencialmente ao PROCON para uma análise detalhada."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 18, § 1º, II", "resumo": "Restituição imediata e atualizada, sem prejuízo de perdas e danos" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_abatimento": {
+      "tipo": "orientacao",
+      "texto": "Você optou pelo abatimento proporcional do preço, ou seja, ficar com o produto e receber de volta parte do valor pago.\n\nEssa alternativa costuma fazer sentido quando o defeito não impede o uso, mas reduz o valor ou a utilidade do produto. O abatimento deve ser proporcional à perda de valor causada pelo defeito.\n\nComo a definição desse percentual costuma gerar divergência com o fornecedor, é útil levar ao PROCON alguma referência do impacto do defeito, como um orçamento de reparo.",
+      "documentos": [
+        "RG com CPF",
+        "Nota fiscal ou comprovante da compra",
+        "Ordem de serviço da assistência técnica com as datas",
+        "Orçamento de reparo ou laudo, se tiver",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "O percentual do abatimento costuma exigir negociação e análise do caso.",
+        "Se você mudar de ideia, ainda pode optar pela substituição ou pela restituição do valor."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 18, § 1º, III", "resumo": "Abatimento proporcional do preço" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    }
+  }
+}

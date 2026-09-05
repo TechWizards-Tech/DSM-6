@@ -1,0 +1,133 @@
+{
+  "id": "direito-arrependimento",
+  "versao": "1.0.0",
+  "titulo": "Quero devolver uma compra da qual me arrependi",
+  "categoria": "contrato",
+  "palavras_chave": ["arrependimento", "7 dias", "devolução", "desistir", "compra online", "frete", "troca"],
+  "resumo": "Desistência de compra dentro de 7 dias, aplicável a contratações feitas fora do estabelecimento comercial.",
+  "fonte": "Dúvidas Frequentes PROCON Jacareí — casos 11 a 14, 23 e 43",
+  "no_inicial": "inicio",
+  "nos": {
+    "inicio": {
+      "tipo": "pergunta",
+      "texto": "O direito de arrependimento depende de onde a compra foi feita.\n\nComo você comprou esse produto?",
+      "opcoes": [
+        { "id": "online", "rotulo": "Internet ou telefone", "proximo": "prazo" },
+        { "id": "loja", "rotulo": "Loja física", "proximo": "orienta_loja_fisica" },
+        { "id": "domicilio", "rotulo": "Vendedor em casa", "proximo": "prazo" }
+      ]
+    },
+    "prazo": {
+      "tipo": "pergunta",
+      "texto": "O prazo é de 7 dias, contados a partir do recebimento do produto.\n\nHá quantos dias você recebeu?",
+      "opcoes": [
+        { "id": "dentro", "rotulo": "Até 7 dias", "proximo": "estado_produto" },
+        { "id": "fora", "rotulo": "Mais de 7 dias", "proximo": "orienta_fora_prazo" }
+      ]
+    },
+    "estado_produto": {
+      "tipo": "pergunta",
+      "texto": "E como está o produto hoje?",
+      "opcoes": [
+        { "id": "lacrado", "rotulo": "Ainda lacrado", "proximo": "orienta_devolucao" },
+        { "id": "testado", "rotulo": "Abri e testei", "proximo": "orienta_testado" },
+        { "id": "usado", "rotulo": "Usado ou danificado", "proximo": "orienta_usado" }
+      ]
+    },
+    "orienta_devolucao": {
+      "tipo": "orientacao",
+      "texto": "Você está dentro do prazo e tem direito de desistir da compra.\n\nTrês pontos importantes: você não precisa justificar o motivo da desistência, basta comunicar à empresa dentro dos 7 dias; a empresa deve devolver o valor total pago, incluindo o frete de envio, com correção monetária e de imediato; e você não deve arcar com nenhum custo de frete ou postagem para devolver o produto.\n\nComunique a desistência por escrito e guarde o protocolo. Se a empresa recusar ou cobrar o frete de devolução, você pode abrir uma reclamação no PROCON.",
+      "documentos": [
+        "RG com CPF",
+        "Comprovante da compra com a data",
+        "Comprovante de recebimento do produto",
+        "Registro do pedido de desistência (e-mail, protocolo ou print)",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "O prazo de 7 dias conta a partir do recebimento do produto ou da assinatura do contrato."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 49", "resumo": "Desistência em 7 dias para contratação fora do estabelecimento" },
+        { "norma": "CDC", "dispositivo": "Art. 49, parágrafo único", "resumo": "Devolução imediata e monetariamente atualizada dos valores pagos" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_testado": {
+      "tipo": "orientacao",
+      "texto": "Ter aberto a embalagem e testado o produto não elimina o seu direito de desistir.\n\nA lógica é simples: em uma loja física você poderia examinar o produto antes de comprar. Na compra a distância, o teste é o equivalente a isso. Você tem o direito de verificar se o produto atende às suas expectativas, agindo como faria na loja.\n\nGuardar a embalagem original é recomendável, mas não é obrigatório para a devolução. O que importa é que o produto não tenha danos por mau uso.\n\nA empresa deve devolver o valor total pago, incluindo o frete de envio, e arcar com o custo da devolução.",
+      "documentos": [
+        "RG com CPF",
+        "Comprovante da compra com a data",
+        "Comprovante de recebimento do produto",
+        "Registro do pedido de desistência (e-mail, protocolo ou print)",
+        "Fotos do produto e da embalagem",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "O produto deve ser devolvido sem danos decorrentes de mau uso.",
+        "A embalagem original é recomendada, mas não obrigatória."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 49" },
+        { "norma": "CDC", "dispositivo": "Art. 49, parágrafo único" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_usado": {
+      "tipo": "orientacao",
+      "texto": "Aqui é preciso separar duas coisas.\n\nSe o produto foi apenas utilizado dentro do razoável para avaliar se atendia às suas expectativas, o direito de arrependimento continua valendo dentro dos 7 dias.\n\nMas se houve dano por mau uso, a empresa pode contestar a devolução ou pedir um abatimento. Esse é um ponto que costuma gerar divergência entre consumidor e fornecedor.\n\nPor isso, seu caso merece uma análise individual. Compareça ao PROCON levando fotos do produto no estado atual, que ajudam a demonstrar a condição em que ele se encontra.",
+      "documentos": [
+        "RG com CPF",
+        "Comprovante da compra com a data",
+        "Comprovante de recebimento do produto",
+        "Fotos detalhadas do produto no estado atual",
+        "Registro do pedido de desistência, se já feito",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "Danos por mau uso podem afastar ou reduzir o direito à devolução integral.",
+        "É necessário comparecer presencialmente ao PROCON para a análise do caso."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 49" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_loja_fisica": {
+      "tipo": "orientacao",
+      "texto": "Preciso ser direto com você: o direito de arrependimento não se aplica a compras feitas presencialmente na loja.\n\nA razão é que na loja física você teve a oportunidade de ver, tocar e avaliar o produto antes de comprar. Por isso, se você se arrependeu por questões pessoais e o produto não tem defeito, a loja não é obrigada a trocar nem a cancelar a compra, mesmo que você tenha voltado no mesmo dia.\n\nTrocar produto sem defeito é uma cortesia comercial, não uma obrigação legal. Cada loja define suas próprias regras, e vale conferir a política do estabelecimento. No caso de presentes, o direito de troca também fica a critério da loja.\n\nSe o produto tiver algum defeito, aí a situação é outra e existe garantia legal.",
+      "documentos": [
+        "RG com CPF",
+        "Comprovante da compra",
+        "Política de trocas da loja, se disponível"
+      ],
+      "ressalvas": [
+        "O arrependimento vale apenas para compras feitas fora do estabelecimento comercial.",
+        "Se o produto apresentar defeito, aplicam-se as regras de garantia, não as de arrependimento."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 49", "resumo": "Arrependimento restrito à contratação fora do estabelecimento comercial" }
+      ],
+      "encaminhamento": "informativo"
+    },
+    "orienta_fora_prazo": {
+      "tipo": "orientacao",
+      "texto": "O prazo de 7 dias para desistir da compra já passou, então o direito de arrependimento não se aplica mais ao seu caso.\n\nIsso não significa que você não tenha alternativas. Se o produto apresentar qualquer defeito ou não corresponder ao que foi anunciado, existe a garantia legal, que é de 30 dias para produtos não duráveis e 90 dias para produtos duráveis, contados da entrega.\n\nSe for esse o caso, o caminho é diferente e vale consultar as orientações sobre garantia.",
+      "documentos": [
+        "RG com CPF",
+        "Comprovante da compra com a data",
+        "Comprovante de recebimento do produto"
+      ],
+      "ressalvas": [
+        "Fora do prazo de 7 dias, a devolução por arrependimento depende da política da loja.",
+        "Se houver defeito, aplicam-se os prazos de garantia legal."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 49" },
+        { "norma": "CDC", "dispositivo": "Art. 26", "resumo": "Prazos de reclamação por vícios: 30 e 90 dias" }
+      ],
+      "encaminhamento": "informativo"
+    }
+  }
+}

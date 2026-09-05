@@ -1,0 +1,121 @@
+{
+  "id": "cobranca-servico-nao-contratado",
+  "versao": "1.0.0",
+  "titulo": "Cobrança de serviço que eu não contratei",
+  "categoria": "cobranca-indevida",
+  "palavras_chave": ["seguro", "cartão", "cobrança", "não contratei", "desconto", "fatura", "assinatura"],
+  "resumo": "Cobrança recorrente de serviço não contratado ou já cancelado, geralmente em fatura de cartão de crédito.",
+  "fonte": "Dúvidas Frequentes PROCON Jacareí — caso 1 (seguro no cartão de crédito)",
+  "no_inicial": "inicio",
+  "nos": {
+    "inicio": {
+      "tipo": "pergunta",
+      "texto": "Vamos entender melhor a cobrança que você não reconhece.\n\nVocê chegou a contratar esse serviço em algum momento?",
+      "opcoes": [
+        { "id": "nunca", "rotulo": "Nunca contratei", "proximo": "tem_faturas" },
+        { "id": "cancelei", "rotulo": "Contratei e cancelei", "proximo": "tem_protocolo" },
+        { "id": "nao_sei", "rotulo": "Não tenho certeza", "proximo": "tem_faturas" }
+      ]
+    },
+    "tem_faturas": {
+      "tipo": "pergunta",
+      "texto": "Você tem em mãos as faturas ou extratos que mostram desde quando essa cobrança começou a aparecer?",
+      "opcoes": [
+        { "id": "sim", "rotulo": "Sim, tenho", "proximo": "orienta_com_faturas" },
+        { "id": "nao", "rotulo": "Não tenho", "proximo": "orienta_sem_faturas" }
+      ]
+    },
+    "tem_protocolo": {
+      "tipo": "pergunta",
+      "texto": "Quando você pediu o cancelamento, a empresa forneceu um número de protocolo?",
+      "opcoes": [
+        { "id": "sim", "rotulo": "Sim, tenho", "proximo": "orienta_pos_cancelamento" },
+        { "id": "nao", "rotulo": "Não tenho", "proximo": "orienta_sem_protocolo" }
+      ]
+    },
+    "orienta_com_faturas": {
+      "tipo": "orientacao",
+      "texto": "Pelo que você descreveu, trata-se de uma cobrança por serviço não contratado.\n\nVocê pode abrir uma reclamação no PROCON pedindo três coisas: o cancelamento imediato da cobrança, a devolução em dobro do que foi descontado indevidamente e o envio do contrato que a empresa alega existir.\n\nComo você já tem as faturas, seu caso está bem documentado. Leve tudo o que separou no dia do atendimento.",
+      "documentos": [
+        "RG com CPF",
+        "Faturas mostrando a cobrança desde o primeiro desconto",
+        "Comprovantes de pagamento",
+        "Mensagens e e-mails trocados com a empresa, se tiver",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "Cada caso tem particularidades. É necessário comparecer presencialmente ao PROCON para uma análise detalhada."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 6º, III", "resumo": "Direito à informação clara sobre produtos e serviços" },
+        { "norma": "CDC", "dispositivo": "Art. 14, caput", "resumo": "Responsabilidade objetiva do fornecedor de serviços" },
+        { "norma": "CDC", "dispositivo": "Art. 39, III", "resumo": "Veda enviar ou fornecer serviço sem solicitação prévia" },
+        { "norma": "CDC", "dispositivo": "Art. 42, parágrafo único", "resumo": "Repetição em dobro do valor cobrado indevidamente" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_sem_faturas": {
+      "tipo": "orientacao",
+      "texto": "Pelo que você descreveu, trata-se de uma cobrança por serviço não contratado.\n\nVocê pode abrir uma reclamação no PROCON pedindo o cancelamento imediato, a devolução em dobro dos valores descontados e o envio do contrato.\n\nAntes do atendimento, tente obter as faturas ou extratos que mostram desde quando a cobrança aparece. Você consegue isso no aplicativo do banco, no site da operadora do cartão ou pedindo à central de atendimento. Isso ajuda muito a comprovar há quanto tempo a cobrança existe e quanto você tem a receber de volta.",
+      "documentos": [
+        "RG com CPF",
+        "Faturas mostrando a cobrança desde o primeiro desconto",
+        "Comprovantes de pagamento",
+        "Mensagens e e-mails trocados com a empresa, se tiver",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "Sem as faturas fica mais difícil calcular o valor a ser devolvido.",
+        "Cada caso tem particularidades. É necessário comparecer presencialmente ao PROCON para uma análise detalhada."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 6º, III" },
+        { "norma": "CDC", "dispositivo": "Art. 14, caput" },
+        { "norma": "CDC", "dispositivo": "Art. 39, III" },
+        { "norma": "CDC", "dispositivo": "Art. 42, parágrafo único" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_pos_cancelamento": {
+      "tipo": "orientacao",
+      "texto": "Se o serviço foi cancelado e a cobrança continuou, os valores descontados depois do cancelamento também são indevidos.\n\nO número de protocolo é a sua principal prova aqui, porque comprova a data em que você pediu o cancelamento. Guarde-o com cuidado.\n\nVocê pode abrir uma reclamação no PROCON pedindo a interrupção imediata das cobranças e a devolução em dobro do que foi descontado após o pedido de cancelamento.",
+      "documentos": [
+        "RG com CPF",
+        "Número de protocolo do pedido de cancelamento",
+        "Faturas mostrando as cobranças posteriores ao cancelamento",
+        "Comprovantes de pagamento",
+        "Mensagens e e-mails trocados com a empresa, se tiver",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "Cada caso tem particularidades. É necessário comparecer presencialmente ao PROCON para uma análise detalhada."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 6º, III" },
+        { "norma": "CDC", "dispositivo": "Art. 39, V", "resumo": "Veda exigir vantagem manifestamente excessiva" },
+        { "norma": "CDC", "dispositivo": "Art. 42, parágrafo único" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_sem_protocolo": {
+      "tipo": "orientacao",
+      "texto": "Sem o número de protocolo fica mais difícil provar a data do seu pedido de cancelamento, mas isso não impede a reclamação.\n\nTente recuperar qualquer registro do contato: e-mail enviado, print de conversa no chat ou aplicativo, mensagem de WhatsApp, extrato de ligações. Qualquer um deles ajuda a comprovar que você pediu o cancelamento.\n\nVocê pode abrir uma reclamação no PROCON pedindo o cancelamento imediato e a devolução em dobro dos valores cobrados indevidamente.",
+      "documentos": [
+        "RG com CPF",
+        "Qualquer registro do pedido de cancelamento (e-mails, prints, mensagens)",
+        "Faturas com a descrição das cobranças",
+        "Comprovantes de pagamento",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "A ausência de protocolo pode dificultar a comprovação da data do pedido.",
+        "Cada caso tem particularidades. É necessário comparecer presencialmente ao PROCON para uma análise detalhada."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 6º, III" },
+        { "norma": "CDC", "dispositivo": "Art. 42, parágrafo único" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    }
+  }
+}

@@ -1,0 +1,124 @@
+{
+  "id": "divergencia-preco",
+  "versao": "1.0.0",
+  "titulo": "Problema com o preço anunciado",
+  "categoria": "oferta",
+  "palavras_chave": ["preço", "prateleira", "caixa", "oferta", "anúncio", "propaganda", "erro de sistema", "estoque"],
+  "resumo": "Divergência entre preço anunciado e cobrado, ou recusa da loja em cumprir a oferta divulgada.",
+  "fonte": "Dúvidas Frequentes PROCON Jacareí — casos 38 a 42",
+  "no_inicial": "inicio",
+  "nos": {
+    "inicio": {
+      "tipo": "pergunta",
+      "texto": "A informação anunciada obriga a empresa e faz parte do contrato.\n\nQual das situações abaixo é a sua?",
+      "opcoes": [
+        { "id": "divergencia", "rotulo": "Preço diferente", "proximo": "orienta_menor_preco" },
+        { "id": "recusa", "rotulo": "Recusam vender", "proximo": "escolha_oferta" },
+        { "id": "erro_sistema", "rotulo": "Alegam erro", "proximo": "orienta_erro_sistema" }
+      ]
+    },
+    "escolha_oferta": {
+      "tipo": "pergunta",
+      "texto": "Quando a loja se recusa a cumprir a oferta anunciada, a lei coloca três alternativas à sua livre escolha.\n\nO que você prefere?",
+      "opcoes": [
+        { "id": "cumprimento", "rotulo": "Exigir cumprimento", "proximo": "orienta_cumprimento" },
+        { "id": "equivalente", "rotulo": "Produto equivalente", "proximo": "orienta_equivalente" },
+        { "id": "cancelar", "rotulo": "Cancelar e reembolso", "proximo": "orienta_rescisao" }
+      ]
+    },
+    "orienta_menor_preco": {
+      "tipo": "orientacao",
+      "texto": "Quando há dois preços diferentes para o mesmo produto, vale o menor. Você tem direito à informação clara e correta, e havendo divergência aplica-se o valor mais vantajoso para o consumidor.\n\nAntes de sair da loja, fotografe a etiqueta ou o cartaz com o preço anunciado. Essa foto é a sua prova.\n\nSe a loja se recusar a cobrar o menor preço, você pode abrir uma reclamação no PROCON.",
+      "documentos": [
+        "RG com CPF",
+        "Foto da etiqueta, cartaz ou anúncio com o preço menor",
+        "Cupom fiscal ou comprovante com o preço cobrado",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "A foto do preço anunciado é o principal elemento de prova.",
+        "Cada caso tem particularidades. É necessário comparecer presencialmente ao PROCON para uma análise detalhada."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 30", "resumo": "A informação ou publicidade obriga o fornecedor e integra o contrato" },
+        { "norma": "CDC", "dispositivo": "Art. 6º, III", "resumo": "Direito à informação adequada e clara" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_cumprimento": {
+      "tipo": "orientacao",
+      "texto": "Você optou por exigir que a loja cumpra a oferta nos termos em que foi anunciada.\n\nA publicidade suficientemente precisa obriga o fornecedor que a veiculou e passa a integrar o contrato. Ou seja, o anúncio não é uma promessa vaga: é compromisso.\n\nGuarde o print ou a foto do anúncio com data visível e registre a recusa da loja, se possível por escrito ou com testemunha.",
+      "documentos": [
+        "RG com CPF",
+        "Print ou foto do anúncio com data",
+        "Registro da recusa da loja",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "Se houver limitação de estoque, ela precisa ter sido informada de forma clara no anúncio. Do contrário, a loja não pode simplesmente alegar que o produto acabou.",
+        "Cada caso tem particularidades. É necessário comparecer presencialmente ao PROCON para uma análise detalhada."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 35, I", "resumo": "Exigir o cumprimento forçado da obrigação" },
+        { "norma": "CDC", "dispositivo": "Art. 30" },
+        { "norma": "CDC", "dispositivo": "Art. 39, II", "resumo": "Veda recusar atendimento na medida das disponibilidades de estoque" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_equivalente": {
+      "tipo": "orientacao",
+      "texto": "Você optou por aceitar outro produto ou serviço equivalente no lugar do que foi anunciado.\n\nEquivalente significa compatível em valor e características. Formalize com a loja qual produto você aceita receber e em que condições, de preferência por escrito.\n\nSe não houver acordo sobre o que é equivalente, você ainda pode mudar de opção e exigir o cumprimento da oferta original ou cancelar com reembolso.",
+      "documentos": [
+        "RG com CPF",
+        "Print ou foto do anúncio com data",
+        "Registro da negociação com a loja",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "A definição do que é equivalente pode gerar divergência e merece análise do caso.",
+        "É necessário comparecer presencialmente ao PROCON para uma análise detalhada."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 35, II", "resumo": "Aceitar outro produto ou prestação de serviço equivalente" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_rescisao": {
+      "tipo": "orientacao",
+      "texto": "Você optou por cancelar a compra e receber o dinheiro de volta.\n\nSe você já tinha pago algum valor antecipadamente, tem direito à restituição corrigida monetariamente, além de eventuais perdas e danos que consiga comprovar.\n\nComunique o cancelamento por escrito e guarde o comprovante do pedido de reembolso.",
+      "documentos": [
+        "RG com CPF",
+        "Print ou foto do anúncio com data",
+        "Comprovantes de pagamento",
+        "Registro do pedido de cancelamento e reembolso",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "Cada caso tem particularidades. É necessário comparecer presencialmente ao PROCON para uma análise detalhada."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 35, III", "resumo": "Rescisão com restituição atualizada e perdas e danos" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_erro_sistema": {
+      "tipo": "orientacao",
+      "texto": "Em regra, não. O risco do negócio é do fornecedor, que responde pelas informações que divulga. Alegar erro de sistema, como regra, não libera a loja de cumprir o que anunciou.\n\nExiste, porém, uma exceção reconhecida pela jurisprudência: o erro grosseiro e evidente. Se o preço for claramente irreal e desproporcional, a ponto de qualquer pessoa perceber de imediato que se trata de engano, a obrigação de cumprir pode ser afastada.\n\nComo a linha entre um preço promocional agressivo e um erro grosseiro depende do caso concreto, o mais indicado é levar a evidência do anúncio ao PROCON para análise.",
+      "documentos": [
+        "RG com CPF",
+        "Print ou foto do anúncio com data e valor",
+        "Confirmação do pedido, se houver",
+        "Registro da justificativa dada pela loja",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "A caracterização do erro grosseiro depende de análise do caso concreto.",
+        "É necessário comparecer presencialmente ao PROCON para a análise do caso."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 30", "resumo": "A informação veiculada obriga o fornecedor" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    }
+  }
+}
