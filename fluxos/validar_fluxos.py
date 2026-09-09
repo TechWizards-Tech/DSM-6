@@ -223,12 +223,21 @@ def main():
     base = args.dir
     dir_fluxos = os.path.join(base, "fluxos")
     if not os.path.isdir(dir_fluxos):
-        print(f"ERRO: diretorio nao encontrado: {dir_fluxos}", file=sys.stderr)
-        return 1
+        # Layout achatado: menu.json e os fluxos no mesmo diretorio do script.
+        # E como o repositorio esta hoje na branch Dev.
+        aqui = os.path.dirname(os.path.abspath(__file__))
+        if os.path.isfile(os.path.join(aqui, "menu.json")):
+            base = dir_fluxos = aqui
+        else:
+            print(f"ERRO: diretorio nao encontrado: {dir_fluxos}", file=sys.stderr)
+            return 1
 
     rel = Relatorio()
     ids = set()
-    arquivos = sorted(f for f in os.listdir(dir_fluxos) if f.endswith(".json"))
+    ignorar = {"menu.json", "fluxo.schema.json"}
+    arquivos = sorted(
+        f for f in os.listdir(dir_fluxos) if f.endswith(".json") and f not in ignorar
+    )
 
     total_nos = 0
     total_orientacoes = 0
