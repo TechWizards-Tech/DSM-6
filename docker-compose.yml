@@ -1,0 +1,35 @@
+# RNF06: o sistema deve rodar em Docker.
+#
+#   docker compose up --build
+#   frontend -> http://localhost:8080
+#   backend  -> http://localhost:3333/api/saude
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      PORT: 3333
+      FLUXOS_DIR: /app/fluxos
+      CORS_ORIGINS: http://localhost:8080
+      # Registro das interacoes (RF06) fora da imagem, para sobreviver ao restart.
+      REGISTRO_JSONL: /app/dados/interacoes.jsonl
+    volumes:
+      - registro:/app/dados
+    ports:
+      - "3333:3333"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+volumes:
+  registro:
