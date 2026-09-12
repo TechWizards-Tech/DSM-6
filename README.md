@@ -35,7 +35,7 @@ GitHub Projects: Acompanhe o roadmap, tarefas em andamento e o progresso do dese
 
 | Sprint | Início | Entrega | Status |
 |--------|--------|---------|--------|
-| Sprint 01 | 10/08/2026 | 14/09/2026 | 🔄 |
+| Sprint 01 | 10/08/2026 | 14/09/2026 | ✅ |
 | Sprint 02 | 15/09/2026 | 19/10/2026 | ⏳ |
 | Sprint 03 | 20/10/2026 | 23/11/2026 | ⏳ |
 
@@ -107,6 +107,8 @@ GitHub Projects: Acompanhe o roadmap, tarefas em andamento e o progresso do dese
 
 Na Sprint 1, o foco será estabelecer a estrutura inicial do sistema e desenvolver
 o funcionamento básico do chatbot.
+
+![Burndown Sprint 1](./burndown%20sprint1.png)
 
 ### Atividades
 
