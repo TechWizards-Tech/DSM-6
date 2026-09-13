@@ -19,16 +19,21 @@ import {
   RepositorioInteracoesMemoria,
   type RepositorioInteracoes,
 } from './modules/registro/index.js';
+import { RepositorioInteracoesPostgres } from './modules/registro/postgres.js';
 import { criarRotas } from './http/rotas.js';
 import {
   RepositorioAgendamentosMemoria,
   type RepositorioAgendamentos,
 } from './modules/agendamento/index.js';
+import { RepositorioAgendamentosPostgres } from './modules/agendamento/postgres.js';
+import { criarPool } from './db/pool.js';
 
 export interface OpcoesAplicacao {
   diretorioFluxos: string;
   origensPermitidas?: string[];
   arquivoRegistro?: string;
+  /** Connection string do Postgres. Sem ela, usa-se os repositorios em memoria. */
+  databaseUrl?: string;
   sessoes?: RepositorioSessoes;
   interacoes?: RepositorioInteracoes;
   agendamentos?: RepositorioAgendamentos;
@@ -47,11 +52,18 @@ export interface Aplicacao {
 export function criarAplicacao(opcoes: OpcoesAplicacao): Aplicacao {
   const fluxos = new RepositorioFluxos(carregarCatalogo(opcoes.diretorioFluxos));
   const sessoes = opcoes.sessoes ?? new RepositorioSessoesMemoria();
+  // Com DATABASE_URL definida, interacoes (RF06) e agendamentos (RF07) passam
+  // a persistir no Postgres; sem ela, cai para memoria (ex.: testes).
+  const pool = opcoes.databaseUrl ? criarPool(opcoes.databaseUrl) : undefined;
   const interacoes =
-    opcoes.interacoes ?? new RepositorioInteracoesMemoria(opcoes.arquivoRegistro || undefined);
+    opcoes.interacoes ??
+    (pool
+      ? new RepositorioInteracoesPostgres(pool)
+      : new RepositorioInteracoesMemoria(opcoes.arquivoRegistro || undefined));
   // RP05: nenhuma API externa de LLM. Ver `modules/llm`.
   const llm = opcoes.llm ?? new ProvedorLlmDesativado();
-  const agendamentos = opcoes.agendamentos ?? new RepositorioAgendamentosMemoria();
+  const agendamentos =
+    opcoes.agendamentos ?? (pool ? new RepositorioAgendamentosPostgres(pool) : new RepositorioAgendamentosMemoria());
 
   const motor = new MotorConversa(fluxos, sessoes, interacoes, llm);
 

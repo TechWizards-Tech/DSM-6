@@ -5,16 +5,39 @@
 #   backend  -> http://localhost:3333/api/saude
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: procon_chatbot
+      POSTGRES_USER: procon
+      POSTGRES_PASSWORD: procon
+    volumes:
+      - postgres_dados:/var/lib/postgresql/data
+      # Aplicado automaticamente pela imagem oficial na primeira subida do volume.
+      - ./backend/db/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U procon -d procon_chatbot"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   backend:
     build:
       context: .
       dockerfile: backend/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
       PORT: 3333
       FLUXOS_DIR: /app/fluxos
       CORS_ORIGINS: http://localhost:8080
       # Registro das interacoes (RF06) fora da imagem, para sobreviver ao restart.
       REGISTRO_JSONL: /app/dados/interacoes.jsonl
+      DATABASE_URL: postgresql://procon:procon@postgres:5432/procon_chatbot
     volumes:
       - registro:/app/dados
     ports:
@@ -33,3 +56,4 @@ services:
 
 volumes:
   registro:
+  postgres_dados:

@@ -7,6 +7,7 @@ try {
     diretorioFluxos: config.diretorioFluxos,
     origensPermitidas: config.origensPermitidas,
     arquivoRegistro: config.arquivoRegistro,
+    databaseUrl: config.databaseUrl,
   });
 
   app.listen(config.porta, () => {

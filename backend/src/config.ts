@@ -33,4 +33,10 @@ export const config = {
   arquivoRegistro:
     process.env.REGISTRO_JSONL ?? resolve(process.cwd(), 'dados/interacoes.jsonl'),
   origensPermitidas: (process.env.CORS_ORIGINS ?? 'http://localhost:5173').split(','),
+  /**
+   * Connection string do Postgres (ex.: postgresql://user:senha@host:5432/db).
+   * Se nao definida, os repositorios de interacoes e agendamentos caem para
+   * as implementacoes em memoria (uteis em testes e na Sprint 1).
+   */
+  databaseUrl: process.env.DATABASE_URL,
 };
