@@ -7,7 +7,7 @@ interface Props {
 }
 
 export const JanelaAgendamento: React.FC<Props> = ({ usuario, aoFechar }) => {
-  const hoje = new Date().toISOString().split('T')[0];
+  const hoje = new Date().toISOString().slice(0, 10);
   const [data, setData] = useState(hoje);
   const [horarios, setHorarios] = useState<HorarioSlot[]>([]);
   const [horarioSelecionado, setHorarioSelecionado] = useState('');
