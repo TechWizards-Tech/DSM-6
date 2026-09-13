@@ -5,3 +5,4 @@ backend/dados/
 .env.local
 *.log
 .DS_Store
+.ANALISE_E_PROXIMOS_PASSOS.md
