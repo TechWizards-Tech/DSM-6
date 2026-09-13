@@ -20,6 +20,10 @@ import {
   type RepositorioInteracoes,
 } from './modules/registro/index.js';
 import { criarRotas } from './http/rotas.js';
+import {
+  RepositorioAgendamentosMemoria,
+  type RepositorioAgendamentos,
+} from './modules/agendamento/index.js';
 
 export interface OpcoesAplicacao {
   diretorioFluxos: string;
@@ -27,6 +31,7 @@ export interface OpcoesAplicacao {
   arquivoRegistro?: string;
   sessoes?: RepositorioSessoes;
   interacoes?: RepositorioInteracoes;
+  agendamentos?: RepositorioAgendamentos;
   llm?: ProvedorLlm;
 }
 
@@ -36,6 +41,7 @@ export interface Aplicacao {
   fluxos: RepositorioFluxos;
   sessoes: RepositorioSessoes;
   interacoes: RepositorioInteracoes;
+  agendamentos: RepositorioAgendamentos;
 }
 
 export function criarAplicacao(opcoes: OpcoesAplicacao): Aplicacao {
@@ -45,13 +51,14 @@ export function criarAplicacao(opcoes: OpcoesAplicacao): Aplicacao {
     opcoes.interacoes ?? new RepositorioInteracoesMemoria(opcoes.arquivoRegistro || undefined);
   // RP05: nenhuma API externa de LLM. Ver `modules/llm`.
   const llm = opcoes.llm ?? new ProvedorLlmDesativado();
+  const agendamentos = opcoes.agendamentos ?? new RepositorioAgendamentosMemoria();
 
   const motor = new MotorConversa(fluxos, sessoes, interacoes, llm);
 
   const app = express();
   app.use(cors({ origin: opcoes.origensPermitidas ?? true }));
   app.use(express.json());
-  app.use('/api', criarRotas({ motor, fluxos, sessoes, interacoes }));
+   app.use('/api', criarRotas({ motor, fluxos, sessoes, interacoes, agendamentos }));
 
   app.use((_req, res) => res.status(404).json({ erro: 'Rota nao encontrada.' }));
 
@@ -60,5 +67,5 @@ export function criarAplicacao(opcoes: OpcoesAplicacao): Aplicacao {
     res.status(500).json({ erro: 'Erro interno no servidor.' });
   });
 
-  return { app, motor, fluxos, sessoes, interacoes };
+  return { app, motor, fluxos, sessoes, interacoes, agendamentos };
 }
