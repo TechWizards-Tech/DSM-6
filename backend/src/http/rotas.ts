@@ -12,15 +12,17 @@ import type { RepositorioSessoes } from '../modules/chatbot/sessao.js';
 import type { RepositorioFluxos } from '../modules/fluxos/repositorio.js';
 import { calcularEstatisticas, type RepositorioInteracoes } from '../modules/registro/index.js';
 import { mensagemParaDTO, sessaoParaDTO, type TurnoDTO } from './dto.js';
+import type { RepositorioAgendamentos } from '../modules/agendamento/index.js';
 
 interface Dependencias {
   motor: MotorConversa;
   fluxos: RepositorioFluxos;
   sessoes: RepositorioSessoes;
   interacoes: RepositorioInteracoes;
+  agendamentos: RepositorioAgendamentos;
 }
 
-export function criarRotas({ motor, fluxos, sessoes, interacoes }: Dependencias): Router {
+export function criarRotas({ motor, fluxos, sessoes, interacoes, agendamentos }: Dependencias): Router {
   const rotas = Router();
 
   rotas.get('/saude', (_req, res) => {
@@ -138,6 +140,56 @@ export function criarRotas({ motor, fluxos, sessoes, interacoes }: Dependencias)
       next(erro);
     }
   });
+
+  // RF07 / US04: Agendamento de atendimento presencial
+  rotas.get('/agendamentos/horarios', async (req, res, next) => {
+    try {
+      const data = String(req.query.data ?? '').trim();
+      if (!data) {
+        return res.status(400).json({ erro: 'Informe a data no formato YYYY-MM-DD.' });
+      }
+      const horarios = await agendamentos.listarHorarios(data);
+      res.json({ data, horarios })
+    } catch (erro) {
+      next(erro)
+    }
+  });
+
+  rotas.get('/agendamentos', async (req, res, next) => {
+    try {
+      const { usuario, nome, cpf, data, horario, assunto } = req.body ?? {};
+
+      if (!usuario || !nome || !cpf || !data || !horario || !assunto) {
+        return res.status(400).json({
+          erro: 'Preencha todos os campos: usuario, nome, cpf, data, horario, assunto.',
+        });
+      }
+
+      const novoAgendamento = await agendamentos.criar({
+        usuario: String(usuario).trim(),
+        nome: String(nome).trim(),
+        cpf: String(cpf).trim(),
+        data: String(data).trim(),
+        horario: String(horario).trim(),
+        assunto: String(assunto).trim(),
+      });
+      res.status(201).json(novoAgendamento);
+    } catch (erro: any) {
+      if (erro.message?.includes('já está ocupado')) {
+        return res.status(409).json({ erro: erro.message });
+      }
+      next(erro);
+    }
+  });
+
+  rotas.get('/agendamentos', async (_req, res, next) => {
+    try {
+      const lista = await agendamentos.listar();
+      res.json({ agendamentos: lista })
+    } catch (erro) {
+      next(erro)
+    }
+  })
 
   return rotas;
 }
