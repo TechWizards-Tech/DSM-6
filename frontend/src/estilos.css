@@ -12,74 +12,40 @@
 :root {
   color-scheme: light;
 
-  --texto: #12201c;
-  --texto-2: #556762;
-  --texto-3: #849791;
+  --texto: #0f172a;
+  --texto-2: #475569;
+  --texto-3: #94a3b8;
 
-  --fundo: #e9edec;
+  --fundo: #ffffff;
   --superficie: #ffffff;
-  --conversa: #f5f8f7;
+  --conversa: #f8fafc;
   --bolha-bot: #ffffff;
-  --borda: #e3e8e6;
-  --borda-2: #d2dad7;
+  --borda: #e2e8f0;
+  --borda-2: #cbd5e1;
 
-  --marca: #0d7a5f;
-  --marca-forte: #0a6149;
-  --marca-tenue: #e7f4ef;
+  --marca: #0284c7;
+  --marca-forte: #0369a1;
+  --marca-tenue: #e0f2fe;
 
-  --cidadao: #d7f0e4;
-  --cidadao-texto: #0c3a2b;
+  --cidadao: #dbeafe;
+  --cidadao-texto: #1e3a8a;
 
-  --alerta: #8a5a12;
-  --alerta-fundo: #fdf5e7;
-  --alerta-borda: #e8c98d;
+  --alerta: #b45309;
+  --alerta-fundo: #fffbeb;
+  --alerta-borda: #fde68a;
 
-  --ia: #5a3fa6;
-  --ia-fundo: #eee9fc;
+  --ia: #6366f1;
+  --ia-fundo: #eef2ff;
 
   --raio: 18px;
   --raio-bolha: 16px;
   --raio-campo: 12px;
 
-  --sombra-cartao: 0 1px 3px rgb(18 32 28 / 5%), 0 12px 40px rgb(18 32 28 / 7%);
-  --sombra-bolha: 0 1px 2px rgb(18 32 28 / 6%);
+  --sombra-cartao: 0 24px 48px -12px rgb(15 23 42 / 20%), 0 10px 24px -8px rgb(2 132 199 / 15%), 0 0 0 1px rgb(226 232 240 / 80%);
+  --sombra-bolha: 0 1px 2px rgb(15 23 42 / 6%);
 
   --fonte: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial,
     sans-serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-
-    --texto: #e8efec;
-    --texto-2: #a2b4ae;
-    --texto-3: #74867f;
-
-    --fundo: #090d0c;
-    --superficie: #141a19;
-    --conversa: #0f1514;
-    --bolha-bot: #1c2422;
-    --borda: #242f2c;
-    --borda-2: #33403c;
-
-    --marca: #45c79b;
-    --marca-forte: #62d6b0;
-    --marca-tenue: #14302a;
-
-    --cidadao: #1e4034;
-    --cidadao-texto: #d5f2e5;
-
-    --alerta: #e8bf7d;
-    --alerta-fundo: #2b2317;
-    --alerta-borda: #4a3c22;
-
-    --ia: #bda9f5;
-    --ia-fundo: #231d38;
-
-    --sombra-cartao: 0 1px 3px rgb(0 0 0 / 40%), 0 16px 48px rgb(0 0 0 / 32%);
-    --sombra-bolha: 0 1px 2px rgb(0 0 0 / 24%);
-  }
 }
 
 * {
@@ -257,11 +223,6 @@ button {
   color: var(--texto);
 }
 
-@media (prefers-color-scheme: dark) {
-  .botao--primario {
-    color: #06231b;
-  }
-}
 
 /* --------------------------------------------------------------------- chat */
 
@@ -318,11 +279,6 @@ button {
   letter-spacing: 0.03em;
 }
 
-@media (prefers-color-scheme: dark) {
-  .chat__avatar {
-    color: #06231b;
-  }
-}
 
 .chat__info {
   min-width: 0;
@@ -531,11 +487,6 @@ button {
   color: #fff;
 }
 
-@media (prefers-color-scheme: dark) {
-  .etiqueta--encaminhamento {
-    color: #06231b;
-  }
-}
 
 /* RNF05: o selo de IA precisa ser inconfundivel. */
 .etiqueta--llm {
@@ -773,11 +724,6 @@ button {
   opacity: 0.4;
 }
 
-@media (prefers-color-scheme: dark) {
-  .composicao__enviar {
-    color: #06231b;
-  }
-}
 
 .chat__dica {
   color: var(--texto-3);
