@@ -1,0 +1,136 @@
+{
+  "id": "dificuldade-cancelamento",
+  "versao": "1.0.0",
+  "titulo": "Dificuldade para cancelar um serviço",
+  "categoria": "servico",
+  "palavras_chave": ["cancelar", "rescisão", "fidelidade", "multa", "plano", "telefone", "internet", "academia", "assinatura"],
+  "resumo": "Empresa dificulta ou recusa o cancelamento de serviço contratado, com ou sem cobrança de multa por fidelidade.",
+  "fonte": "Dúvidas Frequentes PROCON Jacareí — casos 5, 9 e 10",
+  "no_inicial": "inicio",
+  "nos": {
+    "inicio": {
+      "tipo": "pergunta",
+      "texto": "Vamos ver como resolver esse cancelamento.\n\nVocê já solicitou o cancelamento diretamente à empresa?",
+      "opcoes": [
+        { "id": "sim", "rotulo": "Sim, já pedi", "proximo": "tem_multa" },
+        { "id": "nao", "rotulo": "Ainda não pedi", "proximo": "orienta_solicitar" }
+      ]
+    },
+    "tem_multa": {
+      "tipo": "pergunta",
+      "texto": "A empresa está cobrando alguma multa ou alegando cláusula de fidelidade para não cancelar?",
+      "opcoes": [
+        { "id": "multa", "rotulo": "Sim, cobra multa", "proximo": "motivo_cancelamento" },
+        { "id": "so_nao_cancela", "rotulo": "Não, só não cancela", "proximo": "orienta_recusa" },
+        { "id": "nao_sei", "rotulo": "Não sei dizer", "proximo": "orienta_recusa" }
+      ]
+    },
+    "motivo_cancelamento": {
+      "tipo": "pergunta",
+      "texto": "O motivo do cancelamento faz diferença no valor da multa.\n\nO que levou você a querer cancelar?",
+      "opcoes": [
+        { "id": "falha_empresa", "rotulo": "Falha da empresa", "proximo": "orienta_multa_indevida" },
+        { "id": "decisao_minha", "rotulo": "Decisão minha", "proximo": "orienta_multa_proporcional" },
+        { "id": "recem_contratado", "rotulo": "Contratei há 7 dias", "proximo": "orienta_arrependimento" }
+      ]
+    },
+    "orienta_solicitar": {
+      "tipo": "orientacao",
+      "texto": "Antes de abrir uma reclamação, o primeiro passo é registrar o pedido de cancelamento junto à empresa e guardar a prova disso.\n\nSolicite o cancelamento pelo canal oficial da empresa (central telefônica, aplicativo ou site) e anote o número de protocolo. Se possível, faça o pedido também por escrito, por e-mail ou chat, e salve a conversa.\n\nEsse protocolo é o que comprova a data em que você pediu o cancelamento. Sem ele, a empresa pode alegar que nunca recebeu o pedido. Se o cancelamento não for efetivado depois disso, volte ao PROCON com o protocolo em mãos.",
+      "documentos": [
+        "RG com CPF",
+        "Contrato do serviço",
+        "Número de protocolo do pedido de cancelamento",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "Guardar o protocolo é essencial para comprovar a data do pedido."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 6º, III", "resumo": "Direito à informação adequada e clara" }
+      ],
+      "encaminhamento": "informativo"
+    },
+    "orienta_recusa": {
+      "tipo": "orientacao",
+      "texto": "A empresa não pode criar obstáculos para o cancelamento de um serviço que você contratou. O cancelamento deve ser tão fácil quanto foi a contratação.\n\nVocê pode abrir uma reclamação no PROCON pedindo o cancelamento imediato do serviço, sem entraves, e a suspensão das cobranças a partir da data em que você fez o pedido.",
+      "documentos": [
+        "RG com CPF",
+        "Contrato do serviço",
+        "Comprovantes de pagamento",
+        "Número de protocolo do pedido de cancelamento",
+        "Mensagens e e-mails trocados com a empresa, se tiver",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "A empresa pode cobrar multa por quebra de contrato ou fidelidade, a depender do contrato.",
+        "Cada caso tem particularidades. É necessário comparecer presencialmente ao PROCON para uma análise detalhada."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 6º, III" },
+        { "norma": "CDC", "dispositivo": "Art. 39, V", "resumo": "Veda exigir vantagem manifestamente excessiva" },
+        { "norma": "CDC", "dispositivo": "Art. 51", "resumo": "Nulidade de cláusulas abusivas" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_multa_indevida": {
+      "tipo": "orientacao",
+      "texto": "Quando o cancelamento acontece porque a empresa falhou na prestação do serviço, a cobrança de multa por fidelidade é indevida. A multa existe para compensar a saída antecipada por escolha do consumidor, e não para punir quem cancelou por culpa da própria empresa.\n\nVocê pode abrir uma reclamação no PROCON pedindo o cancelamento sem multa e a devolução de valores já cobrados a esse título.\n\nReúna evidências da falha: registros de reclamação, protocolos de atendimento técnico, prints de indisponibilidade, testes de velocidade.",
+      "documentos": [
+        "RG com CPF",
+        "Contrato do serviço",
+        "Protocolos das reclamações sobre a falha do serviço",
+        "Comprovantes de pagamento",
+        "Mensagens, e-mails e prints que comprovem o problema",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "É preciso conseguir demonstrar a falha da empresa.",
+        "Cada caso tem particularidades. É necessário comparecer presencialmente ao PROCON para uma análise detalhada."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 51" },
+        { "norma": "Resolução Anatel 632/2014", "dispositivo": "Art. 57", "resumo": "Multa é ilegal quando a rescisão decorre de falha da operadora" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_multa_proporcional": {
+      "tipo": "orientacao",
+      "texto": "Cláusula de fidelidade é permitida. Ela é comum em telefonia, internet, academias e assinaturas, e serve para justificar um benefício que você recebeu na contratação, como desconto na mensalidade ou um aparelho.\n\nDuas regras importantes: para pessoa física o prazo máximo de fidelidade é de 12 meses; e a multa por cancelamento antecipado precisa ser proporcional ao tempo que falta para o fim do período, não pode ser o valor cheio.\n\nSe a cobrança for desproporcional ou o prazo passar de 12 meses, você pode contestar. Multas geralmente consideradas abusivas ultrapassam 10% do valor restante do contrato.",
+      "documentos": [
+        "RG com CPF",
+        "Contrato do serviço com a cláusula de fidelidade",
+        "Comprovantes de pagamento",
+        "Cálculo ou demonstrativo da multa cobrada pela empresa",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "A multa proporcional é legítima quando houve benefício na contratação.",
+        "A análise da proporcionalidade depende dos valores do contrato. É necessário comparecer ao PROCON."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 51" },
+        { "norma": "Resolução Anatel 632/2014", "dispositivo": "Art. 57", "resumo": "Fidelidade de até 12 meses e multa proporcional ao tempo restante" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_arrependimento": {
+      "tipo": "orientacao",
+      "texto": "Se você contratou o serviço fora da loja física, por telefone, internet ou com vendedor em casa, e ainda está dentro dos 7 dias, existe um caminho mais simples: o direito de arrependimento.\n\nNesse prazo você pode desistir do contrato sem precisar justificar o motivo e sem multa. Os valores já pagos devem ser devolvidos de imediato e corrigidos.\n\nComunique a desistência à empresa por escrito, ainda dentro dos 7 dias, e guarde o protocolo. Se a empresa recusar, você pode abrir reclamação no PROCON.",
+      "documentos": [
+        "RG com CPF",
+        "Contrato ou comprovante da contratação com a data",
+        "Comprovante do pedido de desistência (e-mail, protocolo, print)",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "O direito de arrependimento vale apenas para contratações feitas fora do estabelecimento comercial.",
+        "O prazo de 7 dias conta da assinatura do contrato ou do recebimento do serviço."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 49", "resumo": "Direito de arrependimento em 7 dias para contratação fora do estabelecimento" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    }
+  }
+}

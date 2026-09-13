@@ -1,0 +1,90 @@
+{
+  "versao": "1.0.0",
+  "atualizado_em": "2026-09-01",
+  "fonte": "Dúvidas Frequentes PROCON Jacareí-SP",
+  "textos_globais": {
+    "saudacao": "Olá! Sou o assistente virtual do PROCON de Jacareí.\n\nPosso te ajudar a entender seus direitos como consumidor e indicar os próximos passos para o seu caso.",
+    "aviso_orientativo": "Importante: esta é uma orientação inicial e não substitui o atendimento jurídico ou administrativo formal do PROCON.",
+    "aviso_llm": "Parte desta explicação foi gerada com apoio de um modelo de linguagem, a partir das informações fornecidas pelo PROCON.",
+    "texto_menu": "Escolha abaixo o assunto mais parecido com a sua situação:",
+    "opcao_invalida": "Não entendi essa opção. Escolha uma das alternativas apresentadas, ou digite MENU para voltar ao início.",
+    "encerramento": "Espero ter ajudado. Se precisar, é só chamar novamente."
+  },
+  "comandos_globais": {
+    "menu": ["menu", "início", "inicio", "voltar ao início", "0"],
+    "voltar": ["voltar", "anterior"],
+    "atendente": ["atendente", "agendar", "atendimento presencial"],
+    "encerrar": ["sair", "encerrar", "tchau"]
+  },
+  "encaminhamentos": {
+    "agendamento_presencial": {
+      "rotulo": "Agendar atendimento presencial",
+      "texto": "Seu caso tem particularidades que precisam ser avaliadas por um atendente. Posso agendar um atendimento presencial no PROCON de Jacareí.\n\nLeve os documentos listados acima."
+    },
+    "procon_online": {
+      "rotulo": "Registrar no PROCON online",
+      "texto": "Você pode registrar sua reclamação pelo PROCON online, sem precisar comparecer ao posto de atendimento."
+    },
+    "informativo": {
+      "rotulo": "Apenas orientação",
+      "texto": "Se ainda restar alguma dúvida, posso agendar um atendimento presencial para você."
+    },
+    "fora_de_competencia": {
+      "rotulo": "Fora da competência do PROCON",
+      "texto": "Como este assunto não é atendido pelo PROCON, não é possível abrir uma reclamação aqui. Procure a orientação indicada acima."
+    }
+  },
+  "itens": [
+    {
+      "fluxo": "cobranca-servico-nao-contratado",
+      "rotulo": "Cobrança indevida",
+      "descricao": "Cobram um serviço que não contratei ou já cancelei"
+    },
+    {
+      "fluxo": "descontos-folha-beneficio",
+      "rotulo": "Desconto na folha/INSS",
+      "descricao": "Descontos de empréstimo, consignado, RMC ou RCC"
+    },
+    {
+      "fluxo": "dificuldade-cancelamento",
+      "rotulo": "Não consigo cancelar",
+      "descricao": "Empresa dificulta o cancelamento ou cobra multa"
+    },
+    {
+      "fluxo": "garantia-produto",
+      "rotulo": "Produto com defeito",
+      "descricao": "Garantia, conserto, troca ou devolução do valor"
+    },
+    {
+      "fluxo": "atraso-entrega",
+      "rotulo": "Produto não chegou",
+      "descricao": "O prazo de entrega prometido não foi cumprido"
+    },
+    {
+      "fluxo": "direito-arrependimento",
+      "rotulo": "Quero desistir",
+      "descricao": "Devolver uma compra feita pela internet ou telefone"
+    },
+    {
+      "fluxo": "divergencia-preco",
+      "rotulo": "Problema com preço",
+      "descricao": "Preço diferente do anunciado ou recusa em vender"
+    },
+    {
+      "fluxo": "recusa-entrega-documentos",
+      "rotulo": "Não mandam documento",
+      "descricao": "Empresa não entrega contrato ou nota fiscal"
+    },
+    {
+      "fluxo": "atendimento-procon",
+      "rotulo": "Como funciona",
+      "descricao": "Documentos, prazos e o que o PROCON atende"
+    }
+  ],
+  "opcao_outro": {
+    "rotulo": "Outro assunto",
+    "descricao": "Meu caso não está na lista",
+    "texto": "Seu caso não está entre os assuntos que consigo orientar por aqui. Posso agendar um atendimento presencial no PROCON de Jacareí para que um atendente analise a sua situação.",
+    "encaminhamento": "agendamento_presencial"
+  }
+}

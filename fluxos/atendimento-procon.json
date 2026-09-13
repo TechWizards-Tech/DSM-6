@@ -1,0 +1,101 @@
+{
+  "id": "atendimento-procon",
+  "versao": "1.0.0",
+  "titulo": "Como funciona o atendimento do PROCON",
+  "categoria": "institucional",
+  "palavras_chave": ["documentos", "prazo", "reclamação", "CIP", "audiência", "procon online", "duplicidade", "competência"],
+  "resumo": "Informações sobre abertura de reclamação, documentos exigidos, prazos de resposta e limites de atuação do PROCON.",
+  "fonte": "Dúvidas Frequentes PROCON Jacareí — casos 7, 8, 26, 27 e 47",
+  "no_inicial": "inicio",
+  "nos": {
+    "inicio": {
+      "tipo": "pergunta",
+      "texto": "Posso explicar como funciona o atendimento aqui.\n\nSobre o que você quer saber?",
+      "opcoes": [
+        { "id": "como_abrir", "rotulo": "Como reclamar", "proximo": "ja_registrou" },
+        { "id": "prazos", "rotulo": "Prazos e andamento", "proximo": "orienta_prazo" },
+        { "id": "competencia", "rotulo": "Meu caso se aplica?", "proximo": "tipo_problema" }
+      ]
+    },
+    "ja_registrou": {
+      "tipo": "pergunta",
+      "texto": "Antes de tudo, uma verificação importante.\n\nVocê já registrou uma reclamação sobre esse mesmo assunto no PROCON online?",
+      "opcoes": [
+        { "id": "sim", "rotulo": "Sim, já registrei", "proximo": "orienta_duplicidade" },
+        { "id": "nao", "rotulo": "Não registrei", "proximo": "orienta_documentos" }
+      ]
+    },
+    "tipo_problema": {
+      "tipo": "pergunta",
+      "texto": "Nem todo tipo de conflito é atendido pelo PROCON.\n\nSeu problema é sobre o quê?",
+      "opcoes": [
+        { "id": "imovel", "rotulo": "Aluguel ou imóvel", "proximo": "orienta_imobiliario" },
+        { "id": "plataforma", "rotulo": "Compra em site", "proximo": "orienta_plataforma" },
+        { "id": "outro", "rotulo": "Outro consumo", "proximo": "orienta_documentos" }
+      ]
+    },
+    "orienta_documentos": {
+      "tipo": "orientacao",
+      "texto": "Cada caso exige uma análise própria, mas três documentos são sempre essenciais para abrir uma reclamação: o seu documento pessoal, o CNPJ da matriz do fornecedor e os comprovantes do problema.\n\nO CNPJ da matriz costuma ser o item que mais gera dúvida. Você o encontra na nota fiscal, no contrato ou no rodapé do site da empresa.\n\nDependendo da situação, outros documentos podem ser solicitados. Por isso é essencial comparecer à sede do PROCON, onde um atendente fará a análise detalhada do seu caso.",
+      "documentos": [
+        "Documento pessoal do consumidor (RG com CPF)",
+        "CNPJ da matriz do fornecedor",
+        "Comprovantes do problema (contratos, faturas, protocolos, mensagens, fotos)"
+      ],
+      "ressalvas": [
+        "Podem ser solicitados documentos adicionais conforme o caso.",
+        "É essencial o comparecimento à sede do PROCON para a análise detalhada."
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_prazo": {
+      "tipo": "orientacao",
+      "texto": "Funciona assim: depois que a reclamação é aberta, chamada de CIP, o fornecedor tem até 10 dias corridos para apresentar a resposta no sistema.\n\nSe a empresa não responder, ou se a resposta não resolver o seu problema, o PROCON agenda uma audiência de conciliação entre você e o fornecedor.\n\nFique atento aos contatos do PROCON durante esse período e guarde o número da sua reclamação.",
+      "ressalvas": [
+        "O prazo de 10 dias corridos conta a partir da abertura da CIP."
+      ],
+      "encaminhamento": "informativo"
+    },
+    "orienta_duplicidade": {
+      "tipo": "orientacao",
+      "texto": "Nesse caso não é possível abrir uma nova reclamação no posto de atendimento, porque não podemos registrar reclamações em duplicidade sobre o mesmo assunto.\n\nO que fazer: acompanhe o andamento da reclamação que já existe pelo próprio PROCON online, usando o número de protocolo que você recebeu.\n\nSe o processo já foi encerrado sem solução, ou se surgiu um fato novo diferente do que foi reclamado, compareça ao PROCON com o número da reclamação anterior para que a situação seja avaliada.",
+      "documentos": [
+        "Número de protocolo da reclamação já registrada",
+        "Documento pessoal do consumidor (RG com CPF)"
+      ],
+      "ressalvas": [
+        "Não é possível abrir reclamação em duplicidade sobre o mesmo assunto."
+      ],
+      "encaminhamento": "informativo"
+    },
+    "orienta_plataforma": {
+      "tipo": "orientacao",
+      "texto": "Sim, vale acionar os dois. Quando você compra através de uma loja hospedada em uma plataforma online, o ideal é registrar a reclamação tanto com a loja vendedora quanto com a plataforma.\n\nA razão é que o fornecedor responde objetivamente pelo serviço ou produto, e isso alcança a loja e, em muitos casos, também a plataforma que intermediou a venda, especialmente quando ela facilita ou garante a transação.\n\nGuarde os protocolos dos dois atendimentos. Ambos servem como prova.",
+      "documentos": [
+        "RG com CPF",
+        "Comprovante da compra e do pagamento",
+        "Protocolos de atendimento da loja e da plataforma",
+        "CNPJ da matriz da loja e da plataforma"
+      ],
+      "ressalvas": [
+        "A responsabilidade da plataforma depende do grau de participação dela na transação.",
+        "Cada caso tem particularidades. É necessário comparecer presencialmente ao PROCON para uma análise detalhada."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 14", "resumo": "Responsabilidade objetiva do fornecedor de serviços" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_imobiliario": {
+      "tipo": "orientacao",
+      "texto": "Preciso ser transparente: casos de direito imobiliário, como locação de imóveis, não são regidos pelo Código de Defesa do Consumidor. Eles seguem a Lei nº 8.245/1991, conhecida como Lei do Inquilinato.\n\nPor esse motivo, o PROCON não pode intervir nem orientar sobre esse tipo de conflito. Você deve buscar orientação pela legislação específica.\n\nCaminhos possíveis: a Defensoria Pública, se você se enquadrar nos critérios de atendimento; um advogado particular; ou o Juizado Especial Cível, dependendo do valor e da natureza da causa.",
+      "ressalvas": [
+        "O PROCON não tem competência para atuar em conflitos regidos pela Lei do Inquilinato."
+      ],
+      "base_legal": [
+        { "norma": "Lei nº 8.245/1991", "dispositivo": "Lei do Inquilinato", "resumo": "Rege a locação de imóveis urbanos, fora do alcance do CDC" }
+      ],
+      "encaminhamento": "fora_de_competencia"
+    }
+  }
+}

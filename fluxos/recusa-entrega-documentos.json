@@ -1,0 +1,99 @@
+{
+  "id": "recusa-entrega-documentos",
+  "versao": "1.0.0",
+  "titulo": "Empresa não entrega contrato ou nota fiscal",
+  "categoria": "contrato",
+  "palavras_chave": ["contrato", "nota fiscal", "documento", "cópia", "recusa", "não enviam"],
+  "resumo": "Fornecedor se recusa a entregar cópia do contrato, nota fiscal ou outro documento a que o consumidor tem direito.",
+  "fonte": "Dúvidas Frequentes PROCON Jacareí — casos 4 e 46",
+  "no_inicial": "inicio",
+  "nos": {
+    "inicio": {
+      "tipo": "pergunta",
+      "texto": "Você tem direito de receber os documentos da sua contratação.\n\nVocê já solicitou esse documento formalmente à empresa?",
+      "opcoes": [
+        { "id": "com_protocolo", "rotulo": "Sim, com protocolo", "proximo": "tipo_documento" },
+        { "id": "sem_protocolo", "rotulo": "Sim, sem protocolo", "proximo": "tipo_documento" },
+        { "id": "nao", "rotulo": "Ainda não pedi", "proximo": "orienta_solicitar" }
+      ]
+    },
+    "tipo_documento": {
+      "tipo": "pergunta",
+      "texto": "Qual documento a empresa não está entregando?",
+      "opcoes": [
+        { "id": "contrato", "rotulo": "Contrato", "proximo": "orienta_contrato" },
+        { "id": "nota_fiscal", "rotulo": "Nota fiscal", "proximo": "orienta_nota_fiscal" },
+        { "id": "outro", "rotulo": "Outro documento", "proximo": "orienta_outro" }
+      ]
+    },
+    "orienta_solicitar": {
+      "tipo": "orientacao",
+      "texto": "O primeiro passo é solicitar o documento formalmente e guardar a prova do pedido.\n\nEnvie a solicitação por escrito, de preferência por e-mail ou pelo chat oficial da empresa, e salve a resposta. Se pedir por telefone, anote o número de protocolo e a data.\n\nEsse registro é importante porque comprova que você pediu e que a empresa não atendeu. Se a recusa persistir depois disso, você pode abrir uma reclamação no PROCON.",
+      "documentos": [
+        "RG com CPF",
+        "Comprovante do pedido (e-mail, protocolo ou print)",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "Sem registro do pedido fica mais difícil comprovar a recusa."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 6º, III", "resumo": "Direito à informação adequada e clara" }
+      ],
+      "encaminhamento": "informativo"
+    },
+    "orienta_contrato": {
+      "tipo": "orientacao",
+      "texto": "O fornecedor é obrigado a entregar cópia do contrato. O Código de Defesa do Consumidor garante o direito à informação clara e determina que o consumidor tenha acesso prévio ao conteúdo do contrato, o que só faz sentido se ele puder consultar o documento.\n\nA recusa em fornecê-lo pode gerar medidas administrativas ou judiciais contra a empresa.\n\nVocê pode abrir uma reclamação no PROCON requerendo o envio do contrato.",
+      "documentos": [
+        "RG com CPF",
+        "Números de protocolo das solicitações",
+        "Mensagens e e-mails requerendo o envio do contrato",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "Cada caso tem particularidades. É necessário comparecer presencialmente ao PROCON para uma análise detalhada."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 6º, III", "resumo": "Direito à informação adequada e clara" },
+        { "norma": "CDC", "dispositivo": "Art. 46", "resumo": "Contrato não obriga o consumidor que não teve acesso prévio ao seu conteúdo" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_nota_fiscal": {
+      "tipo": "orientacao",
+      "texto": "Receber a nota fiscal é um direito seu. Ela integra o direito à informação e serve como prova da compra, do valor pago e do início da garantia.\n\nDiante da recusa, o PROCON pode solicitar esclarecimentos à empresa e requerer o envio do documento.\n\nSe a empresa prometeu um prazo para o envio e não cumpriu, guarde o registro dessa promessa: ele reforça a sua reclamação.",
+      "documentos": [
+        "RG com CPF",
+        "Comprovante da compra (recibo, cupom, comprovante de pagamento)",
+        "Mensagens e e-mails solicitando a nota fiscal",
+        "Números de protocolo",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "Cada caso tem particularidades. É necessário comparecer presencialmente ao PROCON para uma análise detalhada."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 6º, III", "resumo": "Direito à informação adequada e clara" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    },
+    "orienta_outro": {
+      "tipo": "orientacao",
+      "texto": "O direito à informação alcança os documentos ligados à sua relação de consumo: comprovantes, termos de garantia, extratos, demonstrativos e afins.\n\nComo os documentos variam bastante de caso para caso, o mais indicado é comparecer ao PROCON com tudo o que você já tem em mãos. Um atendente vai avaliar qual documento é exigível na sua situação e o que pode ser requerido da empresa.",
+      "documentos": [
+        "RG com CPF",
+        "Comprovante do pedido feito à empresa",
+        "Qualquer documento já recebido sobre a contratação",
+        "CNPJ da matriz do fornecedor"
+      ],
+      "ressalvas": [
+        "A análise depende do tipo de documento e do contrato. É necessário comparecer ao PROCON."
+      ],
+      "base_legal": [
+        { "norma": "CDC", "dispositivo": "Art. 6º, III" }
+      ],
+      "encaminhamento": "agendamento_presencial"
+    }
+  }
+}
