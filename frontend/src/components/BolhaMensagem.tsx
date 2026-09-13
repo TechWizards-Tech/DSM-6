@@ -9,6 +9,7 @@ interface Props {
   ativa: boolean;
   aguardando: boolean;
   aoEscolher: (opcaoId: string) => void;
+  aoSolicitarAgendamento?: () => void;
 }
 
 /**
@@ -19,7 +20,7 @@ interface Props {
  * facil para o publico em geral. Documentos e ressalvas viram lista porque e
  * assim que o cidadao vai usar - conferindo item a item antes do atendimento.
  */
-export function BolhaMensagem({ mensagem, ativa, aguardando, aoEscolher }: Props) {
+export function BolhaMensagem({ mensagem, ativa, aguardando, aoEscolher, aoSolicitarAgendamento }: Props) {
   const hora = HORA.format(new Date(mensagem.criadaEm));
 
   // As opcoes ficam ancoradas na mensagem, como os reply buttons do WhatsApp.
@@ -110,6 +111,17 @@ export function BolhaMensagem({ mensagem, ativa, aguardando, aoEscolher }: Props
               </span>
             </header>
             <p className="bolha__texto">{mensagem.texto}</p>
+
+            {/* BOTÃO PARA ABRIR O FORMULÁRIO DE AGENDAMENTO */}
+            <button
+              type="button"
+              className="botao botao--primario"
+              style={{ marginTop: '16px', width: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '15px', padding: '8px'}}
+              onClick={aoSolicitarAgendamento}
+            >
+              Solicitar Agendamento Presencial Agora
+            </button>
+
             <span className="bolha__hora">{hora}</span>
           </article>
           {opcoes}

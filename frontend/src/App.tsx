@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { JanelaChat } from './components/JanelaChat';
 import { TelaEntrada } from './components/TelaEntrada';
+import { JanelaAgendamento } from './components/JanelaAgendamento';
 import { enviarOpcao, enviarTexto, iniciarConversa, recuperarConversa, ErroApi } from './lib/api';
 import type { EstadoSessao, Mensagem, Turno } from './lib/tipos';
 
@@ -13,6 +14,8 @@ export default function App() {
   const [mensagens, setMensagens] = useState<Mensagem[]>([]);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+  // ESTADO QUE CONTROLA A EXIBIÇÃO DA TELA DE AGENDAMENTO
+  const [modoModalAgendamento, setModoModalAgendamento] = useState(false);
 
   const aplicarTurno = useCallback((turno: Turno, substituir = false) => {
     setSessao(turno.sessao);
@@ -30,7 +33,6 @@ export default function App() {
         if (!cancelado) aplicarTurno(turno, true);
       })
       .catch(() => {
-        // Sessao expirada ou backend reiniciado: comeca do zero, sem alarde.
         localStorage.removeItem(CHAVE_SESSAO);
       });
 
@@ -68,12 +70,24 @@ export default function App() {
     void executar(() => enviarTexto(sessao.sessaoId, texto));
   }
 
-  /** Volta a tela de entrada, o que permite ao QA testar com outro numero. */
   function reiniciar() {
     localStorage.removeItem(CHAVE_SESSAO);
     setSessao(null);
     setMensagens([]);
     setErro(null);
+    setModoModalAgendamento(false);
+  }
+
+  // SE O USUÁRIO CLICOU EM AGENDAR, EXIBE A JANELA DE AGENDAMENTO
+  if (modoModalAgendamento) {
+    return (
+      <div className="pagina">
+        <JanelaAgendamento
+          usuario={sessao?.usuario ?? 'Consumidor'}
+          aoFechar={() => setModoModalAgendamento(false)}
+        />
+      </div>
+    );
   }
 
   if (!sessao) {
@@ -89,6 +103,7 @@ export default function App() {
       aoEscolher={escolher}
       aoEnviarTexto={escrever}
       aoReiniciar={reiniciar}
+      aoSolicitarAgendamento={() => setModoModalAgendamento(true)}
     />
   );
 }
