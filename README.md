@@ -43,12 +43,12 @@ GitHub Projects: Acompanhe o roadmap, tarefas em andamento e o progresso do dese
 
 | ID | Requisito | Sprint |
 |----|-----------|--------|
-| RF01 | Interação do usuário pelo WhatsApp | 01 |
+| RF01 | Interação do usuário pelo WhatsApp | 02 |
 | RF02 | Apresentação de opções com base nos fluxos do PROCON | 01 |
 | RF03 | Navegação pelos fluxos decisórios | 01 |
-| RF04 | Geração de resposta orientadora | 02 |
+| RF04 | Geração de resposta orientadora | 01, 02 |
 | RF05 | Utilização de LLM para explicação das respostas | 02 |
-| RF06 | Registro das interações | 02 |
+| RF06 | Registro das interações | 01, 02 |
 | RF07 | Agendamento de atendimento presencial | 02 |
 | RF08 | Interface web para gerenciamento dos agendamentos | 03 |
 
@@ -114,10 +114,12 @@ o funcionamento básico do chatbot.
 
 - Definição dos fluxos decisórios
 - Definição da arquitetura do sistema
-- Criação do banco de dados
 - Desenvolvimento do chatbot
-- Integração com WhatsApp
-- Controle das sessões dos usuários
+- Avisos sobre o caráter orientativo das respostas
+- Orientação sobre documentos
+- Registro das interações (sem persistencia em banco de dados)
+- Controle das sessões dos usuários (sem persistencia em banco de dados)
+- Testes automatizados
 
 # SPRINT 2
 
@@ -128,10 +130,10 @@ registro das conversas e agendamento.
 
 - Respostas orientadoras
 - Implementação do LLM
-- Registro das interações
+- Integração com WhatsApp 
+- Criação do banco de dados
 - Tratamento de erros
 - Agendamento presencial
-- Orientação sobre documentos
 - Avisos sobre o caráter orientativo das respostas
 
 # SPRINT 3
