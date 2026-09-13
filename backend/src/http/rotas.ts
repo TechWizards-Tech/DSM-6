@@ -155,7 +155,7 @@ export function criarRotas({ motor, fluxos, sessoes, interacoes, agendamentos }:
     }
   });
 
-  rotas.get('/agendamentos', async (req, res, next) => {
+  rotas.post('/agendamentos', async (req, res, next) => {
     try {
       const { usuario, nome, cpf, data, horario, assunto } = req.body ?? {};
 
