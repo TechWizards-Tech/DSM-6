@@ -208,6 +208,8 @@ A documentação do projeto será mantida neste repositório, incluindo:
 
 # PROJETO
 
+- Link Vídeo Sprint 01: https://youtu.be/DSInHO1evGc?si=lX-BdQ4GD3Klo57Z
+
 **FATEC Jacareí — Desenvolvimento de Software Multiplataforma**
 
 **Projeto ABP 2026-2**
