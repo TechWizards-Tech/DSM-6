@@ -36,7 +36,7 @@ GitHub Projects: Acompanhe o roadmap, tarefas em andamento e o progresso do dese
 | Sprint | Início | Entrega | Status |
 |--------|--------|---------|--------|
 | Sprint 01 | 10/08/2026 | 14/09/2026 | ✅ |
-| Sprint 02 | 15/09/2026 | 19/10/2026 | ⏳ |
+| Sprint 02 | 15/09/2026 | 19/10/2026 | 🔄 |
 | Sprint 03 | 20/10/2026 | 23/11/2026 | ⏳ |
 
 # PRODUCT BACKLOG
