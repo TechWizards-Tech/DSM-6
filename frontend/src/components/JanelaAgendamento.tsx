@@ -18,6 +18,11 @@ export const JanelaAgendamento: React.FC<Props> = ({ usuario, aoFechar }) => {
   const [erro, setErro] = useState<string | null>(null);
   const [agendamentoConfirmado, setAgendamentoConfirmado] = useState<AgendamentoRealizado | null>(null);
 
+  const [ano, mes, dia] = data.split('-').map(Number);
+  const dataObj = new Date(ano, mes - 1, dia);
+  const diaDaSemana = dataObj.getDay();
+  const fimDeSemana = diaDaSemana === 0 || diaDaSemana === 6;
+
   useEffect(() => {
     let cancelado = false;
     async function carregar() {
@@ -100,7 +105,7 @@ export const JanelaAgendamento: React.FC<Props> = ({ usuario, aoFechar }) => {
       <form onSubmit={handleSubmit} className="entrada__form" style={{ marginTop: '20px' }}>
         <div className="campo">
           <label className="campo__rotulo">Nome Completo</label>
-          <input className="campo__input" type="text" value={nome} onChange={(e) => setNome(e.target.value)} required placeholder="Ex.: Maria Oliveira" />
+          <input className="campo__input" type="text" value={nome} onChange={(e) => setNome(e.target.value)} required placeholder="Ex.: João Oliveira Silva" />
         </div>
 
         <div className="campo">
@@ -115,7 +120,11 @@ export const JanelaAgendamento: React.FC<Props> = ({ usuario, aoFechar }) => {
 
         <div className="campo">
           <label className="campo__rotulo">Horários Disponíveis</label>
-          {carregando ? (
+          {fimDeSemana ? (
+            <div style={{ padding: '12px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px', color: '#b45309', fontSize: '0.88rem' }}>
+              ⚠️ O PROCON de Jacareí não possui atendimento aos sábados e domingos. Por favor, escolha um dia útil (segunda a sexta-feira).
+            </div>
+          ) : carregando ? (
             <p style={{ fontSize: '0.85rem', color: '#64748b' }}>Carregando horários...</p>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
@@ -151,7 +160,7 @@ export const JanelaAgendamento: React.FC<Props> = ({ usuario, aoFechar }) => {
           <button type="button" className="botao botao--fantasma" style={{ flex: 1 }} onClick={aoFechar}>
             Cancelar
           </button>
-          <button type="submit" className="botao botao--primario" style={{ flex: 1 }} disabled={carregando || !horarioSelecionado}>
+          <button type="submit" className="botao botao--primario" style={{ flex: 1 }} disabled={carregando || !horarioSelecionado || fimDeSemana}>
             Confirmar Agendamento
           </button>
         </div>

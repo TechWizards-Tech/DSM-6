@@ -48,6 +48,17 @@ export class RepositorioAgendamentosMemoria implements RepositorioAgendamentos {
   private agendamentos: Map<string, Agendamento> = new Map();
 
   async listarHorarios(data: string): Promise<HorarioSlot[]> {
+    const [ano, mes, dia] = data.split('-').map(Number);
+    const dataObj = new Date(ano, mes - 1, dia);
+    const diaDaSemana = dataObj.getDay();
+
+    if (diaDaSemana === 0 || diaDaSemana === 6) {
+      return HORARIOS_PADRAO.map((horario) => ({
+        horario,
+        disponivel: false,
+      }))
+    }
+
     const agendamentosNoDia = Array.from(this.agendamentos.values()).filter(
       (a) => a.data === data && a.status === 'agendado'
     );
@@ -61,6 +72,14 @@ export class RepositorioAgendamentosMemoria implements RepositorioAgendamentos {
   }
 
   async criar(input: CriarAgendamentoInput): Promise<Agendamento> {
+    const [ano, mes, dia] = input.data.split('-').map(Number);
+    const dataObj = new Date(ano, mes - 1, dia);
+    const diaDaSemana = dataObj.getDay();
+
+    if (diaDaSemana === 0 || diaDaSemana === 6) {
+      throw new Error('O PROCON de Jacareí não realiza atendimentos aos sábados e domingos.');
+    }
+
     const agendamentosNoDia = Array.from(this.agendamentos.values()).filter(
       (a) => a.data === input.data && a.horario === input.horario && a.status === 'agendado'
     );
