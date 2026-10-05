@@ -200,7 +200,7 @@ nem modelo de linguagem na Sprint 1.
 Terminal 1 - back-end:
 
 ```bash
-cd backend
+cd app/backend
 npm install
 npm run dev
 ```
@@ -211,7 +211,7 @@ O servidor sobe em `http://localhost:3333`. Confira em
 Terminal 2 - front-end:
 
 ```bash
-cd frontend
+cd app/frontend
 npm install
 npm run dev
 ```

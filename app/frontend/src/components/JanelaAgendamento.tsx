@@ -18,8 +18,8 @@ export const JanelaAgendamento: React.FC<Props> = ({ usuario, aoFechar }) => {
   const [erro, setErro] = useState<string | null>(null);
   const [agendamentoConfirmado, setAgendamentoConfirmado] = useState<AgendamentoRealizado | null>(null);
 
-  const [ano, mes, dia] = data.split('-').map(Number);
-  const dataObj = new Date(ano, mes - 1, dia);
+  const [anoStr = '0', mesStr = '1', diaStr = '1'] = data.split('-');
+  const dataObj = new Date(Number(anoStr), Number(mesStr) - 1, Number(diaStr));
   const diaDaSemana = dataObj.getDay();
   const fimDeSemana = diaDaSemana === 0 || diaDaSemana === 6;
 

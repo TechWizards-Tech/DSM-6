@@ -1,4 +1,4 @@
-import type { Pool } from 'pg';
+import type { Pool } from '../../../node_modules/@types/pg/index.js';
 
 import type {
   Agendamento,
@@ -41,7 +41,7 @@ function paraAgendamento(linha: LinhaAgendamento): Agendamento {
 }
 
 export class RepositorioAgendamentosPostgres implements RepositorioAgendamentos {
-  constructor(private readonly pool: Pool) {}
+  constructor(private readonly pool: Pool) { }
 
   async listarHorarios(data: string): Promise<HorarioSlot[]> {
     const resultado = await this.pool.query<{ horario: string }>(

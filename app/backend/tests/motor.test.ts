@@ -17,7 +17,7 @@ import {
 } from '../src/modules/registro/index.js';
 import { mensagemParaDTO } from '../src/http/dto.js';
 
-const DIRETORIO_FLUXOS = fileURLToPath(new URL('../../fluxos', import.meta.url));
+const DIRETORIO_FLUXOS = fileURLToPath(new URL('../../../fluxos', import.meta.url));
 const fluxos = new RepositorioFluxos(carregarCatalogo(DIRETORIO_FLUXOS));
 
 let sessoes: RepositorioSessoesMemoria;

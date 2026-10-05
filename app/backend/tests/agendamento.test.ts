@@ -6,7 +6,7 @@ import { criarAplicacao } from '../src/app.js';
 
 const __filename = fileUrl.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const FLUXOS_DIR = path.resolve(__dirname, '../../fluxos');
+const FLUXOS_DIR = path.resolve(__dirname, '../../../fluxos');
 
 describe('Módulo de Agendamento Presencial (RF07, US04)', () => {
   function instanciar() {

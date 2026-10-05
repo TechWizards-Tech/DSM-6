@@ -13,8 +13,7 @@ services:
       POSTGRES_PASSWORD: procon
     volumes:
       - postgres_dados:/var/lib/postgresql/data
-      # Aplicado automaticamente pela imagem oficial na primeira subida do volume.
-      - ./backend/db/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+      - ./app/backend/db/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
     ports:
       - "5432:5432"
     healthcheck:
@@ -27,7 +26,7 @@ services:
   backend:
     build:
       context: .
-      dockerfile: backend/Dockerfile
+      dockerfile: app/backend/Dockerfile
     depends_on:
       postgres:
         condition: service_healthy
@@ -46,7 +45,7 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: frontend/Dockerfile
+      dockerfile: app/frontend/Dockerfile
     depends_on:
       - backend
     ports:

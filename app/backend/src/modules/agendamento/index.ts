@@ -48,8 +48,8 @@ export class RepositorioAgendamentosMemoria implements RepositorioAgendamentos {
   private agendamentos: Map<string, Agendamento> = new Map();
 
   async listarHorarios(data: string): Promise<HorarioSlot[]> {
-    const [ano, mes, dia] = data.split('-').map(Number);
-    const dataObj = new Date(ano, mes - 1, dia);
+    const [anoStr = '0', mesStr = '1', diaStr = '1'] = data.split('-');
+    const dataObj = new Date(Number(anoStr), Number(mesStr) - 1, Number(diaStr));
     const diaDaSemana = dataObj.getDay();
 
     if (diaDaSemana === 0 || diaDaSemana === 6) {
@@ -72,8 +72,8 @@ export class RepositorioAgendamentosMemoria implements RepositorioAgendamentos {
   }
 
   async criar(input: CriarAgendamentoInput): Promise<Agendamento> {
-    const [ano, mes, dia] = input.data.split('-').map(Number);
-    const dataObj = new Date(ano, mes - 1, dia);
+    const [anoStr = '0', mesStr = '1', diaStr = '1'] = input.data.split('-');
+    const dataObj = new Date(Number(anoStr), Number(mesStr) - 1, Number(diaStr));
     const diaDaSemana = dataObj.getDay();
 
     if (diaDaSemana === 0 || diaDaSemana === 6) {

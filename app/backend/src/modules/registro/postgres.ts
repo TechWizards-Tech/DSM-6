@@ -1,4 +1,4 @@
-import type { Pool } from 'pg';
+import type { Pool } from '../../../node_modules/@types/pg/index.js';
 
 import type { Interacao, RepositorioInteracoes, TipoEvento } from './index.js';
 
@@ -31,7 +31,7 @@ function paraInteracao(linha: LinhaInteracao): Interacao {
 }
 
 export class RepositorioInteracoesPostgres implements RepositorioInteracoes {
-  constructor(private readonly pool: Pool) {}
+  constructor(private readonly pool: Pool) { }
 
   async registrar(dados: Omit<Interacao, 'id' | 'em'>): Promise<void> {
     // Mesma postura da implementacao em memoria: falha ao gravar o registro
