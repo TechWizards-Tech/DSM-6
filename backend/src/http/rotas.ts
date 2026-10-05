@@ -175,11 +175,15 @@ export function criarRotas({ motor, fluxos, sessoes, interacoes, agendamentos }:
       });
       res.status(201).json(novoAgendamento);
     } catch (erro: any) {
-      if (erro.message?.includes('já está ocupado')) {
-        return res.status(409).json({ erro: erro.message });
+      if (
+        erro.message?.includes('já está ocupado') ||
+        erro.message?.includes('sábados e domingos')
+      ) {
+        return res.status(400).json({ erro: erro.message });
       }
       next(erro);
     }
+
   });
 
   rotas.get('/agendamentos', async (_req, res, next) => {
