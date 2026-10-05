@@ -35,7 +35,7 @@ GitHub Projects: Acompanhe o roadmap, tarefas em andamento e o progresso do dese
 
 | Sprint | Início | Entrega | Status |
 |--------|--------|---------|--------|
-| Sprint 01 | 10/08/2026 | 14/09/2026 | 🔄 |
+| Sprint 01 | 10/08/2026 | 14/09/2026 | ✅ |
 | Sprint 02 | 15/09/2026 | 19/10/2026 | ⏳ |
 | Sprint 03 | 20/10/2026 | 23/11/2026 | ⏳ |
 
@@ -43,12 +43,12 @@ GitHub Projects: Acompanhe o roadmap, tarefas em andamento e o progresso do dese
 
 | ID | Requisito | Sprint |
 |----|-----------|--------|
-| RF01 | Interação do usuário pelo WhatsApp | 01 |
+| RF01 | Interação do usuário pelo WhatsApp | 02 |
 | RF02 | Apresentação de opções com base nos fluxos do PROCON | 01 |
 | RF03 | Navegação pelos fluxos decisórios | 01 |
-| RF04 | Geração de resposta orientadora | 02 |
+| RF04 | Geração de resposta orientadora | 01, 02 |
 | RF05 | Utilização de LLM para explicação das respostas | 02 |
-| RF06 | Registro das interações | 02 |
+| RF06 | Registro das interações | 01, 02 |
 | RF07 | Agendamento de atendimento presencial | 02 |
 | RF08 | Interface web para gerenciamento dos agendamentos | 03 |
 
@@ -108,14 +108,18 @@ GitHub Projects: Acompanhe o roadmap, tarefas em andamento e o progresso do dese
 Na Sprint 1, o foco será estabelecer a estrutura inicial do sistema e desenvolver
 o funcionamento básico do chatbot.
 
+![Burndown Sprint 1](./burndown%20sprint1.png)
+
 ### Atividades
 
 - Definição dos fluxos decisórios
 - Definição da arquitetura do sistema
-- Criação do banco de dados
 - Desenvolvimento do chatbot
-- Integração com WhatsApp
-- Controle das sessões dos usuários
+- Avisos sobre o caráter orientativo das respostas
+- Orientação sobre documentos
+- Registro das interações (sem persistencia em banco de dados)
+- Controle das sessões dos usuários (sem persistencia em banco de dados)
+- Testes automatizados
 
 # SPRINT 2
 
@@ -126,10 +130,10 @@ registro das conversas e agendamento.
 
 - Respostas orientadoras
 - Implementação do LLM
-- Registro das interações
+- Integração com WhatsApp 
+- Criação do banco de dados
 - Tratamento de erros
 - Agendamento presencial
-- Orientação sobre documentos
 - Avisos sobre o caráter orientativo das respostas
 
 # SPRINT 3

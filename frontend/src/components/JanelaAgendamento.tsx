@@ -7,7 +7,7 @@ interface Props {
 }
 
 export const JanelaAgendamento: React.FC<Props> = ({ usuario, aoFechar }) => {
-  const hoje = new Date().toISOString().split('T')[0];
+  const hoje = new Date().toISOString().slice(0, 10);
   const [data, setData] = useState(hoje);
   const [horarios, setHorarios] = useState<HorarioSlot[]>([]);
   const [horarioSelecionado, setHorarioSelecionado] = useState('');
@@ -105,7 +105,7 @@ export const JanelaAgendamento: React.FC<Props> = ({ usuario, aoFechar }) => {
       <form onSubmit={handleSubmit} className="entrada__form" style={{ marginTop: '20px' }}>
         <div className="campo">
           <label className="campo__rotulo">Nome Completo</label>
-          <input className="campo__input" type="text" value={nome} onChange={(e) => setNome(e.target.value)} required placeholder="Ex.: João Oliveira Silva" />
+          <input className="campo__input" type="text" value={nome} onChange={(e) => setNome(e.target.value)} required placeholder="Ex.: Maria Oliveira" />
         </div>
 
         <div className="campo">

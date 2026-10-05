@@ -56,7 +56,7 @@ export class RepositorioAgendamentosMemoria implements RepositorioAgendamentos {
       return HORARIOS_PADRAO.map((horario) => ({
         horario,
         disponivel: false,
-      }))
+      }));
     }
 
     const agendamentosNoDia = Array.from(this.agendamentos.values()).filter(
