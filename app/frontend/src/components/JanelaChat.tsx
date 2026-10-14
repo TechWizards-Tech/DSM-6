@@ -11,6 +11,7 @@ interface Props {
   aoEscolher: (opcaoId: string) => void;
   aoEnviarTexto: (texto: string) => void;
   aoReiniciar: () => void;
+  aoSolicitarAgendamento?: () => void;
 }
 
 const ETAPAS: Record<EstadoSessao['etapa'], string> = {
@@ -27,6 +28,7 @@ export function JanelaChat({
   aoEscolher,
   aoEnviarTexto,
   aoReiniciar,
+  aoSolicitarAgendamento,
 }: Props) {
   const [rascunho, setRascunho] = useState('');
   const fimDaLista = useRef<HTMLDivElement>(null);
@@ -90,6 +92,7 @@ export function JanelaChat({
               ativa={mensagem.id === ultima?.id}
               aguardando={carregando}
               aoEscolher={aoEscolher}
+              aoSolicitarAgendamento={aoSolicitarAgendamento}
             />
           ))}
 

@@ -7,6 +7,7 @@ try {
     diretorioFluxos: config.diretorioFluxos,
     origensPermitidas: config.origensPermitidas,
     arquivoRegistro: config.arquivoRegistro,
+    databaseUrl: config.databaseUrl,
   });
 
   app.listen(config.porta, () => {
@@ -15,8 +16,6 @@ try {
   });
 } catch (erro) {
   if (erro instanceof ErroCarregamentoFluxos) {
-    // Subir com um fluxo quebrado significa travar a conversa de um cidadao no
-    // meio do atendimento. Melhor nao subir.
     console.error('Os fluxos do PROCON nao passaram na validacao:\n');
     for (const problema of erro.problemas) console.error(`  - ${problema}`);
     process.exit(1);

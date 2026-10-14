@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest';
 import { fileURLToPath } from 'node:url';
 import { carregarCatalogo, RepositorioFluxos, normalizar } from '../src/modules/fluxos/repositorio.js';
 
-const DIRETORIO_FLUXOS = fileURLToPath(new URL('../../fluxos', import.meta.url));
+const DIRETORIO_FLUXOS = fileURLToPath(new URL('../../../fluxos', import.meta.url));
 
 const fluxos = new RepositorioFluxos(carregarCatalogo(DIRETORIO_FLUXOS));
 
