@@ -23,4 +23,8 @@ export const config = {
     process.env.REGISTRO_JSONL ?? resolve(process.cwd(), 'dados/interacoes.jsonl'),
   origensPermitidas: (process.env.CORS_ORIGINS ?? 'http://localhost:5173').split(','),
   databaseUrl: process.env.DATABASE_URL,
+  segredoToken: process.env.JWT_SEGREDO,
+  adminEmail: process.env.ADMIN_EMAIL,
+  adminSenha: process.env.ADMIN_SENHA,
+  adminNome: process.env.ADMIN_NOME,
 };

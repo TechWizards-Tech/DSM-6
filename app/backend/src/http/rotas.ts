@@ -186,14 +186,5 @@ export function criarRotas({ motor, fluxos, sessoes, interacoes, agendamentos }:
 
   });
 
-  rotas.get('/agendamentos', async (_req, res, next) => {
-    try {
-      const lista = await agendamentos.listar();
-      res.json({ agendamentos: lista })
-    } catch (erro) {
-      next(erro)
-    }
-  })
-
   return rotas;
 }

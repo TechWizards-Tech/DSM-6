@@ -55,3 +55,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_agendamentos_slot_ativo
     WHERE status = 'agendado';
 
 CREATE INDEX IF NOT EXISTS idx_agendamentos_data ON agendamentos (data);
+
+-- RF08/US05: funcionarios do PROCON com acesso ao Painel Web Administrativo
+CREATE TABLE IF NOT EXISTS usuarios_admin (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email           TEXT NOT NULL UNIQUE,
+    nome            TEXT NOT NULL,
+    senha_hash      TEXT NOT NULL,
+    criado_em       TIMESTAMPTZ NOT NULL DEFAULT now()
+);
