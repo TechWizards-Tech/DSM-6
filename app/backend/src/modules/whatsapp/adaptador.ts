@@ -32,7 +32,7 @@ export interface OpcoesAdaptador {
   motor: MotorConversa;
   sessoes: RepositorioSessoes;
   fluxos: RepositorioFluxos;
-  cliente: ClienteWhatsApp;
+  cliente?: ClienteWhatsApp;
   inatividadeMs?: number;
   agora?: () => number;
 }
@@ -64,7 +64,7 @@ export class AdaptadorWhatsApp {
   }
 
   /**
-   * Ponto de entrada. Mensagens do mesmo telefone sao processadas em fila,
+   * Ponto de entrada Meta Cloud API. Mensagens do mesmo telefone sao processadas em fila,
    * para duas mensagens rapidas nao avancarem a mesma sessao ao mesmo tempo.
    */
   receber(mensagem: MensagemRecebida): Promise<void> {
@@ -76,7 +76,15 @@ export class AdaptadorWhatsApp {
 
     const anterior = this.filas.get(mensagem.telefone) ?? Promise.resolve();
     const atual = anterior
-      .then(() => this.processar(mensagem))
+      .then(async () => {
+        const partes = await this.executarTurno(mensagem);
+        if (this.opcoes.cliente) {
+          for (const parte of partes) {
+            await this.opcoes.cliente.enviarTexto(mensagem.telefone, parte);
+            console.log(`[whatsapp] Parte enviada com sucesso para ${mascararTelefone(mensagem.telefone)}!`);
+          }
+        }
+      })
       .catch((erro) => {
         console.error(
           `[whatsapp] falha ao processar mensagem de ${mascararTelefone(mensagem.telefone)}:`,
@@ -91,15 +99,48 @@ export class AdaptadorWhatsApp {
     return atual;
   }
 
-  private async processar(mensagem: MensagemRecebida): Promise<void> {
-    const { motor, sessoes, cliente } = this.opcoes;
+  /**
+   * Ponto de entrada Twilio. Processa a mensagem na fila do telefone e retorna
+   * o array de textos gerados para resposta sincrona via TwiML.
+   */
+  async receberTwilio(mensagem: MensagemRecebida): Promise<string[]> {
+    console.log(`[whatsapp] receberTwilio chamado: id=${mensagem.id} de=${mascararTelefone(mensagem.telefone)}`);
+    if (this.jaProcessada(mensagem.id)) {
+      console.log(`[whatsapp] mensagem ${mensagem.id} ja processada, ignorando.`);
+      return [];
+    }
+
+    const anterior = this.filas.get(mensagem.telefone) ?? Promise.resolve();
+    let partes: string[] = [];
+    const atual = anterior
+      .then(async () => {
+        partes = await this.executarTurno(mensagem);
+      })
+      .catch((erro) => {
+        console.error(
+          `[whatsapp] falha ao processar mensagem Twilio de ${mascararTelefone(mensagem.telefone)}:`,
+          erro,
+        );
+      });
+
+    this.filas.set(mensagem.telefone, atual);
+    await atual;
+    if (this.filas.get(mensagem.telefone) === atual) this.filas.delete(mensagem.telefone);
+    return partes;
+  }
+
+  /**
+   * Executa a logica de negocio do turno (motor de conversa + formatacao),
+   * isolada do meio de transporte (Meta REST, Twilio TwiML, etc).
+   */
+  async executarTurno(mensagem: MensagemRecebida): Promise<string[]> {
+    const { motor, sessoes } = this.opcoes;
     const { telefone } = mensagem;
     console.log(`[whatsapp] Iniciando processamento para ${mascararTelefone(telefone)}: "${mensagem.texto}"`);
 
     if (mensagem.tipo !== 'text' || !mensagem.texto?.trim()) {
       console.log('[whatsapp] Tipo nao suportado, enviando aviso.');
-      await cliente.enviarTexto(telefone, TEXTO_TIPO_NAO_SUPORTADO);
-      return;
+      return [TEXTO_TIPO_NAO_SUPORTADO];
     }
 
     const texto = mensagem.texto.trim();
@@ -117,12 +158,10 @@ export class AdaptadorWhatsApp {
     });
 
     const partes = formatarTurno(resultado.novasMensagens);
-    console.log(`[whatsapp] Motor respondeu. Enviando ${partes.length} parte(s) para o WhatsApp...`);
-    for (const parte of partes) {
-      await cliente.enviarTexto(telefone, parte);
-      console.log(`[whatsapp] Parte enviada com sucesso para ${mascararTelefone(telefone)}!`);
-    }
+    console.log(`[whatsapp] Motor respondeu. Turno com ${partes.length} parte(s).`);
+    return partes;
   }
+
 
   /** Numero valido vira a opcao correspondente; o resto vai como texto para o motor. */
   private interpretar(texto: string, conversa: Conversa): Entrada {
@@ -218,3 +257,39 @@ export function extrairMensagensRecebidas(payload: unknown): MensagemRecebida[] 
   }
   return recebidas;
 }
+
+/**
+ * Extrai os dados de uma mensagem recebida via webhook da Twilio
+ * (Content-Type: application/x-www-form-urlencoded).
+ */
+export function extrairMensagemTwilio(corpo: Record<string, any>): MensagemRecebida | undefined {
+  if (!corpo || !corpo.From) return undefined;
+  const rawFrom = String(corpo.From).trim();
+  const rawBody = corpo.Body !== undefined ? String(corpo.Body) : '';
+  const id = String(corpo.MessageSid || corpo.SmsMessageSid || `twilio-${Date.now()}`);
+  // Remove o prefixo whatsapp: e caracteres nao numericos (ex.: whatsapp:+5512991466308 -> 5512991466308)
+  const telefone = rawFrom.replace(/^whatsapp:/i, '').replace(/\D/g, '');
+  if (!telefone) return undefined;
+
+  return {
+    id,
+    telefone,
+    tipo: 'text',
+    texto: rawBody,
+  };
+}
+
+/**
+ * Gera o documento XML TwiML para resposta sincrona ao webhook da Twilio.
+ * Suporta multiplas tags <Message> para entregar mensagens particionadas.
+ */
+export function gerarTwiml(mensagens: string[]): string {
+  if (mensagens.length === 0) {
+    return '<?xml version="1.0" encoding="UTF-8"?>\n<Response/>';
+  }
+  const tags = mensagens
+    .map((msg) => `<Message><Body><![CDATA[${msg}]]></Body></Message>`)
+    .join('\n  ');
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<Response>\n  ${tags}\n</Response>`;
+}
+

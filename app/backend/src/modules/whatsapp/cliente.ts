@@ -15,6 +15,12 @@ export interface ConfigCloudApi {
   versaoApi: string;
 }
 
+export interface ConfigTwilio {
+  accountSid: string;
+  authToken: string;
+  numeroTwilio: string;
+}
+
 export class ErroEnvioWhatsApp extends Error {
   constructor(
     readonly status: number,
@@ -59,3 +65,40 @@ export class ClienteCloudApi implements ClienteWhatsApp {
     console.log('[whatsapp] Resposta da Meta Cloud API:', JSON.stringify(dados));
   }
 }
+
+/** Cliente do Twilio WhatsApp API: POST /Accounts/{AccountSid}/Messages.json. */
+export class ClienteTwilio implements ClienteWhatsApp {
+  constructor(
+    private readonly config: ConfigTwilio,
+    private readonly fetchFn: typeof fetch = fetch,
+  ) {}
+
+  async enviarTexto(para: string, texto: string): Promise<void> {
+    const { accountSid, authToken, numeroTwilio } = this.config;
+    const destino = para.startsWith('whatsapp:') ? para : `whatsapp:+${para.replace(/\D/g, '')}`;
+    const origem = numeroTwilio.startsWith('whatsapp:') ? numeroTwilio : `whatsapp:${numeroTwilio}`;
+    const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+    const auth = Buffer.from(`${accountSid}:${authToken}`).toString('base64');
+
+    const resposta = await this.fetchFn(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Basic ${auth}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        From: origem,
+        To: destino,
+        Body: texto,
+      }),
+    });
+
+    if (!resposta.ok) {
+      throw new ErroEnvioWhatsApp(resposta.status, await resposta.text());
+    }
+
+    const dados = await resposta.json();
+    console.log('[whatsapp] Resposta da Twilio API:', JSON.stringify(dados));
+  }
+}
+

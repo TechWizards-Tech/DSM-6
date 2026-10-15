@@ -11,6 +11,9 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 import express, { Router } from 'express';
 import {
   extrairMensagensRecebidas,
+  extrairMensagemTwilio,
+  gerarTwiml,
+  mascararTelefone,
   type AdaptadorWhatsApp,
 } from '../modules/whatsapp/adaptador.js';
 
@@ -36,18 +39,19 @@ export function criarRotasWhatsApp({
 }: DependenciasWhatsApp): Router {
   const rotas = Router();
 
+  // ------------------------------------------------------------ Meta Cloud API
   rotas.get('/webhook', (req, res) => {
     const modo = req.query['hub.mode'];
     const token = req.query['hub.verify_token'];
     const desafio = req.query['hub.challenge'];
 
-    console.log(`[WhatsApp Webhook] GET de verificacao recebido (modo=${modo})`);
+    console.log(`[WhatsApp Webhook Meta] GET de verificacao recebido (modo=${modo})`);
 
     if (modo === 'subscribe' && token === tokenVerificacao && typeof desafio === 'string') {
-      console.log('[WhatsApp Webhook] Verificacao aceita com sucesso!');
+      console.log('[WhatsApp Webhook Meta] Verificacao aceita com sucesso!');
       return res.status(200).type('text/plain').send(desafio);
     }
-    console.warn('[WhatsApp Webhook] Verificacao rejeitada (token invalido ou modo incorreto)');
+    console.warn('[WhatsApp Webhook Meta] Verificacao rejeitada (token invalido ou modo incorreto)');
     return res.sendStatus(403);
   });
 
@@ -56,7 +60,7 @@ export function criarRotasWhatsApp({
     const bruto = Buffer.isBuffer(req.body) ? req.body : Buffer.alloc(0);
 
     if (segredoApp && !assinaturaValida(bruto, req.get('x-hub-signature-256'), segredoApp)) {
-      console.warn('[WhatsApp Webhook] Assinatura HMAC rejeitada');
+      console.warn('[WhatsApp Webhook Meta] Assinatura HMAC rejeitada');
       return res.sendStatus(401);
     }
 
@@ -67,19 +71,45 @@ export function criarRotasWhatsApp({
       return res.sendStatus(400);
     }
 
-    // A Meta espera 200 rapido; se demorar, ela reenvia. O processamento segue
-    // em segundo plano e reentregas sao descartadas pelo id da mensagem.
     res.sendStatus(200);
     const msgs = extrairMensagensRecebidas(payload);
-    console.log(`[WhatsApp Webhook] POST recebido com ${msgs.length} mensagem(ns)`);
+    console.log(`[WhatsApp Webhook Meta] POST recebido com ${msgs.length} mensagem(ns)`);
     const mudancas = (payload as any)?.entry?.[0]?.changes?.[0]?.value;
     if (mudancas?.statuses) {
-      console.log('[WhatsApp Webhook Status]:', JSON.stringify(mudancas.statuses));
+      console.log('[WhatsApp Webhook Meta Status]:', JSON.stringify(mudancas.statuses));
     }
     for (const mensagem of msgs) {
       void adaptador.receber(mensagem);
     }
   });
 
+  // ------------------------------------------------------------ Twilio Sandbox
+  rotas.get('/twilio', (_req, res) => {
+    res.status(200).type('text/plain').send('Twilio WhatsApp Webhook ativo! Use POST para mensagens.');
+  });
+
+  rotas.post('/twilio', express.urlencoded({ extended: false }), async (req, res) => {
+    console.log(
+      `[WhatsApp Webhook Twilio] POST recebido de ${req.body.From ? mascararTelefone(String(req.body.From)) : 'desconhecido'}: "${req.body.Body}"`,
+    );
+
+    const mensagem = extrairMensagemTwilio(req.body);
+    if (!mensagem) {
+      console.warn('[WhatsApp Webhook Twilio] Payload invalido ou sem telefone.');
+      return res.status(400).type('text/xml').send('<?xml version="1.0" encoding="UTF-8"?><Response/>');
+    }
+
+    try {
+      const partes = await adaptador.receberTwilio(mensagem);
+      const twiml = gerarTwiml(partes);
+      console.log(`[WhatsApp Webhook Twilio] Respondendo via TwiML com ${partes.length} mensagem(ns)`);
+      return res.status(200).type('text/xml').send(twiml);
+    } catch (erro) {
+      console.error('[WhatsApp Webhook Twilio] Erro ao processar:', erro);
+      return res.status(500).type('text/xml').send('<?xml version="1.0" encoding="UTF-8"?><Response/>');
+    }
+  });
+
   return rotas;
 }
+

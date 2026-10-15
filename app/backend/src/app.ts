@@ -26,10 +26,11 @@ import { criarRotasWhatsApp } from './http/whatsapp.js';
 
 /** Integracao com o WhatsApp (RF01). Ausente = backend so com o simulador web. */
 export interface OpcoesWhatsApp {
-  cliente: ClienteWhatsApp;
+  cliente?: ClienteWhatsApp;
   tokenVerificacao: string;
   segredoApp?: string;
 }
+
 
 export interface OpcoesAplicacao {
   diretorioFluxos: string;

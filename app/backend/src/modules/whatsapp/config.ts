@@ -7,18 +7,26 @@
  */
 export interface ConfigWhatsApp {
   /** Token de acesso da WhatsApp Cloud API (painel Meta for Developers). */
-  tokenAcesso: string;
+  tokenAcesso?: string;
   /** "Phone number ID" do numero que envia as mensagens (numero de teste da Meta). */
-  idNumeroTelefone: string;
+  idNumeroTelefone?: string;
   /** Texto livre escolhido pela equipe, repetido no painel da Meta ao cadastrar o webhook. */
-  tokenVerificacao: string;
+  tokenVerificacao?: string;
   /** "App secret" do app na Meta. Quando informado, valida a assinatura de cada webhook. */
   segredoApp?: string;
   /** Versao da Graph API usada nas chamadas de envio. */
-  versaoApi: string;
+  versaoApi?: string;
+
+  /** Twilio Account SID (ex: ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx). */
+  twilioAccountSid?: string;
+  /** Twilio Auth Token. */
+  twilioAuthToken?: string;
+  /** Twilio WhatsApp Number (ex: whatsapp:+14155238886). */
+  twilioNumero?: string;
 }
 
 export const VERSAO_API_PADRAO = 'v21.0';
+
 
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -56,14 +64,27 @@ export function lerConfigWhatsApp(env: NodeJS.ProcessEnv = process.env): ConfigW
   const tokenAcesso = env.WHATSAPP_ACCESS_TOKEN?.trim();
   const idNumeroTelefone = env.WHATSAPP_PHONE_NUMBER_ID?.trim();
   const tokenVerificacao = env.WHATSAPP_VERIFY_TOKEN?.trim();
+  const segredoApp = env.WHATSAPP_APP_SECRET?.trim() || undefined;
+  const versaoApi = env.WHATSAPP_API_VERSION?.trim() || VERSAO_API_PADRAO;
 
-  if (!tokenAcesso || !idNumeroTelefone || !tokenVerificacao) return undefined;
+  const twilioAccountSid = env.TWILIO_ACCOUNT_SID?.trim();
+  const twilioAuthToken = env.TWILIO_AUTH_TOKEN?.trim();
+  const twilioNumero = env.TWILIO_WHATSAPP_NUMBER?.trim() || 'whatsapp:+14155238886';
+
+  const temMeta = Boolean(tokenAcesso && idNumeroTelefone && tokenVerificacao);
+  const temTwilio = Boolean(twilioAccountSid && twilioAuthToken);
+
+  if (!temMeta && !temTwilio) return undefined;
 
   return {
     tokenAcesso,
     idNumeroTelefone,
-    tokenVerificacao,
-    segredoApp: env.WHATSAPP_APP_SECRET?.trim() || undefined,
-    versaoApi: env.WHATSAPP_API_VERSION?.trim() || VERSAO_API_PADRAO,
+    tokenVerificacao: tokenVerificacao || 'procon-jacarei-token',
+    segredoApp,
+    versaoApi,
+    twilioAccountSid,
+    twilioAuthToken,
+    twilioNumero,
   };
 }
+

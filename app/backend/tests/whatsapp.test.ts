@@ -9,9 +9,12 @@ import {
   AdaptadorWhatsApp,
   TEXTO_TIPO_NAO_SUPORTADO,
   extrairMensagensRecebidas,
+  extrairMensagemTwilio,
+  gerarTwiml,
   mascararTelefone,
 } from '../src/modules/whatsapp/adaptador.js';
-import type { ClienteWhatsApp } from '../src/modules/whatsapp/cliente.js';
+import { ClienteTwilio, type ClienteWhatsApp } from '../src/modules/whatsapp/cliente.js';
+
 import { lerConfigWhatsApp } from '../src/modules/whatsapp/config.js';
 import { formatarTurno } from '../src/modules/whatsapp/formatador.js';
 
@@ -281,4 +284,125 @@ describe('WhatsApp - configuracao', () => {
     expect(config).toMatchObject({ tokenAcesso: 'tok', idNumeroTelefone: '123', versaoApi: 'v21.0' });
     expect(config?.segredoApp).toBeUndefined();
   });
+
+  it('habilita com variaveis da Twilio', () => {
+    const config = lerConfigWhatsApp({
+      TWILIO_ACCOUNT_SID: 'AC123',
+      TWILIO_AUTH_TOKEN: 'token123',
+    });
+    expect(config).toMatchObject({
+      twilioAccountSid: 'AC123',
+      twilioAuthToken: 'token123',
+      twilioNumero: 'whatsapp:+14155238886',
+    });
+  });
 });
+
+describe('WhatsApp - Twilio Sandbox', () => {
+  it('extrai mensagem do corpo urlencoded da Twilio', () => {
+    const extraida = extrairMensagemTwilio({
+      From: 'whatsapp:+5512991466308',
+      Body: 'Olá PROCON',
+      MessageSid: 'SM123456',
+    });
+    expect(extraida).toEqual({
+      id: 'SM123456',
+      telefone: '5512991466308',
+      tipo: 'text',
+      texto: 'Olá PROCON',
+    });
+  });
+
+  it('gera TwiML XML valido', () => {
+    const xml = gerarTwiml(['Primeira linha', 'Segunda linha']);
+    expect(xml).toContain('<Response>');
+    expect(xml).toContain('<Message><Body><![CDATA[Primeira linha]]></Body></Message>');
+    expect(xml).toContain('<Message><Body><![CDATA[Segunda linha]]></Body></Message>');
+    expect(xml).toContain('</Response>');
+  });
+
+  it('gera TwiML vazio quando nao ha mensagens', () => {
+    expect(gerarTwiml([])).toBe('<?xml version="1.0" encoding="UTF-8"?>\n<Response/>');
+  });
+
+  it('responde requisicao webhook da Twilio com TwiML e inicia conversa', async () => {
+    const aplicacao = criarAplicacao({
+      diretorioFluxos: FLUXOS_DIR,
+      whatsapp: { tokenVerificacao: 'teste' },
+    });
+
+    const resposta = await request(aplicacao.app)
+      .post('/api/whatsapp/twilio')
+      .type('form')
+      .send({
+        From: 'whatsapp:+5512991466308',
+        Body: 'oi',
+        MessageSid: 'SM-teste-1',
+      });
+
+    expect(resposta.status).toBe(200);
+    expect(resposta.headers['content-type']).toContain('xml');
+    expect(resposta.text).toContain('<Response>');
+    expect(resposta.text).toContain(aplicacao.fluxos.menu.textos_globais.saudacao);
+    expect(resposta.text).toContain('*1.*');
+  });
+
+  it('avanca opcao selecionada pelo cidadao via Twilio', async () => {
+    const aplicacao = criarAplicacao({
+      diretorioFluxos: FLUXOS_DIR,
+      whatsapp: { tokenVerificacao: 'teste' },
+    });
+
+    // Inicia
+    await request(aplicacao.app)
+      .post('/api/whatsapp/twilio')
+      .type('form')
+      .send({ From: 'whatsapp:+5512991466308', Body: 'oi', MessageSid: 'SM-t1' });
+
+    // Envia opcao 1
+    const resposta2 = await request(aplicacao.app)
+      .post('/api/whatsapp/twilio')
+      .type('form')
+      .send({ From: 'whatsapp:+5512991466308', Body: '1', MessageSid: 'SM-t2' });
+
+    expect(resposta2.status).toBe(200);
+    expect(resposta2.text).toContain('<Response>');
+    const sessoes = await aplicacao.sessoes.listar();
+    expect(sessoes[0]?.etapa).toBe('em_fluxo');
+    expect(sessoes[0]?.usuario).toBe('5512991466308');
+  });
+
+  it('ClienteTwilio envia POST correto para API REST', async () => {
+    let chamadaUrl = '';
+    let chamadaBody = '';
+    let chamadaAuth = '';
+
+    const fakeFetch: typeof fetch = (url, init) => {
+      chamadaUrl = String(url);
+      chamadaBody = String(init?.body);
+      chamadaAuth = String((init?.headers as Record<string, string>)?.Authorization);
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ sid: 'SMok' }),
+      } as any);
+    };
+
+    const cliente = new ClienteTwilio(
+      {
+        accountSid: 'ACteste',
+        authToken: 'tokenteste',
+        numeroTwilio: 'whatsapp:+14155238886',
+      },
+      fakeFetch,
+    );
+
+    await cliente.enviarTexto('5512991466308', 'Mensagem teste');
+
+    expect(chamadaUrl).toBe('https://api.twilio.com/2010-04-01/Accounts/ACteste/Messages.json');
+    expect(chamadaAuth).toContain('Basic ');
+    expect(chamadaBody).toContain('To=whatsapp%3A%2B5512991466308');
+    expect(chamadaBody).toContain('From=whatsapp%3A%2B14155238886');
+    expect(chamadaBody).toContain('Body=Mensagem+teste');
+  });
+});
+

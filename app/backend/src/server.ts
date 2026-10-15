@@ -1,11 +1,28 @@
 import { criarAplicacao } from './app.js';
 import { config } from './config.js';
 import { ErroCarregamentoFluxos } from './modules/fluxos/repositorio.js';
-import { ClienteCloudApi } from './modules/whatsapp/cliente.js';
+import { ClienteCloudApi, ClienteTwilio, type ClienteWhatsApp } from './modules/whatsapp/cliente.js';
 import { lerConfigWhatsApp } from './modules/whatsapp/config.js';
 
 try {
   const configWhatsApp = lerConfigWhatsApp();
+
+  let clienteWhatsApp: ClienteWhatsApp | undefined;
+  if (configWhatsApp) {
+    if (configWhatsApp.twilioAccountSid && configWhatsApp.twilioAuthToken) {
+      clienteWhatsApp = new ClienteTwilio({
+        accountSid: configWhatsApp.twilioAccountSid,
+        authToken: configWhatsApp.twilioAuthToken,
+        numeroTwilio: configWhatsApp.twilioNumero ?? 'whatsapp:+14155238886',
+      });
+    } else if (configWhatsApp.tokenAcesso && configWhatsApp.idNumeroTelefone) {
+      clienteWhatsApp = new ClienteCloudApi({
+        tokenAcesso: configWhatsApp.tokenAcesso,
+        idNumeroTelefone: configWhatsApp.idNumeroTelefone,
+        versaoApi: configWhatsApp.versaoApi ?? 'v21.0',
+      });
+    }
+  }
 
   const { app, fluxos } = criarAplicacao({
     diretorioFluxos: config.diretorioFluxos,
@@ -14,8 +31,8 @@ try {
     databaseUrl: config.databaseUrl,
     whatsapp: configWhatsApp
       ? {
-          cliente: new ClienteCloudApi(configWhatsApp),
-          tokenVerificacao: configWhatsApp.tokenVerificacao,
+          cliente: clienteWhatsApp,
+          tokenVerificacao: configWhatsApp.tokenVerificacao ?? '',
           segredoApp: configWhatsApp.segredoApp,
         }
       : undefined,
@@ -24,12 +41,19 @@ try {
   app.listen(config.porta, () => {
     console.log(`Chatbot PROCON  |  http://localhost:${config.porta}/api/saude`);
     console.log(`Fluxos: ${fluxos.listarFluxos().length} carregados de ${config.diretorioFluxos}`);
-    console.log(
-      configWhatsApp
-        ? `WhatsApp: webhook ativo em /api/whatsapp/webhook${configWhatsApp.segredoApp ? '' : ' (sem validacao de assinatura)'}`
-        : 'WhatsApp: desligado (defina WHATSAPP_ACCESS_TOKEN, WHATSAPP_PHONE_NUMBER_ID e WHATSAPP_VERIFY_TOKEN)',
-    );
+    if (configWhatsApp) {
+      console.log('WhatsApp: ativo!');
+      if (configWhatsApp.twilioAccountSid) {
+        console.log('  -> Twilio Sandbox webhook: /api/whatsapp/twilio');
+      }
+      if (configWhatsApp.tokenAcesso) {
+        console.log('  -> Meta Cloud API webhook: /api/whatsapp/webhook');
+      }
+    } else {
+      console.log('WhatsApp: desligado (sem credenciais)');
+    }
   });
+
 } catch (erro) {
   if (erro instanceof ErroCarregamentoFluxos) {
     console.error('Os fluxos do PROCON nao passaram na validacao:\n');
