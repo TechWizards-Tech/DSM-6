@@ -49,7 +49,11 @@ try {
 
   app.listen(config.porta, () => {
     console.log(`Chatbot PROCON  |  http://localhost:${config.porta}/api/saude`);
-    console.log(`Fluxos: ${fluxos.listarFluxos().length} carregados de ${config.diretorioFluxos}`);
+    if (config.databaseUrl) {
+      console.log('Banco de dados: PostgreSQL ativo!');
+    } else {
+      console.log('Banco de dados: memoria local');
+    }
     if (configWhatsApp) {
       console.log('WhatsApp: ativo!');
       if (configWhatsApp.twilioAccountSid) {
