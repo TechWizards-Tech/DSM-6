@@ -5,7 +5,6 @@ import { ClienteCloudApi, ClienteTwilio, type ClienteWhatsApp } from './modules/
 import { lerConfigWhatsApp } from './modules/whatsapp/config.js';
 
 try {
-<<<<<<< HEAD
   const configWhatsApp = lerConfigWhatsApp();
 
   let clienteWhatsApp: ClienteWhatsApp | undefined;

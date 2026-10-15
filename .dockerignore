@@ -1,0 +1,22 @@
+# Git
+.git
+.gitignore
+
+# Dependencies (não copiar node_modules da máquina host para os containers)
+node_modules
+**/node_modules
+
+# Build outputs
+dist
+**/dist
+
+# Environment & Logs
+.env
+.env.*
+*.log
+npm-debug.log*
+
+# Documentação pesada e arquivos temporários
+docs/
+.vscode/
+.idea/

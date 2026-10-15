@@ -43,6 +43,7 @@ function montar(inatividadeMs?: number, agora?: () => number) {
     motor: aplicacao.motor,
     sessoes: aplicacao.sessoes,
     fluxos: aplicacao.fluxos,
+    agendamentos: aplicacao.agendamentos,
     cliente,
     inatividadeMs,
     agora,
@@ -404,5 +405,97 @@ describe('WhatsApp - Twilio Sandbox', () => {
     expect(chamadaBody).toContain('From=whatsapp%3A%2B14155238886');
     expect(chamadaBody).toContain('Body=Mensagem+teste');
   });
+
+  describe('WhatsApp - Agendamento Presencial Conversacional (RF07)', () => {
+    it('permite agendar atendimento presencial conversando pelo WhatsApp quando fluxo indica agendamento_presencial', async () => {
+      const { cliente, enviar, agendamentos } = montar();
+
+      // 1. Inicia conversa ("oi")
+      await enviar('oi');
+      expect(cliente.ultima).toContain('Sou o assistente virtual do PROCON');
+
+      // 2. Escolhe opcao 1: Cobrança indevida
+      await enviar('1');
+      expect(cliente.ultima).toContain('Você chegou a contratar esse serviço');
+
+      // 3. Escolhe opcao 1: Nunca contratei
+      await enviar('1');
+      expect(cliente.ultima).toContain('Você tem em mãos as faturas');
+
+      // 4. Escolhe opcao 1: Sim, tenho -> Leva a orientacao com agendamento_presencial
+      await enviar('1');
+      expect(cliente.ultima).toContain('*1.* Solicitar Agendamento Presencial Agora');
+      expect(cliente.ultima).toContain('comparecer presencialmente ao PROCON');
+
+      // 5. Escolhe "1" para solicitar o agendamento
+      await enviar('1');
+      expect(cliente.ultima).toContain('Agendamento Presencial');
+      expect(cliente.ultima).toContain('Nome Completo');
+
+      // 6. Envia Nome
+      await enviar('Maria Eduarda');
+      expect(cliente.ultima).toContain('Maria Eduarda');
+      expect(cliente.ultima).toContain('CPF');
+
+      // 7. Envia CPF com formato
+      await enviar('123.456.789-00');
+      expect(cliente.ultima).toContain('Para qual *data* você gostaria de agendar?');
+
+      // 8. Envia Data futura em dia util (ex: 2026-10-20, terça-feira)
+      await enviar('2026-10-20');
+      expect(cliente.ultima).toContain('Horários disponíveis para');
+      expect(cliente.ultima).toContain('*1.* 08:00');
+
+      // 9. Escolhe o horario 1 (08:00)
+      await enviar('1');
+      expect(cliente.ultima).toContain('Agendamento Confirmado com Sucesso!');
+      expect(cliente.ultima).toContain('Protocolo:');
+      expect(cliente.ultima).toContain('Maria Eduarda');
+
+      // 10. Verifica no repositorio de agendamentos que foi persistido
+      const lista = await agendamentos.listar();
+      expect(lista.length).toBeGreaterThan(0);
+      const ag = lista.find((item) => item.nome === 'Maria Eduarda');
+      expect(ag).toBeDefined();
+      expect(ag?.cpf).toBe('123.456.789-00');
+      expect(ag?.data).toBe('2026-10-20');
+      expect(ag?.horario).toBe('08:00');
+      expect(ag?.usuario).toBe(TELEFONE);
+      expect(ag?.status).toBe('agendado');
+    });
+
+    it('permite cancelar o agendamento em andamento a qualquer momento digitando cancelar', async () => {
+      const { cliente, enviar } = montar();
+
+      // Navega ate a solicitacao de nome
+      await enviar('oi');
+      await enviar('1');
+      await enviar('1');
+      await enviar('1');
+      await enviar('1');
+      expect(cliente.ultima).toContain('Nome Completo');
+
+      // Cancela
+      await enviar('cancelar');
+      expect(cliente.ultima).toContain('Agendamento cancelado');
+    });
+
+    it('valida CPF invalido e solicita correcao', async () => {
+      const { cliente, enviar } = montar();
+
+      await enviar('oi');
+      await enviar('1');
+      await enviar('1');
+      await enviar('1');
+      await enviar('1'); // quer agendar
+      await enviar('Maria Eduarda'); // nome
+      await enviar('123'); // CPF curto
+      expect(cliente.ultima).toContain('CPF inválido');
+
+      await enviar('12345678900'); // CPF correto
+      expect(cliente.ultima).toContain('Para qual *data* você gostaria de agendar?');
+    });
+  });
 });
+
 

@@ -98,8 +98,10 @@ export function criarAplicacao(opcoes: OpcoesAplicacao): Aplicacao {
       motor,
       sessoes,
       fluxos,
+      agendamentos,
       cliente: opcoes.whatsapp.cliente,
     });
+
     app.use(
       '/api/whatsapp',
       criarRotasWhatsApp({
