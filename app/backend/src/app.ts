@@ -31,6 +31,7 @@ import {
 import { RepositorioUsuariosAdminPostgres } from './modules/auth/postgres.js';
 import { criarRotasPainel } from './http/rotasPainel.js';
 import { randomBytes } from 'node:crypto';
+import { resolve } from 'node:path';
 
 /** Integracao com o WhatsApp (RF01). Ausente = backend so com o simulador web. */
 export interface OpcoesWhatsApp {
@@ -75,9 +76,10 @@ export function criarAplicacao(opcoes: OpcoesAplicacao): Aplicacao {
       ? new RepositorioInteracoesPostgres(pool)
       : new RepositorioInteracoesMemoria(opcoes.arquivoRegistro || undefined));
   const llm = opcoes.llm ?? new ProvedorLlmDesativado();
+  const caminhoAgendamentos = resolve(process.cwd(), 'dados/agendamentos.json');
   const agendamentos =
     opcoes.agendamentos ??
-    (pool ? new RepositorioAgendamentosPostgres(pool) : new RepositorioAgendamentosMemoria());
+    (pool ? new RepositorioAgendamentosPostgres(pool) : new RepositorioAgendamentosMemoria(caminhoAgendamentos));
   const usuariosAdmin =
     opcoes.usuariosAdmin ??
     (pool ? new RepositorioUsuariosAdminPostgres(pool) : new RepositorioUsuariosAdminMemoria());

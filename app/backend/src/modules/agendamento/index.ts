@@ -59,6 +59,9 @@ export function mensagemHorarioOcupado(data: string, horario: string): string {
   return `O horário ${horario} no dia ${data} já está ocupado.`;
 }
 
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname } from 'node:path';
+
 // Horários de atendimento do PROCON Jacareí (08h às 16h)
 export const HORARIOS_PADRAO = [
   '08:00', '09:00', '10:00', '11:00',
@@ -67,6 +70,37 @@ export const HORARIOS_PADRAO = [
 
 export class RepositorioAgendamentosMemoria implements RepositorioAgendamentos {
   private agendamentos: Map<string, Agendamento> = new Map();
+
+  constructor(private readonly caminhoArquivo?: string) {
+    if (this.caminhoArquivo && existsSync(this.caminhoArquivo)) {
+      try {
+        const conteudo = readFileSync(this.caminhoArquivo, 'utf-8');
+        const lista = JSON.parse(conteudo);
+        if (Array.isArray(lista)) {
+          for (const item of lista) {
+            this.agendamentos.set(item.id, item);
+          }
+        }
+      } catch (e) {
+        console.warn(`[agendamentos] Falha ao carregar ${this.caminhoArquivo}:`, e);
+      }
+    }
+  }
+
+  private salvar() {
+    if (this.caminhoArquivo) {
+      try {
+        mkdirSync(dirname(this.caminhoArquivo), { recursive: true });
+        writeFileSync(
+          this.caminhoArquivo,
+          JSON.stringify(Array.from(this.agendamentos.values()), null, 2),
+          'utf-8',
+        );
+      } catch (e) {
+        console.warn(`[agendamentos] Falha ao salvar ${this.caminhoArquivo}:`, e);
+      }
+    }
+  }
 
   async listarHorarios(data: string): Promise<HorarioSlot[]> {
     const [anoStr = '0', mesStr = '1', diaStr = '1'] = data.split('-');
@@ -128,6 +162,7 @@ export class RepositorioAgendamentosMemoria implements RepositorioAgendamentos {
     };
 
     this.agendamentos.set(id, novoAgendamento);
+    this.salvar();
     return novoAgendamento;
   }
 
@@ -162,6 +197,7 @@ export class RepositorioAgendamentosMemoria implements RepositorioAgendamentos {
     }
 
     this.agendamentos.set(id, novo);
+    this.salvar();
     return novo;
   }
 }
