@@ -20,6 +20,16 @@ import {
 } from './modules/agendamento/index.js';
 import { RepositorioAgendamentosPostgres } from './modules/agendamento/postgres.js';
 import { criarPool } from './db/pool.js';
+import { AdaptadorWhatsApp } from './modules/whatsapp/adaptador.js';
+import type { ClienteWhatsApp } from './modules/whatsapp/cliente.js';
+import { criarRotasWhatsApp } from './http/whatsapp.js';
+
+/** Integracao com o WhatsApp (RF01). Ausente = backend so com o simulador web. */
+export interface OpcoesWhatsApp {
+  cliente: ClienteWhatsApp;
+  tokenVerificacao: string;
+  segredoApp?: string;
+}
 
 export interface OpcoesAplicacao {
   diretorioFluxos: string;
@@ -30,6 +40,7 @@ export interface OpcoesAplicacao {
   interacoes?: RepositorioInteracoes;
   agendamentos?: RepositorioAgendamentos;
   llm?: ProvedorLlm;
+  whatsapp?: OpcoesWhatsApp;
 }
 
 export interface Aplicacao {
@@ -59,6 +70,26 @@ export function criarAplicacao(opcoes: OpcoesAplicacao): Aplicacao {
 
   const app = express();
   app.use(cors({ origin: opcoes.origensPermitidas ?? true }));
+
+  // Webhook do WhatsApp: antes do express.json, pois precisa do corpo bruto
+  // para validar a assinatura enviada pela Meta.
+  if (opcoes.whatsapp) {
+    const adaptador = new AdaptadorWhatsApp({
+      motor,
+      sessoes,
+      fluxos,
+      cliente: opcoes.whatsapp.cliente,
+    });
+    app.use(
+      '/api/whatsapp',
+      criarRotasWhatsApp({
+        adaptador,
+        tokenVerificacao: opcoes.whatsapp.tokenVerificacao,
+        segredoApp: opcoes.whatsapp.segredoApp,
+      }),
+    );
+  }
+
   app.use(express.json());
   app.use('/api', criarRotas({ motor, fluxos, sessoes, interacoes, agendamentos }));
 
