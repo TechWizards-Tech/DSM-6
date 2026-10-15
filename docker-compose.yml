@@ -36,6 +36,10 @@ services:
       CORS_ORIGINS: http://localhost:8080
       REGISTRO_JSONL: /app/dados/interacoes.jsonl
       DATABASE_URL: postgresql://procon:procon@postgres:5432/procon_chatbot
+      # Painel Web Administrativo (RF08). Valores de desenvolvimento: troque em producao.
+      JWT_SEGREDO: ${JWT_SEGREDO:-dev-segredo-painel-procon-trocar}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@procon.local}
+      ADMIN_SENHA: ${ADMIN_SENHA:-procon123}
     volumes:
       - registro:/app/dados
     ports:

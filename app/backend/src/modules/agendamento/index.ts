@@ -3,6 +3,10 @@
  * Gerencia horários vagos e emissão de protocolos de agendamento no PROCON Jacareí.
  */
 
+export type StatusAgendamento = 'agendado' | 'atendido' | 'cancelado';
+
+export const STATUS_AGENDAMENTO: readonly StatusAgendamento[] = ['agendado', 'atendido', 'cancelado'];
+
 export interface Agendamento {
   id: string;
   protocolo: string; // Exemplo: PROCON-20260920-8492
@@ -12,8 +16,19 @@ export interface Agendamento {
   data: string;      // YYYY-MM-DD
   horario: string;   // HH:mm
   assunto: string;
-  status: 'agendado' | 'atendido' | 'cancelado';
+  status: StatusAgendamento;
   criadoEm: string;
+}
+
+export interface FiltroAgendamentos {
+  data?: string;
+  status?: StatusAgendamento;
+}
+
+export interface AlteracaoAgendamento {
+  status?: StatusAgendamento;
+  data?: string;
+  horario?: string;
 }
 
 export interface CriarAgendamentoInput {
@@ -35,11 +50,17 @@ export interface RepositorioAgendamentos {
   criar(input: CriarAgendamentoInput): Promise<Agendamento>;
   buscarPorId(id: string): Promise<Agendamento | undefined>;
   buscarPorProtocolo(protocolo: string): Promise<Agendamento | undefined>;
-  listar(): Promise<Agendamento[]>;
+  listar(filtro?: FiltroAgendamentos): Promise<Agendamento[]>;
+  /** Lanca erro "já está ocupado" se o novo dia/horario conflitar com outro agendamento ativo. */
+  atualizar(id: string, alteracao: AlteracaoAgendamento): Promise<Agendamento | undefined>;
+}
+
+export function mensagemHorarioOcupado(data: string, horario: string): string {
+  return `O horário ${horario} no dia ${data} já está ocupado.`;
 }
 
 // Horários de atendimento do PROCON Jacareí (08h às 16h)
-const HORARIOS_PADRAO = [
+export const HORARIOS_PADRAO = [
   '08:00', '09:00', '10:00', '11:00',
   '13:00', '14:00', '15:00', '16:00',
 ];
@@ -118,7 +139,29 @@ export class RepositorioAgendamentosMemoria implements RepositorioAgendamentos {
     return Array.from(this.agendamentos.values()).find((a) => a.protocolo === protocolo);
   }
 
-  async listar(): Promise<Agendamento[]> {
-    return Array.from(this.agendamentos.values());
+  async listar(filtro: FiltroAgendamentos = {}): Promise<Agendamento[]> {
+    return Array.from(this.agendamentos.values())
+      .filter(
+        (a) =>
+          (!filtro.data || a.data === filtro.data) && (!filtro.status || a.status === filtro.status),
+      )
+      .sort((a, b) => `${a.data} ${a.horario}`.localeCompare(`${b.data} ${b.horario}`));
+  }
+
+  async atualizar(id: string, alteracao: AlteracaoAgendamento): Promise<Agendamento | undefined> {
+    const atual = this.agendamentos.get(id);
+    if (!atual) return undefined;
+
+    const novo: Agendamento = { ...atual, ...alteracao };
+    if (novo.status === 'agendado') {
+      const conflito = Array.from(this.agendamentos.values()).some(
+        (a) =>
+          a.id !== id && a.status === 'agendado' && a.data === novo.data && a.horario === novo.horario,
+      );
+      if (conflito) throw new Error(mensagemHorarioOcupado(novo.data, novo.horario));
+    }
+
+    this.agendamentos.set(id, novo);
+    return novo;
   }
 }
