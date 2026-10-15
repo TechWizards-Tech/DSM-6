@@ -56,6 +56,22 @@ export function TelaEntrada({ carregando, erro, aoIniciar }: Props) {
           </p>
         )}
 
+        <div style={{ marginTop: '16px', textAlign: 'center' }}>
+          <a
+            href="/painel"
+            style={{
+              color: '#0284c7',
+              textDecoration: 'none',
+              fontSize: '0.88rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            Área do Funcionário · Painel de Agendamentos →
+          </a>
+        </div>
+
         <p className="entrada__rodape">
           Sprint 1 · ABP 2026-2 · FATEC Jacareí — as orientações vêm dos fluxos decisórios
           fornecidos pelo PROCON e têm caráter orientativo.

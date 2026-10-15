@@ -139,6 +139,13 @@ export function ListaAgendamentos({ token, usuario, aoSair, aoExpirar }: Props) 
           <h1 className="painel__titulo">Agendamentos presenciais</h1>
         </div>
         <div className="painel__usuario">
+          <a
+            href="/"
+            className="botao botao--fantasma"
+            style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+          >
+            ← Ir para o Chatbot
+          </a>
           <span>{usuario.nome}</span>
           <button className="botao botao--fantasma" type="button" onClick={aoSair}>
             Sair
