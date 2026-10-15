@@ -736,6 +736,308 @@ button {
   font-weight: 620;
 }
 
+/* ------------------------------------------------- painel administrativo (RF08) */
+
+.botao--perigo {
+  padding: 8px 14px;
+  background: transparent;
+  border-color: #fecaca;
+  border-radius: 999px;
+  color: #b91c1c;
+  font-size: 0.83rem;
+  white-space: nowrap;
+}
+
+.botao--perigo:hover:not(:disabled) {
+  background: #fef2f2;
+  border-color: #f87171;
+}
+
+.painel-carregando {
+  display: grid;
+  place-items: center;
+  min-height: 100%;
+  color: var(--texto-2);
+}
+
+.painel {
+  width: min(1080px, 100%);
+  margin: 0 auto;
+  padding: 28px 22px 48px;
+}
+
+.painel__cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--borda);
+}
+
+.painel__cabecalho .entrada__selo {
+  margin-bottom: 10px;
+}
+
+.painel__titulo {
+  font-size: 1.5rem;
+  font-weight: 640;
+  letter-spacing: -0.02em;
+}
+
+.painel__usuario {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  color: var(--texto-2);
+  font-size: 0.9rem;
+}
+
+.painel__filtros {
+  display: grid;
+  grid-template-columns: minmax(0, 200px) minmax(0, 200px) 1fr;
+  gap: 16px;
+  align-items: end;
+  margin-top: 22px;
+}
+
+.painel__atalhos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.painel__mensagem {
+  margin-top: 18px;
+  padding: 11px 14px;
+  border: 1px solid;
+  border-radius: var(--raio-campo);
+  font-size: 0.9rem;
+}
+
+.painel__mensagem--erro {
+  background: var(--alerta-fundo);
+  border-color: var(--alerta-borda);
+  color: var(--alerta);
+}
+
+.painel__mensagem--sucesso {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #15803d;
+}
+
+.painel__lista {
+  display: grid;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.painel__contagem {
+  color: var(--texto-3);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.painel__vazio {
+  padding: 40px 20px;
+  background: var(--conversa);
+  border: 1px dashed var(--borda-2);
+  border-radius: var(--raio);
+  color: var(--texto-2);
+  text-align: center;
+}
+
+.agendamento {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: start;
+  padding: 18px 20px;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-campo);
+  box-shadow: var(--sombra-bolha);
+}
+
+.agendamento__quando {
+  display: grid;
+  gap: 2px;
+  padding: 10px 8px;
+  background: var(--marca-tenue);
+  border-radius: 10px;
+  color: var(--marca-forte);
+  text-align: center;
+}
+
+.agendamento__quando strong {
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.agendamento__quando span {
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.agendamento__dados {
+  min-width: 0;
+}
+
+.agendamento__linha {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.agendamento__nome {
+  font-size: 1rem;
+  font-weight: 640;
+}
+
+.agendamento__assunto {
+  margin-top: 4px;
+  color: var(--texto);
+  font-size: 0.92rem;
+}
+
+.agendamento__meta {
+  margin-top: 6px;
+  color: var(--texto-3);
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+.agendamento__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.agendamento__acoes .botao--primario {
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.83rem;
+}
+
+.status {
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.status--agendado {
+  background: var(--marca-tenue);
+  color: var(--marca-forte);
+}
+
+.status--atendido {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status--cancelado {
+  background: #f1f5f9;
+  color: var(--texto-2);
+}
+
+.remarcar {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+  padding: 16px;
+  background: var(--conversa);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-campo);
+}
+
+.remarcar .campo__input {
+  max-width: 220px;
+  background: var(--superficie);
+}
+
+.remarcar__horarios {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 8px;
+}
+
+.remarcar__aviso {
+  color: var(--texto-2);
+  font-size: 0.86rem;
+}
+
+.remarcar__acoes {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.remarcar__acoes .botao--primario {
+  padding: 8px 16px;
+  font-size: 0.88rem;
+}
+
+.horario {
+  padding: 8px;
+  background: var(--superficie);
+  border: 1px solid var(--borda-2);
+  border-radius: 8px;
+  color: var(--texto);
+  cursor: pointer;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.horario:hover:not(:disabled) {
+  border-color: var(--marca);
+}
+
+.horario:disabled {
+  background: #f1f5f9;
+  color: var(--texto-3);
+  cursor: not-allowed;
+}
+
+.horario--selecionado {
+  background: var(--marca-tenue);
+  border: 2px solid var(--marca);
+  font-weight: 700;
+}
+
+@media (max-width: 760px) {
+  .painel {
+    padding: 20px 16px 40px;
+  }
+
+  .painel__filtros {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .painel__atalhos {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+
+  .agendamento {
+    grid-template-columns: 76px minmax(0, 1fr);
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .agendamento__acoes {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}
+
 /* ------------------------------------------------------------------- mobile */
 
 @media (max-width: 640px) {

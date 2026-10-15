@@ -23,6 +23,14 @@ import { criarPool } from './db/pool.js';
 import { AdaptadorWhatsApp } from './modules/whatsapp/adaptador.js';
 import type { ClienteWhatsApp } from './modules/whatsapp/cliente.js';
 import { criarRotasWhatsApp } from './http/whatsapp.js';
+import {
+  RepositorioUsuariosAdminMemoria,
+  ServicoAutenticacao,
+  type RepositorioUsuariosAdmin,
+} from './modules/auth/index.js';
+import { RepositorioUsuariosAdminPostgres } from './modules/auth/postgres.js';
+import { criarRotasPainel } from './http/rotasPainel.js';
+import { randomBytes } from 'node:crypto';
 
 /** Integracao com o WhatsApp (RF01). Ausente = backend so com o simulador web. */
 export interface OpcoesWhatsApp {
@@ -40,6 +48,9 @@ export interface OpcoesAplicacao {
   sessoes?: RepositorioSessoes;
   interacoes?: RepositorioInteracoes;
   agendamentos?: RepositorioAgendamentos;
+  usuariosAdmin?: RepositorioUsuariosAdmin;
+  /** Sem segredo fixo, os tokens do painel deixam de valer quando o servidor reinicia. */
+  segredoToken?: string;
   llm?: ProvedorLlm;
   whatsapp?: OpcoesWhatsApp;
 }
@@ -51,6 +62,7 @@ export interface Aplicacao {
   sessoes: RepositorioSessoes;
   interacoes: RepositorioInteracoes;
   agendamentos: RepositorioAgendamentos;
+  autenticacao: ServicoAutenticacao;
 }
 
 export function criarAplicacao(opcoes: OpcoesAplicacao): Aplicacao {
@@ -66,6 +78,13 @@ export function criarAplicacao(opcoes: OpcoesAplicacao): Aplicacao {
   const agendamentos =
     opcoes.agendamentos ??
     (pool ? new RepositorioAgendamentosPostgres(pool) : new RepositorioAgendamentosMemoria());
+  const usuariosAdmin =
+    opcoes.usuariosAdmin ??
+    (pool ? new RepositorioUsuariosAdminPostgres(pool) : new RepositorioUsuariosAdminMemoria());
+  const autenticacao = new ServicoAutenticacao(
+    usuariosAdmin,
+    opcoes.segredoToken || randomBytes(32).toString('hex'),
+  );
 
   const motor = new MotorConversa(fluxos, sessoes, interacoes, llm);
 
@@ -93,6 +112,7 @@ export function criarAplicacao(opcoes: OpcoesAplicacao): Aplicacao {
 
   app.use(express.json());
   app.use('/api', criarRotas({ motor, fluxos, sessoes, interacoes, agendamentos }));
+  app.use('/api', criarRotasPainel({ autenticacao, agendamentos }));
 
   app.use((_req, res) => res.status(404).json({ erro: 'Rota nao encontrada.' }));
 
@@ -101,5 +121,5 @@ export function criarAplicacao(opcoes: OpcoesAplicacao): Aplicacao {
     res.status(500).json({ erro: 'Erro interno no servidor.' });
   });
 
-  return { app, motor, fluxos, sessoes, interacoes, agendamentos };
+  return { app, motor, fluxos, sessoes, interacoes, agendamentos, autenticacao };
 }

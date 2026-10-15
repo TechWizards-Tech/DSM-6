@@ -1,10 +1,13 @@
 import type { Pool } from '../../../node_modules/@types/pg/index.js';
 
-import type {
-  Agendamento,
-  CriarAgendamentoInput,
-  HorarioSlot,
-  RepositorioAgendamentos,
+import {
+  mensagemHorarioOcupado,
+  type AlteracaoAgendamento,
+  type Agendamento,
+  type CriarAgendamentoInput,
+  type FiltroAgendamentos,
+  type HorarioSlot,
+  type RepositorioAgendamentos,
 } from './index.js';
 
 // Horarios de atendimento do PROCON Jacarei (08h as 16h)
@@ -94,10 +97,42 @@ export class RepositorioAgendamentosPostgres implements RepositorioAgendamentos 
     return resultado.rows[0] ? paraAgendamento(resultado.rows[0]) : undefined;
   }
 
-  async listar(): Promise<Agendamento[]> {
+  async listar(filtro: FiltroAgendamentos = {}): Promise<Agendamento[]> {
+    const condicoes: string[] = [];
+    const valores: string[] = [];
+    if (filtro.data) {
+      valores.push(filtro.data);
+      condicoes.push(`data = $${valores.length}`);
+    }
+    if (filtro.status) {
+      valores.push(filtro.status);
+      condicoes.push(`status = $${valores.length}`);
+    }
+    const where = condicoes.length > 0 ? `WHERE ${condicoes.join(' AND ')}` : '';
     const resultado = await this.pool.query<LinhaAgendamento>(
-      `SELECT ${COLUNAS} FROM agendamentos ORDER BY criado_em ASC`,
+      `SELECT ${COLUNAS} FROM agendamentos ${where} ORDER BY data ASC, horario ASC`,
+      valores,
     );
     return resultado.rows.map(paraAgendamento);
+  }
+
+  async atualizar(id: string, alteracao: AlteracaoAgendamento): Promise<Agendamento | undefined> {
+    try {
+      const resultado = await this.pool.query<LinhaAgendamento>(
+        `UPDATE agendamentos
+            SET status  = COALESCE($2, status),
+                data    = COALESCE($3::date, data),
+                horario = COALESCE($4::time, horario)
+          WHERE id = $1
+         RETURNING ${COLUNAS}`,
+        [id, alteracao.status ?? null, alteracao.data ?? null, alteracao.horario ?? null],
+      );
+      return resultado.rows[0] ? paraAgendamento(resultado.rows[0]) : undefined;
+    } catch (erro) {
+      if (erro && typeof erro === 'object' && 'code' in erro && erro.code === '23505') {
+        throw new Error(mensagemHorarioOcupado(alteracao.data ?? '', alteracao.horario ?? ''));
+      }
+      throw erro;
+    }
   }
 }

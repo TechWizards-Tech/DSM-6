@@ -5,6 +5,7 @@ import { ClienteCloudApi, ClienteTwilio, type ClienteWhatsApp } from './modules/
 import { lerConfigWhatsApp } from './modules/whatsapp/config.js';
 
 try {
+<<<<<<< HEAD
   const configWhatsApp = lerConfigWhatsApp();
 
   let clienteWhatsApp: ClienteWhatsApp | undefined;
@@ -24,11 +25,12 @@ try {
     }
   }
 
-  const { app, fluxos } = criarAplicacao({
+  const { app, fluxos, autenticacao } = criarAplicacao({
     diretorioFluxos: config.diretorioFluxos,
     origensPermitidas: config.origensPermitidas,
     arquivoRegistro: config.arquivoRegistro,
     databaseUrl: config.databaseUrl,
+    segredoToken: config.segredoToken,
     whatsapp: configWhatsApp
       ? {
           cliente: clienteWhatsApp,
@@ -37,6 +39,13 @@ try {
         }
       : undefined,
   });
+
+
+  if (config.adminEmail && config.adminSenha) {
+    await autenticacao.garantirAdminInicial(config.adminEmail, config.adminSenha, config.adminNome);
+  } else {
+    console.warn('ADMIN_EMAIL/ADMIN_SENHA nao definidos: nenhum acesso inicial ao painel foi criado.');
+  }
 
   app.listen(config.porta, () => {
     console.log(`Chatbot PROCON  |  http://localhost:${config.porta}/api/saude`);
