@@ -21,6 +21,8 @@ export const config = {
   diretorioFluxos: descobrirDiretorioFluxos(),
   arquivoRegistro:
     process.env.REGISTRO_JSONL ?? resolve(process.cwd(), 'dados/interacoes.jsonl'),
+  arquivoAgendamentos:
+    process.env.AGENDAMENTOS_JSON ?? resolve(process.cwd(), 'dados/agendamentos.json'),
   origensPermitidas: (process.env.CORS_ORIGINS ?? 'http://localhost:5173').split(','),
   databaseUrl: process.env.DATABASE_URL,
   segredoToken: process.env.JWT_SEGREDO ?? 'dev-segredo-painel-procon-trocar',

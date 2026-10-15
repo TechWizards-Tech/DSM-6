@@ -28,6 +28,7 @@ try {
     diretorioFluxos: config.diretorioFluxos,
     origensPermitidas: config.origensPermitidas,
     arquivoRegistro: config.arquivoRegistro,
+    arquivoAgendamentos: config.arquivoAgendamentos,
     databaseUrl: config.databaseUrl,
     segredoToken: config.segredoToken,
     whatsapp: configWhatsApp

@@ -45,6 +45,7 @@ export interface OpcoesAplicacao {
   diretorioFluxos: string;
   origensPermitidas?: string[];
   arquivoRegistro?: string;
+  arquivoAgendamentos?: string;
   databaseUrl?: string;
   sessoes?: RepositorioSessoes;
   interacoes?: RepositorioInteracoes;
@@ -76,10 +77,11 @@ export function criarAplicacao(opcoes: OpcoesAplicacao): Aplicacao {
       ? new RepositorioInteracoesPostgres(pool)
       : new RepositorioInteracoesMemoria(opcoes.arquivoRegistro || undefined));
   const llm = opcoes.llm ?? new ProvedorLlmDesativado();
-  const caminhoAgendamentos = resolve(process.cwd(), 'dados/agendamentos.json');
   const agendamentos =
     opcoes.agendamentos ??
-    (pool ? new RepositorioAgendamentosPostgres(pool) : new RepositorioAgendamentosMemoria(caminhoAgendamentos));
+    (pool
+      ? new RepositorioAgendamentosPostgres(pool)
+      : new RepositorioAgendamentosMemoria(opcoes.arquivoAgendamentos));
   const usuariosAdmin =
     opcoes.usuariosAdmin ??
     (pool ? new RepositorioUsuariosAdminPostgres(pool) : new RepositorioUsuariosAdminMemoria());
