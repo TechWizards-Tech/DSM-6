@@ -118,7 +118,14 @@ export function criarAplicacao(opcoes: OpcoesAplicacao): Aplicacao {
 
   app.use(express.json());
   app.use('/api', criarRotas({ motor, fluxos, sessoes, interacoes, agendamentos }));
-  app.use('/api', criarRotasPainel({ autenticacao, agendamentos }));
+  app.use(
+    '/api',
+    criarRotasPainel({
+      autenticacao,
+      agendamentos,
+      clienteWhatsApp: opcoes.whatsapp?.cliente,
+    }),
+  );
 
   app.use((_req, res) => res.status(404).json({ erro: 'Rota nao encontrada.' }));
 
