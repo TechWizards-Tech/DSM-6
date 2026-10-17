@@ -6,12 +6,43 @@ interface Props {
   aoFechar: () => void;
 }
 
+function formatarCpf(valor: string): string {
+  const numeros = valor.replace(/\D/g, '').slice(0, 11);
+  if (numeros.length <= 3) return numeros;
+  if (numeros.length <= 6) return `${numeros.slice(0, 3)}.${numeros.slice(3)}`;
+  if (numeros.length <= 9) return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6)}`;
+  return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6, 9)}-${numeros.slice(9, 11)}`;
+}
+
+function formatarTelefoneComDdi(valor: string): string {
+  const digitos = valor.replace(/\D/g, '');
+  if (digitos.length === 0) return '+55 ';
+
+  // Se for número do Brasil (começa com 55)
+  if (digitos.startsWith('55')) {
+    const local = digitos.slice(2, 13); // DDD (2) + Celular (9)
+    if (local.length === 0) return '+55 ';
+    if (local.length <= 2) return `+55 (${local}`;
+    if (local.length <= 6) return `+55 (${local.slice(0, 2)}) ${local.slice(2)}`;
+    if (local.length <= 10) {
+      return `+55 (${local.slice(0, 2)}) ${local.slice(2, 6)}-${local.slice(6)}`;
+    }
+    return `+55 (${local.slice(0, 2)}) ${local.slice(2, 7)}-${local.slice(7, 11)}`;
+  }
+
+  // Se for outro DDI internacional (ex.: +1, +351):
+  // Limite da norma mundial ITU-T E.164: no máximo 15 dígitos
+  const internacional = digitos.slice(0, 15);
+  return `+${internacional}`;
+}
+
 export const JanelaAgendamento: React.FC<Props> = ({ usuario, aoFechar }) => {
   const hoje = new Date().toISOString().slice(0, 10);
   const [data, setData] = useState(hoje);
   const [horarios, setHorarios] = useState<HorarioSlot[]>([]);
   const [horarioSelecionado, setHorarioSelecionado] = useState('');
   const [nome, setNome] = useState('');
+  const [celular, setCelular] = useState(() => formatarTelefoneComDdi(usuario));
   const [cpf, setCpf] = useState('');
   const [assunto, setAssunto] = useState('Orientação do Consumidor');
   const [carregando, setCarregando] = useState(false);
@@ -48,12 +79,24 @@ export const JanelaAgendamento: React.FC<Props> = ({ usuario, aoFechar }) => {
       return;
     }
 
+    const digitosCpf = cpf.replace(/\D/g, '');
+    if (digitosCpf.length !== 11) {
+      setErro('Por favor, informe um CPF completo com 11 dígitos.');
+      return;
+    }
+
+    const digitosCelular = celular.replace(/\D/g, '');
+    if (digitosCelular.length < 10) {
+      setErro('Por favor, informe um número de celular/telefone com DDD (10 ou 11 dígitos).');
+      return;
+    }
+
     setCarregando(true);
     setErro(null);
 
     try {
       const resultado = await criarAgendamento({
-        usuario,
+        usuario: celular,
         nome,
         cpf,
         data,
@@ -79,6 +122,7 @@ export const JanelaAgendamento: React.FC<Props> = ({ usuario, aoFechar }) => {
         </h2>
         <p className="entrada__descricao" style={{ marginTop: '16px', fontSize: '0.95rem' }}>
           <strong>Cidadão:</strong> {agendamentoConfirmado.nome}<br />
+          <strong>Contato:</strong> {agendamentoConfirmado.usuario}<br />
           <strong>Data:</strong> {agendamentoConfirmado.data} às {agendamentoConfirmado.horario}<br />
           <strong>Local:</strong> Sede do PROCON Jacareí-SP
         </p>
@@ -109,8 +153,31 @@ export const JanelaAgendamento: React.FC<Props> = ({ usuario, aoFechar }) => {
         </div>
 
         <div className="campo">
+          <label className="campo__rotulo">Celular / Telefone de Contato</label>
+          <input
+            className="campo__input"
+            type="tel"
+            inputMode="numeric"
+            maxLength={19}
+            value={celular}
+            onChange={(e) => setCelular(formatarTelefoneComDdi(e.target.value))}
+            required
+            placeholder="+55 (12) 99999-9999"
+          />
+        </div>
+
+        <div className="campo">
           <label className="campo__rotulo">CPF</label>
-          <input className="campo__input" type="text" value={cpf} onChange={(e) => setCpf(e.target.value)} required placeholder="000.000.000-00" />
+          <input
+            className="campo__input"
+            type="text"
+            inputMode="numeric"
+            maxLength={14}
+            value={cpf}
+            onChange={(e) => setCpf(formatarCpf(e.target.value))}
+            required
+            placeholder="000.000.000-00"
+          />
         </div>
 
         <div className="campo">
