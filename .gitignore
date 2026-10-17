@@ -9,3 +9,5 @@ app/backend/scratch/
 .DS_Store
 .ANALISE_E_PROXIMOS_PASSOS.md
 cloudflared.exe
+ngrok.exe
+.ngrok.exe.old
