@@ -39,6 +39,24 @@ describe('Módulo de Agendamento Presencial (RF07, US04)', () => {
     expect(resposta.status).toBe(201);
     expect(resposta.body).toHaveProperty('protocolo');
     expect(resposta.body.status).toBe('agendado');
+    expect(resposta.body.cpf).toBe('12345678900');
+  });
+
+  it('deve recusar agendamento com CPF com quantidade incorreta de dígitos', async () => {
+    const { app } = instanciar();
+
+    const corpo = {
+      usuario: '+5512999990000',
+      nome: 'Maria da Silva',
+      cpf: '123.456', // apenas 6 dígitos
+      data: '2026-09-21',
+      horario: '09:00',
+      assunto: 'Dúvidas',
+    };
+
+    const resposta = await request(app).post('/api/agendamentos').send(corpo);
+    expect(resposta.status).toBe(400);
+    expect(resposta.body.erro).toContain('11 dígitos numéricos');
   });
 
   it('deve recusar tentativa de agendamento no final de semana (Domingo)', async () => {
