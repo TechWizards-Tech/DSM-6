@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS agendamentos (
     protocolo       TEXT NOT NULL UNIQUE,
     usuario         TEXT NOT NULL,
     nome            TEXT NOT NULL,
-    cpf             VARCHAR(11) NOT NULL,
+    cpf             VARCHAR(14) NOT NULL,
     data            DATE NOT NULL,
     horario         TIME NOT NULL,
     assunto         TEXT NOT NULL,

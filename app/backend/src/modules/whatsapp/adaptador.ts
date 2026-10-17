@@ -336,11 +336,16 @@ export class AdaptadorWhatsApp {
 
         this.agendamentosEmAndamento.delete(telefone);
 
+        const cpfExibicao =
+          novo.cpf.length === 11
+            ? `${novo.cpf.slice(0, 3)}.${novo.cpf.slice(3, 6)}.${novo.cpf.slice(6, 9)}-${novo.cpf.slice(9)}`
+            : novo.cpf;
+
         return [
           `✅ *Agendamento Confirmado com Sucesso!*\n\n` +
             `📋 *Protocolo:* ${novo.protocolo}\n` +
             `👤 *Nome:* ${novo.nome}\n` +
-            `📄 *CPF:* ${novo.cpf}\n` +
+            `📄 *CPF:* ${cpfExibicao}\n` +
             `🗓️ *Data:* ${formatarDataBr(novo.data)} às ${novo.horario}\n` +
             `📍 *Local:* PROCON de Jacareí\n\n` +
             `📌 *Importante:* Compareça com 15 minutos de antecedência munido de documento oficial com foto, comprovante de residência e documentos do seu caso.\n\n` +
