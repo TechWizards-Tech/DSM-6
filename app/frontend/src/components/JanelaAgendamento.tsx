@@ -14,19 +14,26 @@ function formatarCpf(valor: string): string {
   return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6, 9)}-${numeros.slice(9, 11)}`;
 }
 
-function formatarTelefone(valor: string): string {
-  let numeros = valor.replace(/\D/g, '');
-  if (numeros.startsWith('55') && numeros.length > 11) {
-    numeros = numeros.slice(2);
+function formatarTelefoneComDdi(valor: string): string {
+  const digitos = valor.replace(/\D/g, '');
+  if (digitos.length === 0) return '+55 ';
+
+  // Se for número do Brasil (começa com 55)
+  if (digitos.startsWith('55')) {
+    const local = digitos.slice(2, 13); // DDD (2) + Celular (9)
+    if (local.length === 0) return '+55 ';
+    if (local.length <= 2) return `+55 (${local}`;
+    if (local.length <= 6) return `+55 (${local.slice(0, 2)}) ${local.slice(2)}`;
+    if (local.length <= 10) {
+      return `+55 (${local.slice(0, 2)}) ${local.slice(2, 6)}-${local.slice(6)}`;
+    }
+    return `+55 (${local.slice(0, 2)}) ${local.slice(2, 7)}-${local.slice(7, 11)}`;
   }
-  numeros = numeros.slice(0, 11);
-  if (numeros.length === 0) return '';
-  if (numeros.length <= 2) return `(${numeros}`;
-  if (numeros.length <= 6) return `(${numeros.slice(0, 2)}) ${numeros.slice(2)}`;
-  if (numeros.length <= 10) {
-    return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 6)}-${numeros.slice(6)}`;
-  }
-  return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7, 11)}`;
+
+  // Se for outro DDI internacional (ex.: +1, +351):
+  // Limite da norma mundial ITU-T E.164: no máximo 15 dígitos
+  const internacional = digitos.slice(0, 15);
+  return `+${internacional}`;
 }
 
 export const JanelaAgendamento: React.FC<Props> = ({ usuario, aoFechar }) => {
@@ -35,7 +42,7 @@ export const JanelaAgendamento: React.FC<Props> = ({ usuario, aoFechar }) => {
   const [horarios, setHorarios] = useState<HorarioSlot[]>([]);
   const [horarioSelecionado, setHorarioSelecionado] = useState('');
   const [nome, setNome] = useState('');
-  const [celular, setCelular] = useState(() => formatarTelefone(usuario));
+  const [celular, setCelular] = useState(() => formatarTelefoneComDdi(usuario));
   const [cpf, setCpf] = useState('');
   const [assunto, setAssunto] = useState('Orientação do Consumidor');
   const [carregando, setCarregando] = useState(false);
@@ -151,11 +158,11 @@ export const JanelaAgendamento: React.FC<Props> = ({ usuario, aoFechar }) => {
             className="campo__input"
             type="tel"
             inputMode="numeric"
-            maxLength={15}
+            maxLength={19}
             value={celular}
-            onChange={(e) => setCelular(formatarTelefone(e.target.value))}
+            onChange={(e) => setCelular(formatarTelefoneComDdi(e.target.value))}
             required
-            placeholder="(12) 99999-9999"
+            placeholder="+55 (12) 99999-9999"
           />
         </div>
 
