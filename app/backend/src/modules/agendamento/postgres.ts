@@ -60,12 +60,14 @@ export class RepositorioAgendamentosPostgres implements RepositorioAgendamentos 
     const sufixo = Math.floor(1000 + Math.random() * 9000);
     const protocolo = `PROCON-${dataFormatada}-${sufixo}`;
 
+    const cpfParaSalvar = input.cpf.slice(0, 20);
+
     try {
       const resultado = await this.pool.query<LinhaAgendamento>(
         `INSERT INTO agendamentos (protocolo, usuario, nome, cpf, data, horario, assunto)
          VALUES ($1, $2, $3, $4, $5, $6, $7)
          RETURNING ${COLUNAS}`,
-        [protocolo, input.usuario, input.nome, input.cpf, input.data, input.horario, input.assunto],
+        [protocolo, input.usuario, input.nome, cpfParaSalvar, input.data, input.horario, input.assunto],
       );
       const linha = resultado.rows[0];
       if (!linha) throw new Error('Insercao de agendamento nao retornou a linha criada.');

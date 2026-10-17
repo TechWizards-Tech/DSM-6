@@ -73,6 +73,22 @@ export function TelaLoginPainel({ aviso, aoEntrar }: Props) {
             {mensagem}
           </p>
         )}
+
+        <div style={{ marginTop: '20px', textAlign: 'center' }}>
+          <a
+            href="/"
+            style={{
+              color: '#0284c7',
+              textDecoration: 'none',
+              fontSize: '0.9rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            ← Voltar para o Chatbot
+          </a>
+        </div>
       </div>
     </main>
   );

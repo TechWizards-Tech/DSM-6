@@ -11,6 +11,7 @@ const scryptAsync = promisify(scrypt) as (
   senha: string,
   sal: Buffer,
   tamanho: number,
+  opcoes?: { maxmem?: number; cost?: number; blockSize?: number; parallelization?: number },
 ) => Promise<Buffer>;
 
 export interface UsuarioAdmin {
@@ -59,11 +60,12 @@ export function normalizarEmail(email: string): string {
 }
 
 const TAMANHO_HASH = 64;
+const OPCOES_SCRYPT = { maxmem: 64 * 1024 * 1024 };
 
 /** Formato armazenado: `scrypt$<sal hex>$<hash hex>`. */
 export async function gerarHashSenha(senha: string): Promise<string> {
   const sal = randomBytes(16);
-  const hash = await scryptAsync(senha, sal, TAMANHO_HASH);
+  const hash = await scryptAsync(senha, sal, TAMANHO_HASH, OPCOES_SCRYPT);
   return `scrypt$${sal.toString('hex')}$${hash.toString('hex')}`;
 }
 
@@ -71,7 +73,7 @@ export async function verificarSenha(senha: string, armazenado: string): Promise
   const [algoritmo, salHex, hashHex] = armazenado.split('$');
   if (algoritmo !== 'scrypt' || !salHex || !hashHex) return false;
   const esperado = Buffer.from(hashHex, 'hex');
-  const calculado = await scryptAsync(senha, Buffer.from(salHex, 'hex'), esperado.length);
+  const calculado = await scryptAsync(senha, Buffer.from(salHex, 'hex'), esperado.length, OPCOES_SCRYPT);
   return calculado.length === esperado.length && timingSafeEqual(calculado, esperado);
 }
 

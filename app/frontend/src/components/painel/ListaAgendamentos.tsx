@@ -199,6 +199,13 @@ export function ListaAgendamentos({ token, usuario, aoSair, aoExpirar }: Props) 
             </div>
           </div>
           <div className="painel__usuario">
+            <a
+              href="/"
+              className="botao botao--fantasma"
+              style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+            >
+              ← Ir para o Chatbot
+            </a>
             <span className="painel__avatar" aria-hidden="true">
               {iniciais(usuario.nome)}
             </span>
