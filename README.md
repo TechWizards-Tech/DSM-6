@@ -36,21 +36,21 @@ GitHub Projects: Acompanhe o roadmap, tarefas em andamento e o progresso do dese
 | Sprint | Início | Entrega | Status |
 |--------|--------|---------|--------|
 | Sprint 01 | 10/08/2026 | 14/09/2026 | ✅ |
-| Sprint 02 | 15/09/2026 | 19/10/2026 | 🔄 |
+| Sprint 02 | 15/09/2026 | 19/10/2026 | ✅ |
 | Sprint 03 | 20/10/2026 | 23/11/2026 | ⏳ |
 
 # PRODUCT BACKLOG
 
 | ID | Requisito | Sprint |
 |----|-----------|--------|
-| RF01 | Interação do usuário pelo WhatsApp | 02 |
+| RF01 | Interação do usuário pelo WhatsApp | 01, 02 |
 | RF02 | Apresentação de opções com base nos fluxos do PROCON | 01 |
 | RF03 | Navegação pelos fluxos decisórios | 01 |
 | RF04 | Geração de resposta orientadora | 01, 02 |
 | RF05 | Utilização de LLM para explicação das respostas | 02 |
-| RF06 | Registro das interações | 01, 02 |
+| RF06 | Registro das interações | 02, 03 |
 | RF07 | Agendamento de atendimento presencial | 02 |
-| RF08 | Interface web para gerenciamento dos agendamentos | 03 |
+| RF08 | Interface web para gerenciamento dos agendamentos | 02, 03 |
 
 # REQUISITOS NÃO FUNCIONAIS
 
@@ -125,6 +125,8 @@ o funcionamento básico do chatbot.
 
 Na Sprint 2, o foco será desenvolver as funcionalidades de orientação,
 registro das conversas e agendamento.
+
+![Burndown Sprint 2](./burndown%20sprint2.png)
 
 ### Atividades
 
