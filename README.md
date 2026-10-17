@@ -36,21 +36,21 @@ GitHub Projects: Acompanhe o roadmap, tarefas em andamento e o progresso do dese
 | Sprint | Início | Entrega | Status |
 |--------|--------|---------|--------|
 | Sprint 01 | 10/08/2026 | 14/09/2026 | ✅ |
-| Sprint 02 | 15/09/2026 | 19/10/2026 | ⏳ |
-| Sprint 03 | 20/10/2026 | 23/11/2026 | ⏳ |
+| Sprint 02 | 15/09/2026 | 19/10/2026 | ✅ |
+| Sprint 03 | 20/10/2026 | 23/11/2026 | 🔄 |
 
 # PRODUCT BACKLOG
 
 | ID | Requisito | Sprint |
 |----|-----------|--------|
-| RF01 | Interação do usuário pelo WhatsApp | 02 |
+| RF01 | Interação do usuário pelo WhatsApp | 01, 02 |
 | RF02 | Apresentação de opções com base nos fluxos do PROCON | 01 |
 | RF03 | Navegação pelos fluxos decisórios | 01 |
 | RF04 | Geração de resposta orientadora | 01, 02 |
 | RF05 | Utilização de LLM para explicação das respostas | 02 |
-| RF06 | Registro das interações | 01, 02 |
+| RF06 | Registro das interações | 02, 03 |
 | RF07 | Agendamento de atendimento presencial | 02 |
-| RF08 | Interface web para gerenciamento dos agendamentos | 03 |
+| RF08 | Interface web para gerenciamento dos agendamentos | 02, 03 |
 
 # REQUISITOS NÃO FUNCIONAIS
 
@@ -121,10 +121,16 @@ o funcionamento básico do chatbot.
 - Controle das sessões dos usuários (sem persistencia em banco de dados)
 - Testes automatizados
 
+## Retrospectiva — Sprint 1
+
+A Sprint 1 teve como foco estabelecer a estrutura inicial do sistema e o funcionamento básico do chatbot. Foram entregues os fluxos decisórios do PROCON modelados em JSON, a navegação entre opções, os avisos de caráter orientativo, o registro das interações e a interface de teste. Testes automatizados e Docker também foram configurados nesta etapa. A comunicação da equipe funcionou bem ao longo da sprint e não houve bloqueios críticos. Como ponto de atenção, a definição dos fluxos tomou mais tempo do que o estimado no início, o que reforçou a importância de alinhar requisitos antes de iniciar o desenvolvimento. Algumas funcionalidades, como a integração real com o WhatsApp, banco de dados e agendamento, foram intencionalmente mantidas para a Sprint 2, conforme planejado.
+
 # SPRINT 2
 
 Na Sprint 2, o foco será desenvolver as funcionalidades de orientação,
 registro das conversas e agendamento.
+
+![Burndown Sprint 2](./burndown%20sprint2.png)
 
 ### Atividades
 
@@ -348,6 +354,8 @@ A documentação do projeto será mantida neste repositório, incluindo:
 - Manual de utilização
 
 # PROJETO
+
+- Link Vídeo Sprint 01: https://youtu.be/DSInHO1evGc?si=lX-BdQ4GD3Klo57Z
 
 **FATEC Jacareí — Desenvolvimento de Software Multiplataforma**
 
