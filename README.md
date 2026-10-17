@@ -37,7 +37,7 @@ GitHub Projects: Acompanhe o roadmap, tarefas em andamento e o progresso do dese
 |--------|--------|---------|--------|
 | Sprint 01 | 10/08/2026 | 14/09/2026 | ✅ |
 | Sprint 02 | 15/09/2026 | 19/10/2026 | ✅ |
-| Sprint 03 | 20/10/2026 | 23/11/2026 | ⏳ |
+| Sprint 03 | 20/10/2026 | 23/11/2026 | 🔄 |
 
 # PRODUCT BACKLOG
 
@@ -120,6 +120,10 @@ o funcionamento básico do chatbot.
 - Registro das interações (sem persistencia em banco de dados)
 - Controle das sessões dos usuários (sem persistencia em banco de dados)
 - Testes automatizados
+
+## Retrospectiva — Sprint 1
+
+A Sprint 1 teve como foco estabelecer a estrutura inicial do sistema e o funcionamento básico do chatbot. Foram entregues os fluxos decisórios do PROCON modelados em JSON, a navegação entre opções, os avisos de caráter orientativo, o registro das interações e a interface de teste. Testes automatizados e Docker também foram configurados nesta etapa. A comunicação da equipe funcionou bem ao longo da sprint e não houve bloqueios críticos. Como ponto de atenção, a definição dos fluxos tomou mais tempo do que o estimado no início, o que reforçou a importância de alinhar requisitos antes de iniciar o desenvolvimento. Algumas funcionalidades, como a integração real com o WhatsApp, banco de dados e agendamento, foram intencionalmente mantidas para a Sprint 2, conforme planejado.
 
 # SPRINT 2
 
