@@ -329,7 +329,9 @@ zera as conversas.
 
 ## O que a Sprint 2 entrega e o que ficou de fora
 
-Entregue: integração real com o WhatsApp (RF01), banco de dados com persistência das sessões e das interações (RF06), respostas orientadoras com resumo do caso e próximos passos (RF04), agendamento presencial pelo WhatsApp (RF07), tratamento de erros e entradas inválidas e avisos sobre o caráter orientativo das respostas (RNF04). No agendamento, o cidadão informa nome, CPF, data e horário, e o sistema valida a disponibilidade, avisa quando o horário já está ocupado e gera um protocolo de confirmação. Também foi apresentada uma versão inicial do painel web, com login de administrador, listagem dos agendamentos, filtros por data e situação e ações de confirmar, remarcar e cancelar. Fora do escopo desta sprint, por decisão do planejamento: painel web completo e gerenciamento dos agendamentos (RF08), adequação à LGPD e segurança (RNF03), testes de integração, CI/CD, deploy, documentação final (RNF07) e validação com o PROCON, que seguem para a Sprint 3.
+Entregue: integração real com o WhatsApp (RF01), banco de dados com persistência das sessões e das interações (RF06), respostas orientadoras com resumo do caso e próximos passos (RF04), agendamento presencial pelo WhatsApp (RF07), tratamento de erros e entradas inválidas e avisos sobre o caráter orientativo das respostas (RNF04). No agendamento, o cidadão informa nome, CPF, data e horário, e o sistema valida a disponibilidade, avisa quando o horário já está ocupado e gera um protocolo de confirmação. 
+
+Também foi apresentada uma versão inicial do painel web, com login de administrador, listagem dos agendamentos, filtros por data e situação e ações de confirmar, remarcar e cancelar. Fora do escopo desta sprint, por decisão do planejamento: painel web completo e gerenciamento dos agendamentos (RF08), adequação à LGPD e segurança (RNF03), testes de integração, CI/CD, deploy, documentação final (RNF07) e validação com o PROCON, que seguem para a Sprint 3.
 
 # EQUIPE
 
