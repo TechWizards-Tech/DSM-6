@@ -356,6 +356,7 @@ A documentação do projeto será mantida neste repositório, incluindo:
 # PROJETO
 
 - Link Vídeo Sprint 01: https://youtu.be/DSInHO1evGc?si=lX-BdQ4GD3Klo57Z
+- Link Vídeo Sprint 02: https://youtu.be/cHGECdl8jgY
 
 **FATEC Jacareí — Desenvolvimento de Software Multiplataforma**
 
