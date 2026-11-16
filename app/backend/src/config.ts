@@ -50,7 +50,7 @@ export const config = {
   arquivoAgendamentos:
     process.env.AGENDAMENTOS_JSON ?? resolve(process.cwd(), 'dados/agendamentos.json'),
   origensPermitidas: (process.env.CORS_ORIGINS ?? 'http://localhost:5173').split(','),
-  databaseUrl: process.env.DATABASE_URL ?? 'postgresql://procon:procon@localhost:5432/procon_chatbot',
+  databaseUrl: process.env.DATABASE_URL,
   segredoToken: process.env.JWT_SEGREDO ?? 'dev-segredo-painel-procon-trocar',
   adminEmail: process.env.ADMIN_EMAIL ?? 'admin@procon.local',
   adminSenha: process.env.ADMIN_SENHA ?? 'procon123',
