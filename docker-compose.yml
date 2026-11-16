@@ -27,6 +27,8 @@ services:
     build:
       context: .
       dockerfile: app/backend/Dockerfile
+    env_file:
+      - app/backend/.env  
     depends_on:
       postgres:
         condition: service_healthy
@@ -36,6 +38,9 @@ services:
       CORS_ORIGINS: http://localhost:8080
       REGISTRO_JSONL: /app/dados/interacoes.jsonl
       DATABASE_URL: postgresql://procon:procon@postgres:5432/procon_chatbot
+      # LLM Local via Ollama (RF05, RNF05, RP05). Ex.: http://host.docker.internal:11434
+      OLLAMA_URL: ${OLLAMA_URL:-}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2:3b}
     volumes:
       - registro:/app/dados
     ports:

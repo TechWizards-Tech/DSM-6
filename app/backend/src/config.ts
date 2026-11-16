@@ -23,4 +23,6 @@ export const config = {
     process.env.REGISTRO_JSONL ?? resolve(process.cwd(), 'dados/interacoes.jsonl'),
   origensPermitidas: (process.env.CORS_ORIGINS ?? 'http://localhost:5173').split(','),
   databaseUrl: process.env.DATABASE_URL,
+  ollamaUrl: process.env.OLLAMA_URL ?? '',
+  ollamaModelo: process.env.OLLAMA_MODEL ?? 'llama3.2:3b',
 };
