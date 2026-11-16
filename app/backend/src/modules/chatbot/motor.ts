@@ -104,11 +104,14 @@ export class MotorConversa {
       entrada.tipo === 'opcao' ? entrada.opcaoId : this.resolverOpcaoPorTexto(sessao, entrada.texto);
 
     if (opcaoId === null) {
-      // Texto livre no menu ainda pode achar um fluxo pelas palavras-chave.
+      // Texto livre no menu: usa o classificador da LLM local (quando ativo) ou fallback por palavras-chave.
       if (sessao.etapa === 'menu' && entrada.tipo === 'texto') {
-        const fluxo = this.fluxos.rotearPorTexto(entrada.texto);
-        if (fluxo) {
-          novasMensagens.push(...(await this.entrarNoFluxo(sessao, fluxo.id)));
+        const fluxoPorLlm = await this.llm.identificarFluxo?.(entrada.texto, this.fluxos.itensMenu);
+        const fluxoIdIdentificado =
+          fluxoPorLlm ?? this.fluxos.rotearPorTexto(entrada.texto)?.id;
+
+        if (fluxoIdIdentificado && this.fluxos.buscarFluxo(fluxoIdIdentificado)) {
+          novasMensagens.push(...(await this.entrarNoFluxo(sessao, fluxoIdIdentificado)));
           await this.sessoes.salvar(sessao);
           return { sessao, novasMensagens };
         }
