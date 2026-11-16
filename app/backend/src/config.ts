@@ -47,8 +47,14 @@ export const config = {
   diretorioFluxos: descobrirDiretorioFluxos(),
   arquivoRegistro:
     process.env.REGISTRO_JSONL ?? resolve(process.cwd(), 'dados/interacoes.jsonl'),
+  arquivoAgendamentos:
+    process.env.AGENDAMENTOS_JSON ?? resolve(process.cwd(), 'dados/agendamentos.json'),
   origensPermitidas: (process.env.CORS_ORIGINS ?? 'http://localhost:5173').split(','),
-  databaseUrl: process.env.DATABASE_URL,
+  databaseUrl: process.env.DATABASE_URL ?? 'postgresql://procon:procon@localhost:5432/procon_chatbot',
+  segredoToken: process.env.JWT_SEGREDO ?? 'dev-segredo-painel-procon-trocar',
+  adminEmail: process.env.ADMIN_EMAIL ?? 'admin@procon.local',
+  adminSenha: process.env.ADMIN_SENHA ?? 'procon123',
+  adminNome: process.env.ADMIN_NOME ?? 'Atendente PROCON',
   ollamaUrl: process.env.OLLAMA_URL ?? '',
   ollamaModelo: process.env.OLLAMA_MODEL ?? 'llama3.2:3b',
 };

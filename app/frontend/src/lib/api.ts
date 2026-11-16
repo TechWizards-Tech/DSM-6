@@ -12,7 +12,7 @@ export class ErroApi extends Error {
   }
 }
 
-async function requisitar<T>(caminho: string, init?: RequestInit): Promise<T> {
+export async function requisitar<T>(caminho: string, init?: RequestInit): Promise<T> {
   let resposta: Response;
   try {
     resposta = await fetch(`${BASE}${caminho}`, {

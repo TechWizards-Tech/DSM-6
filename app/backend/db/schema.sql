@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS agendamentos (
     protocolo       TEXT NOT NULL UNIQUE,
     usuario         TEXT NOT NULL,
     nome            TEXT NOT NULL,
-    cpf             VARCHAR(11) NOT NULL,
+    cpf             VARCHAR(14) NOT NULL,
     data            DATE NOT NULL,
     horario         TIME NOT NULL,
     assunto         TEXT NOT NULL,
@@ -55,3 +55,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_agendamentos_slot_ativo
     WHERE status = 'agendado';
 
 CREATE INDEX IF NOT EXISTS idx_agendamentos_data ON agendamentos (data);
+
+-- RF08/US05: funcionarios do PROCON com acesso ao Painel Web Administrativo
+CREATE TABLE IF NOT EXISTS usuarios_admin (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email           TEXT NOT NULL UNIQUE,
+    nome            TEXT NOT NULL,
+    senha_hash      TEXT NOT NULL,
+    criado_em       TIMESTAMPTZ NOT NULL DEFAULT now()
+);
