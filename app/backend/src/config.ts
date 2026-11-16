@@ -55,6 +55,6 @@ export const config = {
   adminEmail: process.env.ADMIN_EMAIL ?? 'admin@procon.local',
   adminSenha: process.env.ADMIN_SENHA ?? 'procon123',
   adminNome: process.env.ADMIN_NOME ?? 'Atendente PROCON',
-  ollamaUrl: process.env.OLLAMA_URL ?? '',
+  ollamaUrl: process.env.OLLAMA_URL ?? 'http://localhost:11434',
   ollamaModelo: process.env.OLLAMA_MODEL ?? 'llama3.2:3b',
 };
