@@ -21,6 +21,7 @@ import {
 import { RepositorioAgendamentosPostgres } from './modules/agendamento/postgres.js';
 import { criarPool } from './db/pool.js';
 import { AdaptadorWhatsApp } from './modules/whatsapp/adaptador.js';
+import type { ConectorBaileys } from './modules/whatsapp/baileys.js';
 import type { ClienteWhatsApp } from './modules/whatsapp/cliente.js';
 import { criarRotasWhatsApp } from './http/whatsapp.js';
 import {
@@ -36,6 +37,7 @@ import { resolve } from 'node:path';
 /** Integracao com o WhatsApp (RF01). Ausente = backend so com o simulador web. */
 export interface OpcoesWhatsApp {
   cliente?: ClienteWhatsApp;
+  conectorBaileys?: ConectorBaileys;
   tokenVerificacao: string;
   segredoApp?: string;
 }
@@ -103,8 +105,12 @@ export function criarAplicacao(opcoes: OpcoesAplicacao): Aplicacao {
       sessoes,
       fluxos,
       agendamentos,
-      cliente: opcoes.whatsapp.cliente,
+      cliente: opcoes.whatsapp.conectorBaileys ?? opcoes.whatsapp.cliente,
     });
+
+    if (opcoes.whatsapp.conectorBaileys) {
+      opcoes.whatsapp.conectorBaileys.vincularAdaptador(adaptador);
+    }
 
     app.use(
       '/api/whatsapp',
@@ -112,9 +118,11 @@ export function criarAplicacao(opcoes: OpcoesAplicacao): Aplicacao {
         adaptador,
         tokenVerificacao: opcoes.whatsapp.tokenVerificacao,
         segredoApp: opcoes.whatsapp.segredoApp,
+        conectorBaileys: opcoes.whatsapp.conectorBaileys,
       }),
     );
   }
+
 
   app.use(express.json());
   app.use('/api', criarRotas({ motor, fluxos, sessoes, interacoes, agendamentos }));

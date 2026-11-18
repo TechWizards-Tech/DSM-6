@@ -2,6 +2,7 @@ import { criarAplicacao } from './app.js';
 import { config } from './config.js';
 import { ErroCarregamentoFluxos } from './modules/fluxos/repositorio.js';
 import { ProvedorLlmDesativado, ProvedorLlmOllama } from './modules/llm/index.js';
+import { ConectorBaileys } from './modules/whatsapp/baileys.js';
 import { ClienteCloudApi, ClienteTwilio, type ClienteWhatsApp } from './modules/whatsapp/cliente.js';
 import { lerConfigWhatsApp } from './modules/whatsapp/config.js';
 
@@ -12,8 +13,12 @@ try {
     : new ProvedorLlmDesativado();
 
   let clienteWhatsApp: ClienteWhatsApp | undefined;
+  let conectorBaileys: ConectorBaileys | undefined;
   if (configWhatsApp) {
-    if (configWhatsApp.twilioAccountSid && configWhatsApp.twilioAuthToken) {
+    if (configWhatsApp.usarBaileys) {
+      conectorBaileys = new ConectorBaileys();
+      clienteWhatsApp = conectorBaileys;
+    } else if (configWhatsApp.twilioAccountSid && configWhatsApp.twilioAuthToken) {
       clienteWhatsApp = new ClienteTwilio({
         accountSid: configWhatsApp.twilioAccountSid,
         authToken: configWhatsApp.twilioAuthToken,
@@ -39,6 +44,7 @@ try {
     whatsapp: configWhatsApp
       ? {
           cliente: clienteWhatsApp,
+          conectorBaileys,
           tokenVerificacao: configWhatsApp.tokenVerificacao ?? '',
           segredoApp: configWhatsApp.segredoApp,
         }
@@ -67,6 +73,10 @@ try {
     }
     if (configWhatsApp) {
       console.log('WhatsApp: ativo!');
+      if (conectorBaileys) {
+        console.log(`  -> QR Code (Baileys): http://localhost:${config.porta}/api/whatsapp/qr`);
+        void conectorBaileys.iniciar();
+      }
       if (configWhatsApp.twilioAccountSid) {
         console.log('  -> Twilio Sandbox webhook: /api/whatsapp/twilio');
       }
@@ -86,3 +96,4 @@ try {
   }
   throw erro;
 }
+

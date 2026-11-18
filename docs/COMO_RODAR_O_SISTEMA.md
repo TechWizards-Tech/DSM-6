@@ -151,19 +151,57 @@ O sistema funciona em **duplo estágio** para garantir que ninguém da equipe te
 
 ---
 
-### Opção 2 — Testar no Aplicativo do WhatsApp (`+1 415 523 8886`) — Sem Precisar de Ngrok!
+### Opção 2 — Conectar o WhatsApp Real via QR Code (100% Gratuito — Sem Twilio e Sem Ngrok!)
 
-Graças ao **Polling Automático da Twilio** implementado no back-end, qualquer integrante da equipe consegue testar pelo WhatsApp usando apenas o `.env`, **sem precisar instalar ngrok nem mexer no painel da Twilio**!
+Qualquer integrante da equipe pode conectar seu próprio WhatsApp (ou um número de testes) em poucos segundos usando o conector **Baileys (QR Code)** já integrado ao back-end:
 
-#### Como usar no celular:
-1. Certifique-se de que o seu `backend` está rodando (`npm run dev`) e exibiu no terminal:
-   `-> Twilio Polling automatico: ativo! (nao precisa de ngrok)`
-2. Salve o contato no seu celular: **`+1 415 523 8886`**
-3. Envie uma mensagem no WhatsApp com o código do Sandbox da equipe:
-   ```text
-   join immediately-hollow
-   ```
-4. Assim que a Twilio confirmar (`Twilio Sandbox: ✅ You are all set!`), mande **`oi`** e converse normalmente! Dá para digitar frases livres (com a IA identificando o assunto) e agendar atendimento presencial direto pelo WhatsApp!
+#### Passo 1 — Configurar o `.env` (`app/backend/.env`)
+Certifique-se de que o arquivo `app/backend/.env` possui a variável `WHATSAPP_MODO=baileys`:
+
+```env
+PORT=3333
+WHATSAPP_MODO=baileys
+
+# Painel Administrativo (RF08)
+ADMIN_EMAIL=admin@procon.local
+ADMIN_SENHA=procon123
+ADMIN_NOME=Atendente PROCON
+JWT_SEGREDO=dev-segredo-painel-procon-trocar
+
+# LLM Local via Ollama (RF05, RNF05, RP05)
+OLLAMA_URL=http://localhost:11434
+OLLAMA_MODEL=llama3.2:3b
+```
+
+#### Passo 2 — Rodar o Back-end e o Front-end
+No **Terminal 1 (Back-end)**:
+```bash
+cd app/backend
+npm install
+npm run dev
+```
+
+No **Terminal 2 (Front-end)**:
+```bash
+cd app/frontend
+npm install
+npm run dev
+```
+
+#### Passo 3 — Escanear o QR Code no Navegador
+1. Abra no navegador: 👉 **`http://localhost:3333/api/whatsapp/qr`**
+2. No seu celular, abra o **WhatsApp** -> **Aparelhos conectados** -> **Conectar um aparelho**.
+3. Aponte a câmera do celular para o **QR Code** na tela até aparecer **`✅ WhatsApp Conectado!`**.
+   *(Se outra pessoa do grupo for conectar o celular dela, basta clicar no botão **"Gerar novo QR Code / Trocar aparelho"** na tela).*
+
+#### Passo 4 — Como Conversar com o Chatbot (Com Trava de Segurança!)
+Para evitar que o robô responda conversas pessoais ou grupos por engano, existem duas formas de testar:
+1. **Testando sozinho (no mesmo celular conectado):**
+   * Abra a conversa com **você mesmo** no WhatsApp (*"Você — Mensagem para você mesmo"*).
+   * Envie **`oi`** (ou uma frase livre como *"comprei na internet e me arrependi"*).
+2. **Outra pessoa mandando mensagem para o número conectado:**
+   * A primeira mensagem da pessoa deve conter a palavra **`procon`** (ex.: **`oi procon`**).
+   * A partir daí, o chatbot atende essa pessoa normalmente (fluxos, IA e agendamento presencial) até ela digitar **`sair`**!
 
 ---
 
