@@ -40,17 +40,9 @@ git pull origin Dev
 Dentro da pasta `app/backend`, crie um arquivo chamado **`.env`** com as variáveis abaixo (incluindo as novas variáveis da **LLM**):
 
 ```env
-# Configuracao da Integracao com o WhatsApp (Meta Cloud API)
+# Configuracao da Integracao com o WhatsApp via QR Code (Baileys)
 PORT=3333
-# Credenciais: peça para a Duda (nunca suba valores reais para o GitHub)
-WHATSAPP_ACCESS_TOKEN=<token-da-meta>
-WHATSAPP_PHONE_NUMBER_ID=<id-do-numero>
-WHATSAPP_VERIFY_TOKEN=<token-de-verificacao>
-
-# Twilio Sandbox para WhatsApp
-TWILIO_ACCOUNT_SID=<account-sid-da-twilio>
-TWILIO_AUTH_TOKEN=<auth-token-da-twilio>
-TWILIO_WHATSAPP_NUMBER=whatsapp:+14155238886
+WHATSAPP_MODO=baileys
 
 # Painel Administrativo (RF08)
 ADMIN_EMAIL=admin@procon.local
@@ -138,64 +130,22 @@ O sistema funciona em **duplo estágio** para garantir que ninguém da equipe te
 
 ---
 
-## 📱 5. Como Testar pelo Celular (Wi-Fi Local ou WhatsApp Real)
+## 📱 5. Como Conectar e Testar no WhatsApp Real (Via QR Code / Baileys)
 
-### Opção 1 — Pelo navegador do celular na mesma rede Wi-Fi (Sem precisar de Twilio)
-1. No terminal do `app/frontend`, inicie o Vite expondo para a rede local:
-   ```bash
-   cd app/frontend
-   npm run dev -- --host
-   ```
-2. O terminal mostrará um endereço **`Network: http://192.168.X.X:5173/`**.
-3. Abra esse endereço no navegador do celular conectado no mesmo Wi-Fi.
+Qualquer integrante da equipe pode conectar seu próprio WhatsApp (ou um número de testes) em poucos segundos usando o conector **Baileys (QR Code)** já integrado ao back-end — **100% gratuito, sem Twilio e sem precisar de Ngrok!**
 
----
+### Passo 1 — Conferir o `.env` (`app/backend/.env`)
+Certifique-se de que o arquivo `app/backend/.env` possui `WHATSAPP_MODO=baileys` (conforme o Passo 2 da seção 2 acima).
 
-### Opção 2 — Conectar o WhatsApp Real via QR Code (100% Gratuito — Sem Twilio e Sem Ngrok!)
-
-Qualquer integrante da equipe pode conectar seu próprio WhatsApp (ou um número de testes) em poucos segundos usando o conector **Baileys (QR Code)** já integrado ao back-end:
-
-#### Passo 1 — Configurar o `.env` (`app/backend/.env`)
-Certifique-se de que o arquivo `app/backend/.env` possui a variável `WHATSAPP_MODO=baileys`:
-
-```env
-PORT=3333
-WHATSAPP_MODO=baileys
-
-# Painel Administrativo (RF08)
-ADMIN_EMAIL=admin@procon.local
-ADMIN_SENHA=procon123
-ADMIN_NOME=Atendente PROCON
-JWT_SEGREDO=dev-segredo-painel-procon-trocar
-
-# LLM Local via Ollama (RF05, RNF05, RP05)
-OLLAMA_URL=http://localhost:11434
-OLLAMA_MODEL=llama3.2:3b
-```
-
-#### Passo 2 — Rodar o Back-end e o Front-end
-No **Terminal 1 (Back-end)**:
-```bash
-cd app/backend
-npm install
-npm run dev
-```
-
-No **Terminal 2 (Front-end)**:
-```bash
-cd app/frontend
-npm install
-npm run dev
-```
-
-#### Passo 3 — Escanear o QR Code no Navegador
-1. Abra no navegador: 👉 **`http://localhost:3333/api/whatsapp/qr`**
-2. No seu celular, abra o **WhatsApp** -> **Aparelhos conectados** -> **Conectar um aparelho**.
-3. Aponte a câmera do celular para o **QR Code** na tela até aparecer **`✅ WhatsApp Conectado!`**.
+### Passo 2 — Com o Back-end rodando, abrir a tela do QR Code
+1. Certifique-se de que o `backend` está rodando (`npm run dev` dentro de `app/backend`).
+2. Abra no navegador: 👉 **`http://localhost:3333/api/whatsapp/qr`**
+3. No seu celular, abra o **WhatsApp** -> **Aparelhos conectados** -> **Conectar um aparelho**.
+4. Aponte a câmera do celular para o **QR Code** na tela até aparecer **`✅ WhatsApp Conectado!`**.
    *(Se outra pessoa do grupo for conectar o celular dela, basta clicar no botão **"Gerar novo QR Code / Trocar aparelho"** na tela).*
 
-#### Passo 4 — Como Conversar com o Chatbot (Com Trava de Segurança!)
-Para evitar que o robô responda conversas pessoais ou grupos por engano, existem duas formas de testar:
+### Passo 3 — Como Conversar com o Chatbot no WhatsApp (Com Trava de Segurança 🔒)
+Para evitar que o robô responda conversas pessoais ou grupos por engano, existem duas formas de conversar com ele:
 1. **Testando sozinho (no mesmo celular conectado):**
    * Abra a conversa com **você mesmo** no WhatsApp (*"Você — Mensagem para você mesmo"*).
    * Envie **`oi`** (ou uma frase livre como *"comprei na internet e me arrependi"*).
