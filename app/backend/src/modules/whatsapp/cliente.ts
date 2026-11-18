@@ -101,4 +101,3 @@ export class ClienteTwilio implements ClienteWhatsApp {
     console.log('[whatsapp] Resposta da Twilio API:', JSON.stringify(dados));
   }
 }
-

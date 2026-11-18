@@ -1,15 +1,24 @@
 import { criarAplicacao } from './app.js';
 import { config } from './config.js';
 import { ErroCarregamentoFluxos } from './modules/fluxos/repositorio.js';
+import { ProvedorLlmDesativado, ProvedorLlmOllama } from './modules/llm/index.js';
+import { ConectorBaileys } from './modules/whatsapp/baileys.js';
 import { ClienteCloudApi, ClienteTwilio, type ClienteWhatsApp } from './modules/whatsapp/cliente.js';
 import { lerConfigWhatsApp } from './modules/whatsapp/config.js';
 
 try {
   const configWhatsApp = lerConfigWhatsApp();
+  const provedorLlm = config.ollamaUrl
+    ? new ProvedorLlmOllama({ urlBase: config.ollamaUrl, modelo: config.ollamaModelo })
+    : new ProvedorLlmDesativado();
 
   let clienteWhatsApp: ClienteWhatsApp | undefined;
+  let conectorBaileys: ConectorBaileys | undefined;
   if (configWhatsApp) {
-    if (configWhatsApp.twilioAccountSid && configWhatsApp.twilioAuthToken) {
+    if (configWhatsApp.usarBaileys) {
+      conectorBaileys = new ConectorBaileys();
+      clienteWhatsApp = conectorBaileys;
+    } else if (configWhatsApp.twilioAccountSid && configWhatsApp.twilioAuthToken) {
       clienteWhatsApp = new ClienteTwilio({
         accountSid: configWhatsApp.twilioAccountSid,
         authToken: configWhatsApp.twilioAuthToken,
@@ -31,9 +40,11 @@ try {
     arquivoAgendamentos: config.arquivoAgendamentos,
     databaseUrl: config.databaseUrl,
     segredoToken: config.segredoToken,
+    llm: provedorLlm,
     whatsapp: configWhatsApp
       ? {
           cliente: clienteWhatsApp,
+          conectorBaileys,
           tokenVerificacao: configWhatsApp.tokenVerificacao ?? '',
           segredoApp: configWhatsApp.segredoApp,
         }
@@ -49,13 +60,23 @@ try {
 
   app.listen(config.porta, () => {
     console.log(`Chatbot PROCON  |  http://localhost:${config.porta}/api/saude`);
+    console.log(`Fluxos: ${fluxos.listarFluxos().length} carregados de ${config.diretorioFluxos}`);
     if (config.databaseUrl) {
       console.log('Banco de dados: PostgreSQL ativo!');
     } else {
       console.log('Banco de dados: memoria local');
     }
+    if (config.ollamaUrl) {
+      console.log(`LLM Local (Ollama): ativo em ${config.ollamaUrl} (modelo: ${config.ollamaModelo})`);
+    } else {
+      console.log('LLM Local (Ollama): desligado (defina OLLAMA_URL para ativar)');
+    }
     if (configWhatsApp) {
       console.log('WhatsApp: ativo!');
+      if (conectorBaileys) {
+        console.log(`  -> QR Code (Baileys): http://localhost:${config.porta}/api/whatsapp/qr`);
+        void conectorBaileys.iniciar();
+      }
       if (configWhatsApp.twilioAccountSid) {
         console.log('  -> Twilio Sandbox webhook: /api/whatsapp/twilio');
       }
@@ -75,3 +96,4 @@ try {
   }
   throw erro;
 }
+

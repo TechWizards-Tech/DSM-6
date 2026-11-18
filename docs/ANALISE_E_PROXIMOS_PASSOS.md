@@ -40,29 +40,36 @@ Foco da Sprint 2: **Orientação inteligente, registro persistente, IA local e a
 
 ### 📋 Detalhamento das Tarefas da Sprint 2
 
-#### 1️⃣ Persistência em Banco de Dados (RF06, RNF02)
-* **O que fazer**: Substituir os repositórios em memória (`RepositorioSessoesMemoria` e `RepositorioInteracoesMemoria`) por um banco relacional.
-* **Tecnologias recomendadas**: **PostgreSQL** rodando via Docker + **Prisma ORM** ou **Kysely**.
-* **Entidades a criar**:
-  * `Usuario` (`id`, `telefone`, `nome`, `criadoEm`)
-  * `Sessao` (`id`, `usuarioId`, `fluxoId`, `noAtualId`, `status`, `atualizadoEm`)
-  * `Interacao` (`id`, `sessaoId`, `noId`, `escolhaId`, `dataHora`)
-  * `Agendamento` (`id`, `usuarioId`, `dataHorario`, `assunto`, `status`)
+#### ✅ 1️⃣ Persistência em Banco de Dados (RF06, RNF02) — CONCLUÍDO
+* **O que foi feito**:
+  * **PostgreSQL 16** configurado via Docker Compose (`docker-compose.yml`) com healthcheck e volume persistente.
+  * **Schema SQL** criado em `app/backend/db/schema.sql` com as tabelas `interacoes` e `agendamentos`, índices e constraint de unicidade de slot de horário.
+  * **`RepositorioInteracoesPostgres`** (`app/backend/src/modules/registro/postgres.ts`): persiste cada evento de conversa na tabela `interacoes`.
+  * **`RepositorioAgendamentosPostgres`** (`app/backend/src/modules/agendamento/postgres.ts`): persiste e consulta agendamentos na tabela `agendamentos`.
+  * **`criarPool`** (`app/backend/src/db/pool.ts`): gerencia o pool de conexões com o banco via variável de ambiente `DATABASE_URL`.
+  * **Modo duplo em `app.ts`**: se `DATABASE_URL` estiver definida usa PostgreSQL; caso contrário, usa repositórios em memória (para testes e desenvolvimento local sem Docker).
+  * **Validado**: queries executadas diretamente no container confirmaram que fluxos de conversa e agendamentos são persistidos corretamente.
 
-#### 2️⃣ Módulo de LLM Local (RF04, RF05, RNF05)
+#### ⏳ 2️⃣ Módulo de LLM Local (RF04, RF05, RNF05) — PENDENTE
 * **O que fazer**: Implementar a explicação humanizada das respostas orientadoras do PROCON via IA local.
 * **Regra Importante (RP05)**: Proibido usar APIs externas pagas (como OpenAI). Deve-se utilizar um modelo local executado via **Ollama** (*Llama 3*, *Mistral* ou *Phi-3*).
 * **Diretriz de Segurança**: A LLM **jamais toma decisões jurídicas**. Quem decide o resultado é a estrutura do fluxo JSON do PROCON. A LLM apenas reescreve a orientação para linguagem mais simples.
 * **Sinalização (RNF05)**: O retorno deve marcar `geradoPorLlm: true` para que o front-end/WhatsApp exiba o selo de IA.
+* **Ponto de extensão já pronto**: a interface `ProvedorLlm` existe em `app/backend/src/modules/llm/index.ts` com o `ProvedorLlmDesativado` como placeholder. Basta criar o `ProvedorLlmOllama` implementando essa interface.
 
-#### 3️⃣ Agendamento de Atendimento Presencial (RF07, US04)
-* **O que fazer**: Permitir agendar um horário presencial na sede do PROCON quando o cidadão precisar ou o fluxo indicar.
-* **Endpoints a criar**:
-  * `GET /api/agendamentos/horarios-disponiveis?data=YYYY-MM-DD`
-  * `POST /api/agendamentos` (criação da reserva)
-  * `POST /api/agendamentos/:id/cancelar`
+#### ✅ 3️⃣ Agendamento de Atendimento Presencial (RF07, US04) — CONCLUÍDO
+* **O que foi feito**:
+  * **Backend**: módulo completo em `app/backend/src/modules/agendamento/index.ts` com regras de negócio (horários 08:00–16:00, bloqueio de finais de semana, protocolo `PROCON-YYYYMMDD-XXXX`, unicidade de slot).
+  * **Endpoints implementados**:
+    * `GET /api/agendamentos/horarios-disponiveis?data=YYYY-MM-DD`
+    * `POST /api/agendamentos` (criação da reserva com validação de data/horário)
+    * `GET /api/agendamentos` (listagem de todos os agendamentos)
+  * **Persistência**: funciona tanto em memória quanto no PostgreSQL via `RepositorioAgendamentosPostgres`.
+  * **Frontend**: componente `JanelaAgendamento.tsx` com seleção de data (calendário sem finais de semana), escolha de horário disponível e exibição do protocolo gerado.
+  * **Testes**: 29 casos de teste no Vitest validando todas as regras de negócio (branch `feature/agendamento-presencial`).
+  * **Pendente**: endpoint `POST /api/agendamentos/:id/cancelar` ainda não implementado.
 
-#### 4️⃣ Integração com WhatsApp Business Cloud API (RF01, US01)
+#### ⏳ 4️⃣ Integração com WhatsApp Business Cloud API (RF01, US01) — PENDENTE
 * **O que fazer**: Criar um webhook HTTP (`POST /api/webhooks/whatsapp`) para conectar a API do WhatsApp Meta ao motor do chatbot (`motor.ts`).
 * **Fluxo de Mensagem**:
   1. Webhook recebe evento do WhatsApp contendo o número e texto/botão clicado.

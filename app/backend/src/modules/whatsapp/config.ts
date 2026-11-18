@@ -23,6 +23,9 @@ export interface ConfigWhatsApp {
   twilioAuthToken?: string;
   /** Twilio WhatsApp Number (ex: whatsapp:+14155238886). */
   twilioNumero?: string;
+
+  /** Habilita conexao gratuita direta via QR Code / WhatsApp Web (Baileys). */
+  usarBaileys?: boolean;
 }
 
 export const VERSAO_API_PADRAO = 'v21.0';
@@ -71,10 +74,14 @@ export function lerConfigWhatsApp(env: NodeJS.ProcessEnv = process.env): ConfigW
   const twilioAuthToken = env.TWILIO_AUTH_TOKEN?.trim();
   const twilioNumero = env.TWILIO_WHATSAPP_NUMBER?.trim() || 'whatsapp:+14155238886';
 
+  const usarBaileys =
+    env.WHATSAPP_MODO?.trim().toLowerCase() === 'baileys' ||
+    env.WHATSAPP_BAILEYS?.trim().toLowerCase() === 'true';
+
   const temMeta = Boolean(tokenAcesso && idNumeroTelefone && tokenVerificacao);
   const temTwilio = Boolean(twilioAccountSid && twilioAuthToken);
 
-  if (!temMeta && !temTwilio) return undefined;
+  if (!temMeta && !temTwilio && !usarBaileys) return undefined;
 
   return {
     tokenAcesso,
@@ -85,6 +92,8 @@ export function lerConfigWhatsApp(env: NodeJS.ProcessEnv = process.env): ConfigW
     twilioAccountSid,
     twilioAuthToken,
     twilioNumero,
+    usarBaileys,
   };
 }
+
 

@@ -16,12 +16,15 @@ import {
   mascararTelefone,
   type AdaptadorWhatsApp,
 } from '../modules/whatsapp/adaptador.js';
+import type { ConectorBaileys } from '../modules/whatsapp/baileys.js';
 
 export interface DependenciasWhatsApp {
   adaptador: AdaptadorWhatsApp;
   tokenVerificacao: string;
   /** Quando presente, webhooks sem assinatura valida da Meta sao recusados. */
   segredoApp?: string;
+  /** Conector opcional via QR Code (Baileys). */
+  conectorBaileys?: ConectorBaileys;
 }
 
 /** Confere o cabecalho X-Hub-Signature-256 (HMAC-SHA256 do corpo com o app secret). */
@@ -36,6 +39,7 @@ export function criarRotasWhatsApp({
   adaptador,
   tokenVerificacao,
   segredoApp,
+  conectorBaileys,
 }: DependenciasWhatsApp): Router {
   const rotas = Router();
 
@@ -110,6 +114,93 @@ export function criarRotasWhatsApp({
     }
   });
 
+  // ------------------------------------------------------------ QR Code (Baileys)
+  rotas.get('/qr/status', (_req, res) => {
+    if (!conectorBaileys) {
+      return res.status(404).json({ erro: 'Modo QR Code (Baileys) nao esta habilitado.' });
+    }
+    return res.json(conectorBaileys.obterEstado());
+  });
+
+  rotas.post('/qr/reset', async (_req, res) => {
+    if (!conectorBaileys) {
+      return res.status(404).json({ erro: 'Modo QR Code (Baileys) nao esta habilitado.' });
+    }
+    await conectorBaileys.resetarSessao();
+    return res.json(conectorBaileys.obterEstado());
+  });
+
+  rotas.get('/qr', (_req, res) => {
+    if (!conectorBaileys) {
+      return res
+        .status(404)
+        .type('text/plain')
+        .send('Modo QR Code (Baileys) nao esta habilitado. Defina WHATSAPP_MODO=baileys no .env.');
+    }
+
+    const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conexão WhatsApp — PROCON Jacareí</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; background: #0f172a; color: #f8fafc; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 16px; }
+    .card { background: #1e293b; border-radius: 16px; padding: 32px; max-width: 440px; width: 100%; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.4); border: 1px solid #334155; }
+    h1 { font-size: 1.35rem; margin: 0 0 8px; color: #38bdf8; }
+    p { color: #94a3b8; font-size: 0.95rem; line-height: 1.5; margin: 8px 0 20px; }
+    .badge { display: inline-block; padding: 6px 14px; border-radius: 999px; font-weight: 600; font-size: 0.85rem; margin-bottom: 16px; }
+    .badge.conectado { background: #065f46; color: #6ee7b7; }
+    .badge.aguardando { background: #78350f; color: #fcd34d; }
+    .badge.iniciando { background: #1e3a8a; color: #93c5fd; }
+    .qr-box { background: #ffffff; padding: 16px; border-radius: 12px; display: inline-block; margin: 12px 0; }
+    .qr-box img { display: block; width: 260px; height: 260px; }
+    button { background: #334155; color: #f8fafc; border: 1px solid #475569; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 16px; }
+    button:hover { background: #475569; }
+    .dica { font-size: 0.82rem; color: #cbd5e1; background: #0f172a; padding: 12px; border-radius: 8px; margin-top: 16px; text-align: left; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🏛️ Chatbot PROCON Jacareí</h1>
+    <div id="status-container">Carregando status...</div>
+    <button onclick="resetar()">Gerar novo QR Code / Trocar aparelho</button>
+    <div class="dica">
+      <strong>Como conectar e testar com segurança:</strong><br/>
+      1. No WhatsApp do celular, vá em <b>Aparelhos conectados &gt; Conectar aparelho</b> e leia o QR Code.<br/>
+      2. <b>Trava de segurança ativa:</b> O robô <u>nunca</u> responde grupos nem conversas pessoais normais!<br/>
+      3. Para usar o bot, mande <b>"oi"</b> na conversa com <b>você mesma</b>, ou peça para alguém te mandar <b>"oi procon"</b>!
+    </div>
+  </div>
+  <script>
+    async function atualizar() {
+      try {
+        const r = await fetch('/api/whatsapp/qr/status');
+        const d = await r.json();
+        const el = document.getElementById('status-container');
+        if (d.status === 'conectado') {
+          el.innerHTML = '<span class="badge conectado">✅ WhatsApp Conectado!</span><p>Aparelho ativo: <b>+' + (d.numeroConectado || '') + '</b><br/>O chatbot do PROCON já está respondendo mensagens em tempo real.</p>';
+        } else if (d.status === 'aguardando_qr' && d.qrCodeDataUrl) {
+          el.innerHTML = '<span class="badge aguardando">📲 Aguardando leitura do QR Code</span><br/><div class="qr-box"><img src="' + d.qrCodeDataUrl + '" alt="QR Code WhatsApp" /></div>';
+        } else {
+          el.innerHTML = '<span class="badge iniciando">⏳ Preparando conexão com o WhatsApp...</span><p>Aguarde alguns segundos, o QR Code aparecerá automaticamente.</p>';
+        }
+      } catch (e) {}
+    }
+    async function resetar() {
+      document.getElementById('status-container').innerHTML = '<span class="badge iniciando">🔄 Reiniciando sessão e gerando novo QR Code...</span>';
+      await fetch('/api/whatsapp/qr/reset', { method: 'POST' });
+      setTimeout(atualizar, 1500);
+    }
+    atualizar();
+    setInterval(atualizar, 2500);
+  </script>
+</body>
+</html>`;
+    return res.status(200).type('text/html').send(html);
+  });
+
   return rotas;
 }
+
 
