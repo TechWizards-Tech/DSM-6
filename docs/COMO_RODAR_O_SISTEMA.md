@@ -84,6 +84,14 @@ npm run dev
   * **E-mail de acesso**: `admin@procon.local`
   * **Senha**: `procon123`
 
+### Passo 5 — Conectar e Testar no WhatsApp Real (Via QR Code)
+1. Com o back-end rodando, abra no navegador: 👉 **`http://localhost:3333/api/whatsapp/qr`**
+2. No celular, abra o **WhatsApp** -> **Aparelhos conectados** -> **Conectar um aparelho** e aponte a câmera para o **QR Code** até aparecer **`✅ WhatsApp Conectado!`**.
+   *(Se já houver outro celular conectado e você quiser conectar o seu, basta clicar no botão **"Gerar novo QR Code / Trocar aparelho"** na tela).*
+3. **Como conversar com o bot no WhatsApp:**
+   * **No mesmo celular conectado:** Abra a conversa com **você mesmo** (*"Você"*) e envie **`oi`** (ou uma frase livre como *"comprei na internet e me arrependi"*).
+   * **De outro celular:** Envie **`oi procon`** na primeira mensagem para ativar o bot (essa trava impede que o robô responda conversas pessoais ou grupos por engano).
+
 ---
 
 ## 🐳 3. MODO B: Como Rodar Tudo no Docker (`PostgreSQL` + `Backend` + `Frontend Nginx`)
