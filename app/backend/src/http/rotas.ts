@@ -165,10 +165,17 @@ export function criarRotas({ motor, fluxos, sessoes, interacoes, agendamentos }:
         });
       }
 
+      const cpfLimpo = String(cpf).replace(/\D/g, '');
+      if (cpfLimpo.length !== 11) {
+        return res.status(400).json({
+          erro: 'CPF inválido: informe exatamente 11 dígitos numéricos.',
+        });
+      }
+
       const novoAgendamento = await agendamentos.criar({
         usuario: String(usuario).trim(),
         nome: String(nome).trim(),
-        cpf: String(cpf).trim(),
+        cpf: cpfLimpo,
         data: String(data).trim(),
         horario: String(horario).trim(),
         assunto: String(assunto).trim(),

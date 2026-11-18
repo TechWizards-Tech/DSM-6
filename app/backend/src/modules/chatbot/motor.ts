@@ -104,15 +104,32 @@ export class MotorConversa {
       entrada.tipo === 'opcao' ? entrada.opcaoId : this.resolverOpcaoPorTexto(sessao, entrada.texto);
 
     if (opcaoId === null) {
-      // Texto livre no menu ainda pode achar um fluxo pelas palavras-chave.
+      // Texto livre no menu: usa o classificador da LLM local (quando ativo) ou fallback por palavras-chave.
       if (sessao.etapa === 'menu' && entrada.tipo === 'texto') {
-        const fluxo = this.fluxos.rotearPorTexto(entrada.texto);
-        if (fluxo) {
-          novasMensagens.push(...(await this.entrarNoFluxo(sessao, fluxo.id)));
+        const fluxoPorLlm = await this.llm.identificarFluxo?.(entrada.texto, this.fluxos.itensMenu);
+        const fluxoIdIdentificado =
+          fluxoPorLlm ?? this.fluxos.rotearPorTexto(entrada.texto)?.id;
+
+        if (fluxoIdIdentificado && this.fluxos.buscarFluxo(fluxoIdIdentificado)) {
+          novasMensagens.push(...(await this.entrarNoFluxo(sessao, fluxoIdIdentificado)));
           await this.sessoes.salvar(sessao);
           return { sessao, novasMensagens };
         }
       }
+
+      // Texto livre dentro de uma pergunta do fluxo: usa o classificador de opcoes da LLM local.
+      if (sessao.etapa === 'em_fluxo' && entrada.tipo === 'texto') {
+        const no = this.noAtual(sessao);
+        if (no?.tipo === 'pergunta') {
+          const opcaoPorLlm = await this.llm.identificarOpcao?.(no.texto, entrada.texto, no.opcoes);
+          if (opcaoPorLlm && no.opcoes.some((o) => o.id === opcaoPorLlm)) {
+            novasMensagens.push(...(await this.avancarNoFluxo(sessao, opcaoPorLlm)));
+            await this.sessoes.salvar(sessao);
+            return { sessao, novasMensagens };
+          }
+        }
+      }
+
       novasMensagens.push(...(await this.tratarEntradaInvalida(sessao)));
       await this.sessoes.salvar(sessao);
       return { sessao, novasMensagens };
@@ -439,6 +456,24 @@ export class MotorConversa {
     if (/^\d+$/.test(entrada)) {
       const porNumero = opcoes[Number(entrada) - 1];
       if (porNumero) return porNumero.id;
+    }
+
+    // Correspondencia parcial natural (ex.: usuario digita "já pedi" para a opcao "Sim, já pedi")
+    if (entrada.length >= 3) {
+      const palavrasEntrada = entrada.split(' ').filter((p) => p.length >= 2);
+      const candidatas = opcoes.filter((opcao) => {
+        const rotuloNorm = normalizar(opcao.rotulo);
+        const palavrasRotulo = rotuloNorm.split(' ');
+        // Evita falso positivo quando o usuario digita "já pedi" e a outra opcao é "ainda não pedi"
+        if (! entrada.includes('nao') && palavrasRotulo.includes('nao')) {
+          return false;
+        }
+        return (
+          rotuloNorm.includes(entrada) ||
+          (palavrasEntrada.length > 0 && palavrasEntrada.every((p) => palavrasRotulo.includes(p)))
+        );
+      });
+      if (candidatas.length === 1) return candidatas[0]!.id;
     }
 
     return null;
