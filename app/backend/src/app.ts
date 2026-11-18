@@ -20,16 +20,43 @@ import {
 } from './modules/agendamento/index.js';
 import { RepositorioAgendamentosPostgres } from './modules/agendamento/postgres.js';
 import { criarPool } from './db/pool.js';
+import { AdaptadorWhatsApp } from './modules/whatsapp/adaptador.js';
+import type { ConectorBaileys } from './modules/whatsapp/baileys.js';
+import type { ClienteWhatsApp } from './modules/whatsapp/cliente.js';
+import { criarRotasWhatsApp } from './http/whatsapp.js';
+import {
+  RepositorioUsuariosAdminMemoria,
+  ServicoAutenticacao,
+  type RepositorioUsuariosAdmin,
+} from './modules/auth/index.js';
+import { RepositorioUsuariosAdminPostgres } from './modules/auth/postgres.js';
+import { criarRotasPainel } from './http/rotasPainel.js';
+import { randomBytes } from 'node:crypto';
+import { resolve } from 'node:path';
+
+/** Integracao com o WhatsApp (RF01). Ausente = backend so com o simulador web. */
+export interface OpcoesWhatsApp {
+  cliente?: ClienteWhatsApp;
+  conectorBaileys?: ConectorBaileys;
+  tokenVerificacao: string;
+  segredoApp?: string;
+}
+
 
 export interface OpcoesAplicacao {
   diretorioFluxos: string;
   origensPermitidas?: string[];
   arquivoRegistro?: string;
+  arquivoAgendamentos?: string;
   databaseUrl?: string;
   sessoes?: RepositorioSessoes;
   interacoes?: RepositorioInteracoes;
   agendamentos?: RepositorioAgendamentos;
+  usuariosAdmin?: RepositorioUsuariosAdmin;
+  /** Sem segredo fixo, os tokens do painel deixam de valer quando o servidor reinicia. */
+  segredoToken?: string;
   llm?: ProvedorLlm;
+  whatsapp?: OpcoesWhatsApp;
 }
 
 export interface Aplicacao {
@@ -39,6 +66,7 @@ export interface Aplicacao {
   sessoes: RepositorioSessoes;
   interacoes: RepositorioInteracoes;
   agendamentos: RepositorioAgendamentos;
+  autenticacao: ServicoAutenticacao;
 }
 
 export function criarAplicacao(opcoes: OpcoesAplicacao): Aplicacao {
@@ -53,14 +81,52 @@ export function criarAplicacao(opcoes: OpcoesAplicacao): Aplicacao {
   const llm = opcoes.llm ?? new ProvedorLlmDesativado();
   const agendamentos =
     opcoes.agendamentos ??
-    (pool ? new RepositorioAgendamentosPostgres(pool) : new RepositorioAgendamentosMemoria());
+    (pool
+      ? new RepositorioAgendamentosPostgres(pool)
+      : new RepositorioAgendamentosMemoria(opcoes.arquivoAgendamentos));
+  const usuariosAdmin =
+    opcoes.usuariosAdmin ??
+    (pool ? new RepositorioUsuariosAdminPostgres(pool) : new RepositorioUsuariosAdminMemoria());
+  const autenticacao = new ServicoAutenticacao(
+    usuariosAdmin,
+    opcoes.segredoToken || randomBytes(32).toString('hex'),
+  );
 
   const motor = new MotorConversa(fluxos, sessoes, interacoes, llm);
 
   const app = express();
   app.use(cors({ origin: opcoes.origensPermitidas ?? true }));
+
+  // Webhook do WhatsApp: antes do express.json, pois precisa do corpo bruto
+  // para validar a assinatura enviada pela Meta.
+  if (opcoes.whatsapp) {
+    const adaptador = new AdaptadorWhatsApp({
+      motor,
+      sessoes,
+      fluxos,
+      agendamentos,
+      cliente: opcoes.whatsapp.conectorBaileys ?? opcoes.whatsapp.cliente,
+    });
+
+    if (opcoes.whatsapp.conectorBaileys) {
+      opcoes.whatsapp.conectorBaileys.vincularAdaptador(adaptador);
+    }
+
+    app.use(
+      '/api/whatsapp',
+      criarRotasWhatsApp({
+        adaptador,
+        tokenVerificacao: opcoes.whatsapp.tokenVerificacao,
+        segredoApp: opcoes.whatsapp.segredoApp,
+        conectorBaileys: opcoes.whatsapp.conectorBaileys,
+      }),
+    );
+  }
+
+
   app.use(express.json());
   app.use('/api', criarRotas({ motor, fluxos, sessoes, interacoes, agendamentos }));
+  app.use('/api', criarRotasPainel({ autenticacao, agendamentos }));
 
   app.use((_req, res) => res.status(404).json({ erro: 'Rota nao encontrada.' }));
 
@@ -69,5 +135,5 @@ export function criarAplicacao(opcoes: OpcoesAplicacao): Aplicacao {
     res.status(500).json({ erro: 'Erro interno no servidor.' });
   });
 
-  return { app, motor, fluxos, sessoes, interacoes, agendamentos };
+  return { app, motor, fluxos, sessoes, interacoes, agendamentos, autenticacao };
 }

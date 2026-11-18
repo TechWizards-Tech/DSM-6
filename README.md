@@ -134,8 +134,6 @@ registro das conversas e agendamento.
 
 ### Atividades
 
-- Respostas orientadoras
-- Implementação do LLM
 - Integração com WhatsApp 
 - Criação do banco de dados
 - Tratamento de erros

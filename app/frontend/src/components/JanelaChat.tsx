@@ -67,9 +67,19 @@ export function JanelaChat({
             </div>
           </div>
 
-          <button className="botao botao--fantasma" type="button" onClick={aoReiniciar}>
-            Nova conversa
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <a
+              href="/painel"
+              className="botao botao--fantasma"
+              style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
+              title="Acesso exclusivo para atendentes do PROCON"
+            >
+              Painel
+            </a>
+            <button className="botao botao--fantasma" type="button" onClick={aoReiniciar}>
+              Nova conversa
+            </button>
+          </div>
         </header>
 
         {sessao.passos.length > 0 && (
