@@ -88,8 +88,7 @@ export const PROMPT_SISTEMA_EXPLICACAO = [
 ].join('\n');
 
 /**
- * Base semantica local para triagem de intencao em portugues quando o container
- * do Ollama ainda nao baixou o modelo (404) ou nao esta em execucao.
+ * Base semantica local cobrindo todos os 9 fluxos decisorios do PROCON Jacarei.
  */
 const INTENCOES_FLUXOS: Record<string, string[]> = {
   'direito-arrependimento': [
@@ -99,103 +98,379 @@ const INTENCOES_FLUXOS: Record<string, string[]> = {
     'desistencia',
     'devolver compra',
     'devolver produto',
+    'devolver o produto',
+    'quero devolver',
+    'devolucao',
     'cancelar minha compra',
     'cancelar uma compra',
     'cancelar compra',
-    'comprei na internet',
+    'cancelar meu pedido',
+    'cancelar o pedido',
+    'cancelar pedido',
+    'comprei na internet e quero',
     'comprei online',
     'comprei no site',
     'nao gostei',
-    'quero devolver',
+    'mudei de ideia',
+    '7 dias',
+    'sete dias',
   ],
   'garantia-produto': [
     'defeito',
+    'com defeito',
     'quebrado',
     'quebrou',
     'estragado',
     'estragou',
     'nao funciona',
     'parou de funcionar',
+    'nao liga',
+    'pifou',
+    'queimou',
+    'trincado',
     'vicio',
+    'vicio oculto',
     'conserto',
+    'consertar',
+    'reparo',
     'assistencia tecnica',
     'garantia',
-    'trocar produto com defeito',
+    'trocar produto',
+    'veio com problema',
+    'apresentou problema',
   ],
   'atraso-entrega': [
     'nao chegou',
+    'ainda nao chegou',
     'atraso',
     'atrasada',
+    'atrasado',
     'atrasou',
-    'entrega',
+    'entrega atrasada',
     'prazo de entrega',
+    'passou do prazo',
     'nao recebi',
+    'nao entregaram',
+    'nao foi entregue',
     'transportadora',
     'correios',
-    'encomenda',
+    'encomenda nao chegou',
+    'demora na entrega',
   ],
   'cobranca-servico-nao-contratado': [
     'cobranca indevida',
+    'valor indevido',
+    'taxa indevida',
     'nao contratei',
     'nunca contratei',
     'nunca pedi',
+    'nao solicitei',
+    'nao reconheco',
     'cobrando',
     'cobram',
-    'fatura',
+    'fatura do cartao',
+    'veio na fatura',
     'boleto indevido',
     'seguro nao contratado',
+    'seguro no cartao',
     'pacote nao contratado',
+    'debito automatico',
   ],
   'descontos-folha-beneficio': [
     'inss',
+    'meu inss',
     'aposentadoria',
+    'aposentado',
     'pensao',
+    'pensionista',
     'beneficio',
     'consignado',
-    'emprestimo',
+    'emprestimo consignado',
+    'emprestimo na folha',
+    'emprestimo no inss',
     'folha de pagamento',
+    'contracheque',
+    'holerite',
+    'desconto no salario',
+    'desconto na folha',
+    'desconto no beneficio',
     'rmc',
     'rcc',
-    'desconto no beneficio',
   ],
   'dificuldade-cancelamento': [
     'nao consigo cancelar',
     'dificuldade para cancelar',
     'empresa nao cancela',
+    'nao querem cancelar',
+    'recusa cancelar',
     'multa de fidelidade',
+    'clausula de fidelidade',
     'fidelidade',
+    'cobram multa para cancelar',
     'cancelar servico',
     'cancelar plano',
     'cancelar internet',
+    'cancelar telefone',
+    'cancelar operadora',
     'cancelar academia',
     'cancelar assinatura',
+    'cancelar contrato',
+    'rescisao',
   ],
   'divergencia-preco': [
     'preco diferente',
     'divergencia de preco',
+    'problema com preco',
     'valor diferente',
+    'preco na prateleira',
     'prateleira',
     'caixa cobrou mais',
+    'cobrou mais caro no caixa',
+    'preco do anuncio',
     'anuncio',
-    'oferta',
-    'propaganda',
+    'oferta nao cumprida',
+    'propaganda enganosa',
+    'erro de preco',
+    'erro no sistema',
+    'recusam vender pelo preco',
   ],
   'recusa-entrega-documentos': [
     'nota fiscal',
+    'nao emitem nota',
+    'nao deram nota fiscal',
     'copia do contrato',
     'nao mandam documento',
+    'nao entregam documento',
     'nao entregam contrato',
-    'segunda via',
-    'recusa documento',
+    'segunda via do contrato',
+    'recusa entregar documento',
+    'pedi o contrato e nao mandam',
   ],
   'atendimento-procon': [
+    'como funciona o procon',
     'como funciona',
     'horario de atendimento',
     'endereco do procon',
     'onde fica o procon',
-    'quais documentos',
+    'quais documentos levar',
+    'documentos necessarios',
     'quem pode ser atendido',
+    'como abrir reclamacao',
+    'como reclamar',
+    'cip',
+    'audiencia de conciliacao',
+    'procon online',
+    'aluguel',
+    'imovel',
+    'lei do inquilinato',
   ],
+};
+
+/**
+ * Sinonimos semanticos para todas as opcoes de perguntas dos 9 fluxos do PROCON.
+ */
+const SINONIMOS_OPCOES: Record<string, string[]> = {
+  // direito-arrependimento
+  online: [
+    'internet',
+    'site',
+    'online',
+    'pelo celular',
+    'aplicativo',
+    'app',
+    'telefone',
+    'whatsapp',
+    'instagram',
+    'loja virtual',
+    'ecommerce',
+    'mercado livre',
+    'shopee',
+    'amazon',
+    'magalu',
+  ],
+  loja: [
+    'loja fisica',
+    'na loja',
+    'presencial',
+    'presencialmente',
+    'pessoalmente',
+    'fui na loja',
+    'no balcao',
+    'shopping',
+    'comercio',
+  ],
+  domicilio: [
+    'em casa',
+    'vendedor em casa',
+    'na minha casa',
+    'domicilio',
+    'porta em porta',
+    'vendedor foi la',
+  ],
+  dentro: [
+    'ate 7',
+    'menos de 7',
+    'dentro dos 7',
+    'dentro do prazo',
+    'ontem',
+    'hoje',
+    'anteontem',
+    '1 dia',
+    '2 dias',
+    '3 dias',
+    '4 dias',
+    '5 dias',
+    '6 dias',
+    '7 dias',
+    'sete dias',
+    'poucos dias',
+    'essa semana',
+  ],
+  fora: [
+    'mais de 7',
+    'passou de 7',
+    'mais de sete',
+    'fora do prazo',
+    'ja passou',
+    '8 dias',
+    '10 dias',
+    '15 dias',
+    '20 dias',
+    '30 dias',
+    'um mes',
+    'mes passado',
+    'faz tempo',
+  ],
+  lacrado: ['lacrado', 'fechado', 'nao abri', 'na caixa', 'intacto', 'sem abrir', 'novo'],
+  testado: ['abri e testei', 'abri', 'testei', 'so abri', 'so testei', 'tirei da caixa', 'experimentei'],
+  usado: ['usado', 'usei', 'danificado', 'danifiquei', 'estragado', 'quebrado', 'arranhado'],
+
+  // garantia-produto
+  mais_30: [
+    'mais de 30',
+    '+30',
+    'passou de 30',
+    'mais de trinta',
+    'mais de um mes',
+    '1 mes',
+    '2 meses',
+    '40 dias',
+    '45 dias',
+    '60 dias',
+    'ja faz mais de 30',
+  ],
+  menos_30: [
+    'menos de 30',
+    '-30',
+    'menos de trinta',
+    'ainda nao deu 30',
+    'poucos dias',
+    'semana passada',
+    '5 dias',
+    '10 dias',
+    '15 dias',
+    '20 dias',
+  ],
+  duravel: [
+    'duravel',
+    'produto duravel',
+    'eletrodomestico',
+    'eletronico',
+    'celular',
+    'geladeira',
+    'televisao',
+    'tv',
+    'fogao',
+    'maquina',
+    'computador',
+    'notebook',
+    'carro',
+    'moto',
+    'movel',
+    'sofa',
+    'guarda roupa',
+  ],
+  nao_duravel: [
+    'nao duravel',
+    'perecivel',
+    'alimento',
+    'comida',
+    'bebida',
+    'remedio',
+    'medicamento',
+    'cosmetico',
+    'lavanderia',
+    'estetica',
+  ],
+  oculto: [
+    'oculto',
+    'vicio oculto',
+    'defeito so apareceu',
+    'apareceu depois',
+    'so apareceu agora',
+    'depois de um tempo',
+    'nao dava pra ver',
+  ],
+  troca: ['trocar', 'troca', 'trocar por outro', 'outro produto', 'outro novo', 'substituir', 'substituicao'],
+  dinheiro: ['dinheiro', 'dinheiro de volta', 'devolucao do dinheiro', 'reembolso', 'estorno', 'restituicao'],
+  abatimento: ['desconto', 'desconto no preco', 'abatimento', 'abater', 'pagar menos', 'parte do valor'],
+
+  // atraso-entrega & divergencia-preco
+  venceu: ['ja venceu', 'venceu', 'passou do prazo', 'atrasou', 'ja passou', 'expirado'],
+  nao_venceu: ['ainda nao venceu', 'nao venceu', 'dentro do prazo', 'ainda esta no prazo'],
+  cumprimento: [
+    'receber o produto',
+    'receber',
+    'quero o produto',
+    'entregar',
+    'exigir cumprimento',
+    'cumprir a oferta',
+    'cumprimento',
+  ],
+  equivalente: ['equivalente', 'produto equivalente', 'outro equivalente', 'similar', 'parecido'],
+  cancelar: ['cancelar', 'cancelar e reembolso', 'reembolso', 'dinheiro de volta', 'estorno', 'desistir'],
+  divergencia: ['preco diferente', 'divergencia', 'valor diferente', 'cobrou mais caro', 'prateleira'],
+  recusa: ['recusam vender', 'recusam', 'nao querem vender', 'negaram vender'],
+  erro_sistema: ['alegam erro', 'erro de sistema', 'erro no sistema', 'disseram que foi erro', 'engano'],
+
+  // cobranca-servico-nao-contratado & dificuldade-cancelamento
+  nunca: ['nunca', 'nunca contratei', 'nao contratei', 'jamais contratei', 'nunca pedi'],
+  cancelei: ['contratei e cancelei', 'ja cancelei', 'cancelei', 'tinha cancelado'],
+  multa: ['cobra multa', 'multa', 'fidelidade', 'estao cobrando multa', 'tem multa'],
+  so_nao_cancela: ['so nao cancela', 'sem multa', 'nao cobra multa', 'apenas nao cancela'],
+  falha_empresa: [
+    'falha da empresa',
+    'falha',
+    'culpa da empresa',
+    'servico ruim',
+    'nao funciona direito',
+    'cai toda hora',
+    'problema da empresa',
+  ],
+  decisao_minha: ['decisao minha', 'minha escolha', 'vontade propria', 'nao quero mais', 'motivo pessoal'],
+  recem_contratado: ['7 dias', 'ha 7 dias', 'sete dias', 'contratei recente', 'essa semana', 'menos de 7 dias'],
+
+  // descontos-folha-beneficio
+  folha: ['folha', 'folha de pagamento', 'salario', 'holerite', 'contracheque', 'trabalho', 'clt', 'servidor'],
+  beneficio: ['beneficio', 'inss', 'aposentadoria', 'pensao', 'meu inss', 'aposentado'],
+  quitado: ['ja quitei', 'quitei', 'quitado', 'ja paguei', 'terminei de pagar'],
+  nao_contratado: ['nunca contratei', 'nao contratei', 'nunca fiz', 'nao pedi'],
+  consignado: ['emprestimo', 'consignado', 'emprestimo consignado'],
+  rmc_rcc: ['rmc', 'rcc', 'cartao consignado', 'reserva de margem'],
+
+  // recusa-entrega-documentos
+  com_protocolo: ['com protocolo', 'tenho protocolo', 'anotei protocolo', 'me deram protocolo'],
+  sem_protocolo: ['sem protocolo', 'nao tenho protocolo', 'nao deram protocolo'],
+  contrato: ['contrato', 'copia do contrato'],
+  nota_fiscal: ['nota fiscal', 'nota', 'nf', 'cupom fiscal'],
+
+  // atendimento-procon
+  como_abrir: ['como reclamar', 'abrir reclamacao', 'fazer reclamacao', 'quero reclamar', 'documentos'],
+  prazos: ['prazo', 'prazos', 'andamento', 'quanto tempo', 'cip', 'audiencia'],
+  competencia: ['se aplica', 'meu caso se aplica', 'competencia', 'procon atende'],
+  imovel: ['aluguel', 'imovel', 'locacao', 'inquilino', 'imobiliaria'],
+  plataforma: ['compra em site', 'site', 'plataforma', 'internet', 'marketplace', 'loja online'],
+  outro: ['outro', 'outro documento', 'outro consumo', 'outro assunto'],
 };
 
 /**
@@ -260,6 +535,12 @@ export class ProvedorLlmOllama implements ProvedorLlm {
     const relato = relatoCidadao.trim();
     if (relato.length < 3 || itensMenu.length === 0) return undefined;
 
+    // 1. Tenta primeiro o classificador semantico local instantaneo (alta precisao nos 9 fluxos)
+    if (!this.modoTesteEstrito) {
+      const local = classificarFluxoLocal(relato, itensMenu);
+      if (local) return local;
+    }
+
     const catalogoFormatado = itensMenu
       .map((item) => `- ${item.fluxo}: ${item.rotulo} (${item.descricao})`)
       .join('\n');
@@ -299,6 +580,10 @@ export class ProvedorLlmOllama implements ProvedorLlm {
   ): Promise<string | undefined> {
     const relato = respostaCidadao.trim();
     if (relato.length < 2 || opcoes.length === 0) return undefined;
+
+    // 1. Classificador semantico local instantaneo (reconhece "comprei na internet", "já pedi", etc.)
+    const opcaoLocal = classificarOpcaoLocal(relato, opcoes);
+    if (opcaoLocal) return opcaoLocal;
 
     const listaOpcoes = opcoes.map((o) => `- ${o.id}: ${o.rotulo}`).join('\n');
     const sistema = [
@@ -409,9 +694,9 @@ function estruturarExplicacaoLocal(textoOriginal: string): string {
 
 /**
  * Classifica o relato livre do cidadao comparando expressoes e intencoes semanticas
- * com o catalogo oficial do PROCON.
+ * com todos os 9 fluxos oficiais do PROCON.
  */
-function classificarFluxoLocal(relato: string, itensMenu: ItemMenu[]): string | undefined {
+export function classificarFluxoLocal(relato: string, itensMenu: ItemMenu[]): string | undefined {
   const entrada = normalizar(relato);
   let melhorFluxo: string | undefined;
   let maiorPontuacao = 0;
@@ -423,16 +708,15 @@ function classificarFluxoLocal(relato: string, itensMenu: ItemMenu[]): string | 
     for (const frase of frases) {
       const fraseNorm = normalizar(frase);
       if (entrada.includes(fraseNorm)) {
-        // Frases mais especificas (ex: "cancelar minha compra") valem mais que palavras isoladas
-        pontos += fraseNorm.split(' ').length * 2;
+        pontos += fraseNorm.split(' ').length * 3;
       }
     }
 
     const rotuloNorm = normalizar(item.rotulo);
     const descNorm = normalizar(item.descricao);
-    if (entrada.includes(rotuloNorm)) pontos += 3;
+    if (entrada.includes(rotuloNorm)) pontos += 4;
     for (const palavra of descNorm.split(' ')) {
-      if (palavra.length >= 5 && entrada.includes(palavra)) pontos += 1;
+      if (palavra.length >= 4 && entrada.includes(palavra)) pontos += 1;
     }
 
     if (pontos > maiorPontuacao) {
@@ -442,4 +726,122 @@ function classificarFluxoLocal(relato: string, itensMenu: ItemMenu[]): string | 
   }
 
   return maiorPontuacao > 0 ? melhorFluxo : undefined;
+}
+
+const STOPWORDS_PT = new Set([
+  'eu',
+  'comprei',
+  'foi',
+  'fiz',
+  'estou',
+  'esta',
+  'pela',
+  'pelo',
+  'na',
+  'no',
+  'em',
+  'de',
+  'do',
+  'da',
+  'um',
+  'uma',
+  'o',
+  'a',
+  'os',
+  'as',
+  'que',
+  'para',
+  'com',
+  'por',
+  'meu',
+  'minha',
+  'quero',
+  'prefiro',
+  'acho',
+  'ou',
+  'e',
+]);
+
+/**
+ * Classifica qual opcao de uma pergunta do fluxo corresponde ao texto livre digitado pelo cidadao.
+ */
+export function classificarOpcaoLocal(
+  relato: string,
+  opcoes: { id: string; rotulo: string }[],
+): string | undefined {
+  const entrada = normalizar(relato);
+  if (!entrada) return undefined;
+
+  const palavrasEntrada = entrada.split(' ');
+  const temNegacao =
+    palavrasEntrada.includes('nao') ||
+    palavrasEntrada.includes('nunca') ||
+    palavrasEntrada.includes('jamais') ||
+    palavrasEntrada.includes('sem');
+
+  let melhorOpcao: string | undefined;
+  let maiorPontuacao = 0;
+
+  for (const opcao of opcoes) {
+    let pontos = 0;
+    const idNorm = normalizar(opcao.id);
+    const rotuloNorm = normalizar(opcao.rotulo);
+    const palavrasRotulo = rotuloNorm.split(' ');
+    const opcaoEhNegativa =
+      idNorm === 'nao' ||
+      idNorm.startsWith('nao_') ||
+      idNorm.startsWith('sem_') ||
+      palavrasRotulo.includes('nao') ||
+      palavrasRotulo.includes('nunca');
+
+    // Evita confundir resposta afirmativa ("já pedi") com negativa ("ainda não pedi") e vice-versa
+    if (temNegacao !== opcaoEhNegativa && opcoes.some((o) => normalizar(o.rotulo).includes('nao'))) {
+      // Excecao: "nao sei" quando a pessoa diz "nao sei"
+      if (!(temNegacao && (idNorm === 'nao_sei' || rotuloNorm.includes('nao sei')))) {
+        if (!temNegacao && opcaoEhNegativa) continue;
+      }
+    }
+
+    // 1. Verifica sinonimos mapeados para o id da opcao
+    const sinonimos = SINONIMOS_OPCOES[opcao.id] ?? [];
+    for (const sin of sinonimos) {
+      const sinNorm = normalizar(sin);
+      if (sinNorm && entrada.includes(sinNorm)) {
+        pontos += sinNorm.split(' ').length * 4;
+      }
+    }
+
+    // 2. Verifica palavras-chave significativas do rotulo da opcao presentes na frase do usuario
+    const palavrasChaveRotulo = palavrasRotulo.filter((p) => p.length >= 3 && !STOPWORDS_PT.has(p));
+    for (const palavra of palavrasChaveRotulo) {
+      if (palavrasEntrada.includes(palavra) || entrada.includes(palavra)) {
+        pontos += 3;
+      }
+    }
+
+    // 3. Tratamento para opcoes genericas "sim", "nao", "nao_sei"
+    if (idNorm === 'nao_sei' && (entrada.includes('nao sei') || entrada.includes('nao tenho certeza') || entrada.includes('duvida'))) {
+      pontos += 10;
+    } else if (idNorm === 'nao' && temNegacao && !entrada.includes('nao sei')) {
+      pontos += 5;
+    } else if (
+      idNorm === 'sim' &&
+      !temNegacao &&
+      (palavrasEntrada.includes('sim') ||
+        palavrasEntrada.includes('ja') ||
+        palavrasEntrada.includes('tenho') ||
+        palavrasEntrada.includes('pedi') ||
+        palavrasEntrada.includes('recebi') ||
+        palavrasEntrada.includes('registrei'))
+    ) {
+      pontos += 5;
+    }
+
+    if (pontos > maiorPontuacao) {
+      maiorPontuacao = pontos;
+      melhorOpcao = opcao.id;
+    }
+  }
+
+  return maiorPontuacao > 0 ? melhorOpcao : undefined;
 }

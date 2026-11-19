@@ -458,19 +458,21 @@ export class MotorConversa {
       if (porNumero) return porNumero.id;
     }
 
-    // Correspondencia parcial natural (ex.: usuario digita "já pedi" para a opcao "Sim, já pedi")
+    // Correspondencia parcial natural (ex.: usuario digita "já pedi" ou "comprei na internet")
     if (entrada.length >= 3) {
-      const palavrasEntrada = entrada.split(' ').filter((p) => p.length >= 2);
+      const palavrasEntrada = entrada.split(' ').filter((p) => p.length >= 3);
+      const temNaoEntrada = entrada.split(' ').includes('nao');
       const candidatas = opcoes.filter((opcao) => {
         const rotuloNorm = normalizar(opcao.rotulo);
         const palavrasRotulo = rotuloNorm.split(' ');
-        // Evita falso positivo quando o usuario digita "já pedi" e a outra opcao é "ainda não pedi"
-        if (! entrada.includes('nao') && palavrasRotulo.includes('nao')) {
+        const temNaoRotulo = palavrasRotulo.includes('nao');
+        if (temNaoEntrada !== temNaoRotulo) {
           return false;
         }
         return (
           rotuloNorm.includes(entrada) ||
-          (palavrasEntrada.length > 0 && palavrasEntrada.every((p) => palavrasRotulo.includes(p)))
+          entrada.includes(rotuloNorm) ||
+          palavrasRotulo.some((p) => p.length >= 4 && palavrasEntrada.includes(p))
         );
       });
       if (candidatas.length === 1) return candidatas[0]!.id;
