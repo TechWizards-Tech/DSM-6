@@ -1,104 +1,96 @@
-# 📄 Análise Técnica do Projeto e Planejamento de Próximos Passos
-**Projeto**: Chatbot de Orientação ao Consumidor — PROCON Jacareí (FATEC Jacareí)  
+# 📄 Análise do Projeto por Sprints e Próximos Passos
+**Projeto**: Chatbot de Orientação ao Consumidor — PROCON Jacareí (6º DSM — FATEC Jacareí)  
 **Equipe**: TechWizards  
-**Data da Análise**: 13/09/2026  
+**Atualizado em**: 18/11/2026  
 
 ---
 
-## 📌 1. Resumo Executivo do Projeto
+## 📌 1. Visão Geral do Sistema Hoje
 
-O objetivo da solução é automatizar o primeiro atendimento do **PROCON de Jacareí-SP**, permitindo que os cidadãos tirem dúvidas sobre seus direitos do consumidor via **WhatsApp** e **Interface Web**, navegando por fluxos decisórios pré-definidos. 
-
-Quando a dúvida não puder ser resolvida pelo assistente virtual, o sistema encaminha o cidadão para o **agendamento de um atendimento presencial**. Além disso, o PROCON contará com um **Painel Web Administrativo** para visualizar as métricas e gerenciar os agendamentos.
+O sistema automatiza o atendimento inicial do **PROCON de Jacareí-SP** via **WhatsApp (Conexão direta por QR Code / Baileys)** e **Simulador Web**, guiando o consumidor pelos **9 fluxos decisórios oficiais do PROCON** com auxílio de **LLM Local (Ollama + Motor Linguístico Local Embarcado)**. Quando o caso exige atendimento presencial, o próprio chatbot realiza o **agendamento com emissão de protocolo**, gerenciado pelos funcionários do PROCON no **Painel Web Administrativo (`/painel`)** integrado ao **PostgreSQL**.
 
 ---
 
-## 🔍 2. Diagnóstico Técnico do Estado Atual (Conclusão da Sprint 1)
+## ✅ Sprint 1 (10/08/2026 a 14/09/2026) — 100% Entregue
 
-A **Sprint 1 (10/08/2026 a 14/09/2026)** focou em construir a base arquitetural e o motor de simulação.
+**Foco**: Base arquitetural, fluxos decisórios e funcionamento do chatbot.
 
-### 🟢 Back-end (Node.js 20 + TypeScript + Express)
-* **Motor de Decisão (`backend/src/modules/chatbot/motor.ts`)**: Lê e processa os 9 fluxos JSON do PROCON com validação estrita.
-* **Gerenciamento de Sessão (`backend/src/modules/chatbot/sessao.ts`)**: Em memória (`RepositorioSessoesMemoria`), preparado para substituição por banco relacional.
-* **Arquitetura Desacoplada (`backend/src/app.ts`)**: Injeção de dependências transparente, permitindo trocar componentes sem alterar regras de negócio.
-* **Integração LLM (`backend/src/modules/llm/index.ts`)**: Interface `ProvedorLlm` pronta com implementação dummy (`ProvedorLlmDesativado`) cumprindo o requisito de isolamento.
-* **Testes Automatizados**: **26 casos de testes** no Vitest cobrindo fluxo principal, entradas inválidas e isolamento entre sessões.
-
-### 🟢 Front-end (React 18 + Vite + TypeScript)
-* **Interface do Simulador**: Componentização com `TelaEntrada`, `JanelaChat`, `BolhaMensagem`, `PainelOpcoes`.
-* **Design System**: Paleta de cores customizada em **Branco e Azul** (`frontend/src/estilos.css`), sem dependência de tema escuro do SO, com sombras fortes e excelente acessibilidade.
-
-### 🟢 DevOps & Repositório
-* **Docker & Docker Compose**: Configurado para rodar front-end, back-end e proxy Nginx simultaneamente.
-* **Versionamento Git**: Commits sincronizados no repositório remoto (`https://github.com/TechWizards-Tech/DSM-6.git`), branch `Dev`.
+* [x] **Modelagem dos 9 Fluxos Decisórios (`fluxos/*.json` + `menu.json`)**: Validação por JSON Schema e script Python (`validar_fluxos.py`).
+* [x] **Motor de Conversa (`app/backend/src/modules/chatbot/motor.ts`)**: Navegação guiada entre perguntas, comandos globais (`menu`, `voltar`, `atendente`, `sair`) e entrega de orientação com lista de documentos e ressalvas (**RF02, RF03, RF04**).
+* [x] **Avisos Obrigatórios (`RNF01, RNF04`)**: Linguagem acessível e aviso explícito sobre o caráter orientativo das respostas.
+* [x] **Controle de Sessões e Registro Inicial em Memória (`sessao.ts` e `registro/index.ts`)**: Isolamento de conversas por usuário e cálculo de estatísticas dos fluxos (**RF06, RP01, RP03**).
+* [x] **Interface Web do Chatbot (`app/frontend/`)**: Simulador em React 18 + Vite + TypeScript com tema acessível em Branco e Azul (`TelaEntrada`, `JanelaChat`, `BolhaMensagem`, `PainelOpcoes`).
+* [x] **Docker Inicial e Testes Automatizados**: 26 testes unitários no Vitest + `Dockerfile` para backend e frontend (**RNF06, RNF08**).
 
 ---
 
-## 🎯 3. Planejamento Detalhado — Sprint 2 (15/09/2026 a 19/10/2026)
+## ✅ Sprint 2 (15/09/2026 a 19/10/2026) — 100% Entregue
 
-Foco da Sprint 2: **Orientação inteligente, registro persistente, IA local e agendamento presencial**.
+**Foco**: Integração com WhatsApp, Banco de Dados PostgreSQL, Agendamento Presencial e LLM Local.
 
-### 📋 Detalhamento das Tarefas da Sprint 2
-
-#### ✅ 1️⃣ Persistência em Banco de Dados (RF06, RNF02) — CONCLUÍDO
-* **O que foi feito**:
-  * **PostgreSQL 16** configurado via Docker Compose (`docker-compose.yml`) com healthcheck e volume persistente.
-  * **Schema SQL** criado em `app/backend/db/schema.sql` com as tabelas `interacoes` e `agendamentos`, índices e constraint de unicidade de slot de horário.
-  * **`RepositorioInteracoesPostgres`** (`app/backend/src/modules/registro/postgres.ts`): persiste cada evento de conversa na tabela `interacoes`.
-  * **`RepositorioAgendamentosPostgres`** (`app/backend/src/modules/agendamento/postgres.ts`): persiste e consulta agendamentos na tabela `agendamentos`.
-  * **`criarPool`** (`app/backend/src/db/pool.ts`): gerencia o pool de conexões com o banco via variável de ambiente `DATABASE_URL`.
-  * **Modo duplo em `app.ts`**: se `DATABASE_URL` estiver definida usa PostgreSQL; caso contrário, usa repositórios em memória (para testes e desenvolvimento local sem Docker).
-  * **Validado**: queries executadas diretamente no container confirmaram que fluxos de conversa e agendamentos são persistidos corretamente.
-
-#### ⏳ 2️⃣ Módulo de LLM Local (RF04, RF05, RNF05) — PENDENTE
-* **O que fazer**: Implementar a explicação humanizada das respostas orientadoras do PROCON via IA local.
-* **Regra Importante (RP05)**: Proibido usar APIs externas pagas (como OpenAI). Deve-se utilizar um modelo local executado via **Ollama** (*Llama 3*, *Mistral* ou *Phi-3*).
-* **Diretriz de Segurança**: A LLM **jamais toma decisões jurídicas**. Quem decide o resultado é a estrutura do fluxo JSON do PROCON. A LLM apenas reescreve a orientação para linguagem mais simples.
-* **Sinalização (RNF05)**: O retorno deve marcar `geradoPorLlm: true` para que o front-end/WhatsApp exiba o selo de IA.
-* **Ponto de extensão já pronto**: a interface `ProvedorLlm` existe em `app/backend/src/modules/llm/index.ts` com o `ProvedorLlmDesativado` como placeholder. Basta criar o `ProvedorLlmOllama` implementando essa interface.
-
-#### ✅ 3️⃣ Agendamento de Atendimento Presencial (RF07, US04) — CONCLUÍDO
-* **O que foi feito**:
-  * **Backend**: módulo completo em `app/backend/src/modules/agendamento/index.ts` com regras de negócio (horários 08:00–16:00, bloqueio de finais de semana, protocolo `PROCON-YYYYMMDD-XXXX`, unicidade de slot).
-  * **Endpoints implementados**:
-    * `GET /api/agendamentos/horarios-disponiveis?data=YYYY-MM-DD`
-    * `POST /api/agendamentos` (criação da reserva com validação de data/horário)
-    * `GET /api/agendamentos` (listagem de todos os agendamentos)
-  * **Persistência**: funciona tanto em memória quanto no PostgreSQL via `RepositorioAgendamentosPostgres`.
-  * **Frontend**: componente `JanelaAgendamento.tsx` com seleção de data (calendário sem finais de semana), escolha de horário disponível e exibição do protocolo gerado.
-  * **Testes**: 29 casos de teste no Vitest validando todas as regras de negócio (branch `feature/agendamento-presencial`).
-  * **Pendente**: endpoint `POST /api/agendamentos/:id/cancelar` ainda não implementado.
-
-#### ⏳ 4️⃣ Integração com WhatsApp Business Cloud API (RF01, US01) — PENDENTE
-* **O que fazer**: Criar um webhook HTTP (`POST /api/webhooks/whatsapp`) para conectar a API do WhatsApp Meta ao motor do chatbot (`motor.ts`).
-* **Fluxo de Mensagem**:
-  1. Webhook recebe evento do WhatsApp contendo o número e texto/botão clicado.
-  2. Chama `motor.responder(telefone, entrada)`.
-  3. Envia os botões/respostas de volta via API da Meta.
+* [x] **Banco de Dados PostgreSQL (`app/backend/db/schema.sql` e `src/db/pool.ts`)**:
+  * Container `postgres:16-alpine` no `docker-compose.yml` com tabelas `interacoes`, `agendamentos` e `usuarios_admin`.
+  * Repositórios persistentes `RepositorioInteracoesPostgres` e `RepositorioAgendamentosPostgres` (com fallback em memória/JSON para rodar local sem Docker) (**RF06, RNF02**).
+* [x] **Integração com WhatsApp via QR Code (`app/backend/src/modules/whatsapp/`)**:
+  * Conexão real e gratuita via **Baileys QR Code** (`ConectorBaileys` em `baileys.ts`, acessível em `/api/whatsapp/qr`) com trava de segurança para responder apenas conversas do atendimento (`"oi procon"` ou chat consigo mesmo), além de manter os adaptadores de webhook no código (**RF01, RP01**).
+* [x] **Agendamento de Atendimento Presencial (`app/backend/src/modules/agendamento/` e `JanelaAgendamento.tsx`)**:
+  * Grade de horários (08h às 16h), bloqueio de fins de semana, validação de CPF (11 dígitos), controle de vagas ocupadas e geração de protocolo `PROCON-YYYYMMDD-XXXX`.
+  * Funciona tanto no modal Web (`JanelaAgendamento.tsx`) quanto conversando direto pelo WhatsApp (`AdaptadorWhatsApp`) (**RF07, US04**).
+* [x] **Módulo de LLM Local (`app/backend/src/modules/llm/index.ts` e `motor.ts`)**:
+  * `ProvedorLlmOllama` integrado ao Ollama local (`OLLAMA_URL` / `OLLAMA_MODEL`) + **Motor Linguístico Local Embarcado** (sem uso de APIs externas pagas — **RP05**).
+  * Identifica automaticamente os **9 fluxos** e todas as **opções de perguntas** quando o cidadão digita frases livres (ex.: *"quero cancelar meu pedido"*, *"comprei na internet"*, *"está lacrado"*).
+  * Estrutura a orientação final e exibe a tag **`TEXTO APOIADO POR IA`** na Web e o aviso `🤖` no WhatsApp (**RF05, RNF05, US03**).
 
 ---
 
-## 🔮 4. Planejamento da Sprint 3 (20/10/2026 a 23/11/2026)
+## 🔄 Sprint 3 (20/10/2026 a 23/11/2026) — Em Fase Final
 
-Foco da Sprint 3: **Gestão, LGPD, Testes E2E e Entrega Final**.
+**Foco**: Painel Web Administrativo, LGPD, Testes Finais, CI/CD e Documentação de Entrega.
 
-1. **Painel Web Administrativo (RF08, US05)**:
-   - Interface em React para os funcionários do PROCON visualizarem agendamentos, confirmarem atendimentos e acompanharem estatísticas de uso.
-2. **Adequação à LGPD (RNF03)**:
-   - Termo de consentimento no WhatsApp/Web.
-   - Rotina de anonimização e retenção temporária de dados pessoais.
-3. **CI/CD e Automação (RNF06, RNF08)**:
-   - Pipeline no GitHub Actions executando build e testes a cada commit na branch `Dev`.
-   - Homologação final do ambiente Docker em produção.
+### O que JÁ FOI FEITO na Sprint 3:
+* [x] **Painel Web Administrativo de Agendamentos (`app/frontend/src/components/painel/` e `rotasPainel.ts`)**:
+  * Login restrito aos funcionários do PROCON (`/painel`) com senha criptografada (`scrypt`) e token **JWT HS256**.
+  * Visualização de agendamentos por data e status (Agendados, Atendidos, Cancelados), com botões para **Confirmar atendimento**, **Remarcar** e **Cancelar** (**RF08, US05**).
+* [x] **Expansão dos Testes Automatizados**: Evolução de 26 para **81 testes automatizados** no Vitest cobrindo fluxos, motor, agendamento, WhatsApp e painel administrativo (**RNF08**).
+* [x] **Manual de Instalação e Execução (`docs/COMO_RODAR_O_SISTEMA.md`)**: Guia completo de hardware, software e execução local/Docker para a equipe (**RNF07**).
+* [x] **Proteção Inicial LGPD**: Mascaramento de telefone nos logs (`mascararTelefone`) e proteção por token JWT das rotas de agendamento (**RNF03**).
 
 ---
 
-## 📌 5. Checklist de Ação Imediata para o Time
+### 📋 O Que AINDA FALTA FAZER (Checklist Final para Entrega em 23/11/2026)
 
-- [x] **Sprint 1 Entregue**: Código sincronizado na branch `Dev` e tema do Front-end ajustado.
-- [ ] **Criar Issues da Sprint 2 no GitHub Projects**:
-  - Issue 1: Configurar PostgreSQL + Prisma no `backend`.
-  - Issue 2: Criar repositório persistente de Sessões e Interações.
-  - Issue 3: Configurar Ollama local e implementar `ProvedorLlmOllama`.
-  - Issue 4: Desenvolver endpoints e regras do Agendamento Presencial.
-  - Issue 5: Configurar Webhook do WhatsApp Business API.
+Para fechar 100% dos requisitos do edital (`docs/Desafio_6DSM.pdf`), faltam apenas estas **6 tarefas**:
+
+- [ ] **Task 1 — Correções Técnicas Rápidas (Build TypeScript e Fim de Semana no Postgres)**:
+  - Remover a diretiva `// @ts-expect-error` não utilizada em `app/backend/src/modules/whatsapp/baileys.ts` (linha 17) para o `npm run build` passar sem avisos.
+  - Adicionar a validação de bloqueio de sábado e domingo em `RepositorioAgendamentosPostgres` (`app/backend/src/modules/agendamento/postgres.ts`, igual já existe no repositório em memória) e padronizar `import type { Pool } from 'pg'`.
+- [ ] **Task 2 — Exibir Estatísticas dos Fluxos Mais Utilizados no Painel Web (`RF06` / `US06`)**:
+  - O back-end já calcula o ranking em `GET /api/registros/estatisticas`. Falta adicionar uma seção/aba de **"Estatísticas dos Fluxos Mais Utilizados"** dentro do Painel Web (`/painel`) para o funcionário do PROCON visualizar quais assuntos são mais procurados.
+- [ ] **Task 3 — Adequação Completa à LGPD (`RNF03`)**:
+  - Exibir aviso/termo de consentimento LGPD na entrada do chat (`TelaEntrada.tsx`), no modal de agendamento (`JanelaAgendamento.tsx`) e no agendamento via WhatsApp antes de coletar Nome e CPF.
+  - Mascarar o telefone do usuário ao gravar eventos estatísticos na tabela `interacoes`.
+- [ ] **Task 4 — Testes Automatizados do Módulo LLM (`RNF08`)**:
+  - Criar `app/backend/tests/llm.test.ts` testando a geração explicativa, a exibição do aviso de IA (`RNF05`), a classificação de fluxos/opções em texto livre e o fallback do Ollama.
+- [ ] **Task 5 — Pipeline de CI/CD no GitHub Actions (`RNF08`)**:
+  - Criar `.github/workflows/ci.yml` executando automaticamente o build, o validador Python dos fluxos e os testes do Vitest a cada `push` / `pull_request` no GitHub.
+- [ ] **Task 6 — Atualizar `README.md` Principal e Documentação Final (`RNF07` / `RNF08`)**:
+  - Atualizar a segunda metade do `README.md` (que ainda descreve apenas a Sprint 1) com a arquitetura final das Sprints 2 e 3, documentar os casos de teste das Sprints 2/3 em `docs/casos-de-teste-sprint-2.md` e inserir o Burndown/vídeo da Sprint 3.
+
+---
+
+## 📊 Resumo dos Requisitos do Edital (`Desafio_6DSM.pdf`)
+
+| Requisito | Descrição Resumida | Status |
+|---|---|---|
+| **RF01 / RP01** | Interação via WhatsApp (QR Code Baileys + Webhooks) | ✅ Concluído |
+| **RF02 / RF03** | Opções e navegação pelos 9 fluxos decisórios do PROCON | ✅ Concluído |
+| **RF04 / RNF04** | Resposta orientadora consolidada + aviso de caráter orientativo | ✅ Concluído |
+| **RF05 / RNF05 / RP05** | LLM local explicativa + identificação de frases livres + selo de IA | ✅ Concluído |
+| **RF06 / US06** | Registro de interações e análise dos fluxos mais utilizados | 🟡 Falta exibir no Painel (Task 2) |
+| **RF07 / US04** | Agendamento presencial com emissão de protocolo | ✅ Concluído (ajuste Postgres na Task 1) |
+| **RF08 / US05** | Interface web (`/painel`) para gerenciamento dos agendamentos | ✅ Concluído |
+| **RNF01 / RNF02** | Linguagem clara/acessível e resposta em tempo real | ✅ Concluído |
+| **RNF03** | Adequação à LGPD | 🟡 Falta aviso de consentimento (Task 3) |
+| **RNF06** | Execução em Docker (`docker-compose.yml`) | ✅ Concluído |
+| **RNF07** | Documentação de instalação e requisitos de hardware/software | 🟡 `COMO_RODAR_O_SISTEMA.md` pronto; falta atualizar `README.md` (Task 6) |
+| **RNF08** | Git, Scrum, Testes Automatizados e CI/CD | 🟡 Faltam testes da LLM (Task 4) e GitHub Actions (Task 5) |
