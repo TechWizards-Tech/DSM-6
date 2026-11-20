@@ -140,6 +140,10 @@ registro das conversas e agendamento.
 - Agendamento presencial
 - Avisos sobre o caráter orientativo das respostas
 
+## Retrospectiva — Sprint 2
+
+A Sprint 2 teve como foco evoluir o chatbot de protótipo de teste para um atendimento funcional. Foram entregues a integração com o WhatsApp, o banco de dados, as respostas orientadoras, o agendamento presencial e a versão inicial do painel web. Em relação à Sprint 1, o time passou a estimar as tarefas em Story Points, associar cada issue a um responsável e trabalhar com branches e Pull Requests (de 2 PRs na Sprint 1 para 15 na Sprint 2), com burndown e casos de teste documentados. [COMPLETAR com o que o time falou na retro: comunicação, bloqueios, o que foi difícil.] Como pontos de atenção, a LLM (RF05) e o registro das interações em banco (RF06) não foram concluídos, parte dos Pull Requests foi integrada sem revisão e o CI/CD ainda não foi implementado. Para a Sprint 3, o time definiu como ações: exigir pelo menos uma revisão em todo Pull Request, criar um workflow de CI/CD que execute os testes automatizados a cada PR e concluir a LLM e o registro das interações antes de iniciar a LGPD.
+
 # SPRINT 3
 
 Na Sprint 3, o foco será finalizar o sistema, realizar os testes e preparar
@@ -325,6 +329,12 @@ o WhatsApp (RF01), LLM (RF05), agendamento presencial (RF07), painel administrat
 (RF08) e persistencia em banco. As sessoes vivem em memoria - reiniciar o back-end
 zera as conversas.
 
+## O que a Sprint 2 entrega e o que ficou de fora
+
+Entregue: integração com o WhatsApp (RF01), banco de dados PostgreSQL configurado com Docker, respostas orientadoras com resumo do caso e próximos passos (RF04), agendamento presencial pelo WhatsApp (RF07), tratamento de erros e entradas inválidas e avisos sobre o caráter orientativo das respostas (RNF04). No agendamento, o cidadão informa nome, CPF, data e horário, e o sistema valida os dados, avisa quando o horário já está ocupado e gera um protocolo de confirmação. Também foi desenvolvida a versão inicial do painel web, com login de administrador, listagem dos agendamentos, filtros por data e situação e ações de confirmar, remarcar e cancelar (RF08).
+
+Entregue parcialmente: o registro das interações em banco de dados (RF06) teve a persistência iniciada, e o módulo de LLM (RF05) existe como abstração, mas ainda não foi integrado. Esses itens seguem para a Sprint 3, junto com a finalização do painel web, a adequação à LGPD e segurança (RNF03), os testes de integração, o CI/CD (RNF08), o deploy, a documentação final (RNF07) e a validação com o PROCON.
+
 # EQUIPE
 
 | Nome | Função | GitHub |
@@ -354,6 +364,7 @@ A documentação do projeto será mantida neste repositório, incluindo:
 # PROJETO
 
 - Link Vídeo Sprint 01: https://youtu.be/DSInHO1evGc?si=lX-BdQ4GD3Klo57Z
+- Link Vídeo Sprint 02: https://youtu.be/cHGECdl8jgY
 
 **FATEC Jacareí — Desenvolvimento de Software Multiplataforma**
 
