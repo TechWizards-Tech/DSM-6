@@ -168,11 +168,22 @@ export class AdaptadorWhatsApp {
     const conversa = this.conversas.get(telefone);
     const sessao = conversa ? await sessoes.buscar(conversa.sessaoId) : undefined;
 
-    // Verifica se o cidadao escolheu a opcao de agendar atendimento presencial
+    // Verifica se o cidadao escolheu a opcao de agendar atendimento presencial ou digitou que quer agendar
     const opcao = conversa ? this.opcaoPorNumero(texto, conversa) : undefined;
+    const textoNorm = normalizar(texto);
+    const pediuAgendamentoPorTexto =
+      textoNorm === 'agendar' ||
+      textoNorm === 'agendamento' ||
+      textoNorm === 'atendente' ||
+      textoNorm.includes('quero agendar') ||
+      textoNorm.includes('agendar atendimento') ||
+      textoNorm.includes('atendimento presencial') ||
+      textoNorm.includes('marcar atendimento') ||
+      textoNorm.includes('marcar horario');
+
     const querAgendar =
       opcao?.id === OPCAO_AGENDAR ||
-      (normalizar(texto) === 'agendar' && Boolean(this.opcoes.agendamentos));
+      (pediuAgendamentoPorTexto && Boolean(this.opcoes.agendamentos));
 
     if (querAgendar && this.opcoes.agendamentos) {
       this.agendamentosEmAndamento.set(telefone, {
@@ -192,10 +203,11 @@ export class AdaptadorWhatsApp {
         ? await motor.iniciar(telefone)
         : await motor.responder(sessao.id, this.interpretar(texto, conversa));
 
-    // Se o encaminhamento for para atendimento presencial, adiciona a opcao de agendamento (RF07)
+    // Adiciona a opcao de agendamento presencial ao final da orientacao (RF07),
+    // igual ao simulador Web (exceto quando o assunto for fora de competencia do PROCON)
     if (this.opcoes.agendamentos) {
       const msgEnc = resultado.novasMensagens.find(
-        (m) => m.tipo === 'encaminhamento' && m.encaminhamento === 'agendamento_presencial',
+        (m) => m.tipo === 'encaminhamento' && m.encaminhamento !== 'fora_de_competencia',
       );
       if (msgEnc) {
         msgEnc.opcoes = [
