@@ -37,7 +37,7 @@ GitHub Projects: Acompanhe o roadmap, tarefas em andamento e o progresso do dese
 |--------|--------|---------|--------|
 | Sprint 01 | 10/08/2026 | 14/09/2026 | ✅ |
 | Sprint 02 | 15/09/2026 | 19/10/2026 | ✅ |
-| Sprint 03 | 20/10/2026 | 23/11/2026 | 🔄 |
+| Sprint 03 | 20/10/2026 | 23/11/2026 | ✅ |
 
 # PRODUCT BACKLOG
 
@@ -149,6 +149,8 @@ A Sprint 2 teve como foco evoluir o chatbot de protótipo de teste para um atend
 Na Sprint 3, o foco será finalizar o sistema, realizar os testes e preparar
 a entrega do projeto.
 
+![Burndown Sprint 3](./burndown%20sprint3.png)
+
 ### Atividades
 
 - Desenvolvimento do painel web
@@ -161,6 +163,10 @@ a entrega do projeto.
 - Deploy
 - Documentação
 - Validação com o PROCON
+
+## O que a Sprint 3 entrega
+
+A Sprint 3 teve como foco finalizar o sistema e preparar a entrega do projeto. Foram concluídos o painel web de gerenciamento dos agendamentos (RF08), com login de administrador, listagem, filtros por data e situação e ações de confirmar, remarcar e cancelar, e a adequação à LGPD e à segurança (RNF03). Foram finalizados também os itens que haviam ficado parciais na Sprint 2: o registro das interações em banco de dados (RF06) e a utilização da LLM para explicação das respostas (RF05), com o aviso ao usuário quando houver auxílio de LLM (RNF05). Na parte de qualidade e entrega, foram ampliados os testes automatizados e implementados os testes de integração, o CI/CD com execução dos testes a cada Pull Request (RNF08), a configuração com Docker (RNF06), o deploy e a documentação de instalação e requisitos (RNF07). Por fim, o sistema passou pela validação com o PROCON.
 
 # ARQUITETURA
 
