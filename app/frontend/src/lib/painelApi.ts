@@ -98,6 +98,26 @@ export function criarUsuario(token: string, dados: NovoUsuario) {
   );
 }
 
+export interface AtualizarUsuarioInput {
+  nome?: string;
+  senha?: string;
+  papel?: Papel;
+}
+
+export function atualizarUsuario(token: string, id: string, dados: AtualizarUsuarioInput) {
+  return requisitar<UsuarioListado>(
+    `/admin/usuarios/${encodeURIComponent(id)}`,
+    comToken(token, { method: 'PATCH', body: JSON.stringify(dados) }),
+  );
+}
+
+export function excluirUsuario(token: string, id: string) {
+  return requisitar<undefined>(
+    `/admin/usuarios/${encodeURIComponent(id)}`,
+    comToken(token, { method: 'DELETE' }),
+  );
+}
+
 export interface EstatisticaFluxoPainel {
   fluxoId: string;
   titulo: string;

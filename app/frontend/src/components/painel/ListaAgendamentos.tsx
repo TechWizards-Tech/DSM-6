@@ -239,39 +239,37 @@ export function ListaAgendamentos({ token, usuario, aoSair, aoExpirar }: Props) 
                 Estatísticas
               </button>
             </li>
-            {usuario.papel === 'admin' && (
-              <li>
-                <button
-                  type="button"
-                  className={`painel-menu-lateral__item${menuConfigAberto || abaAtiva === 'usuarios' ? ' painel-menu-lateral__item--expandido' : ''}`}
-                  onClick={() => setMenuConfigAberto((aberto) => !aberto)}
-                  aria-expanded={menuConfigAberto}
-                >
-                  <IconeConfiguracoes />
-                  Configurações
-                </button>
-                {(menuConfigAberto || abaAtiva === 'usuarios') && (
-                  <ul className="painel-menu-lateral__sublista">
-                    <li>
-                      <button
-                        type="button"
-                        className={`painel-menu-lateral__subitem${abaAtiva === 'usuarios' ? ' painel-menu-lateral__item--ativo' : ''}`}
-                        onClick={() => setAbaAtiva('usuarios')}
-                      >
-                        Configurar novo usuário
-                      </button>
-                    </li>
-                  </ul>
-                )}
-              </li>
-            )}
+            <li>
+              <button
+                type="button"
+                className={`painel-menu-lateral__item${menuConfigAberto || abaAtiva === 'usuarios' ? ' painel-menu-lateral__item--expandido' : ''}`}
+                onClick={() => setMenuConfigAberto((aberto) => !aberto)}
+                aria-expanded={menuConfigAberto}
+              >
+                <IconeConfiguracoes />
+                Configurações
+              </button>
+              {(menuConfigAberto || abaAtiva === 'usuarios') && (
+                <ul className="painel-menu-lateral__sublista">
+                  <li>
+                    <button
+                      type="button"
+                      className={`painel-menu-lateral__subitem${abaAtiva === 'usuarios' ? ' painel-menu-lateral__item--ativo' : ''}`}
+                      onClick={() => setAbaAtiva('usuarios')}
+                    >
+                      {usuario.papel === 'admin' ? 'Configurar novo usuário' : 'Minha conta'}
+                    </button>
+                  </li>
+                </ul>
+              )}
+            </li>
           </ul>
         </aside>
 
         {abaAtiva === 'estatisticas' ? (
           <JanelaEstatisticas />
-        ) : abaAtiva === 'usuarios' && usuario.papel === 'admin' ? (
-          <JanelaUsuarios token={token} aoExpirar={aoExpirar} />
+        ) : abaAtiva === 'usuarios' ? (
+          <JanelaUsuarios token={token} usuarioLogado={usuario} aoExpirar={aoExpirar} />
         ) : (
         <main className="painel">
           <div className="painel__cabecalho">
