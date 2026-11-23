@@ -136,3 +136,22 @@ export function obterEstatisticas(): Promise<EstatisticasFluxos> {
   return requisitar<EstatisticasFluxos>('/registros/estatisticas');
 }
 
+export interface InteracaoRegistrada {
+  id: string;
+  sessaoId: string;
+  usuario: string;
+  evento: string;
+  fluxoId?: string;
+  noId?: string;
+  opcaoId?: string;
+  encaminhamento?: string;
+  detalhe?: string;
+  em: string;
+}
+
+export async function listarInteracoes(): Promise<InteracaoRegistrada[]> {
+  const { interacoes } = await requisitar<{ interacoes: InteracaoRegistrada[] }>('/registros');
+  return interacoes;
+}
+
+
