@@ -1,0 +1,86 @@
+# Producao (maquina propria, Windows/Linux com Docker).
+#
+#   1. copie .env.prod.example para .env.prod e preencha
+#   2. docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+#
+# Somente o Caddy publica portas (80 e 443). Postgres, backend e frontend ficam
+# na rede interna do compose.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: procon_chatbot
+      POSTGRES_USER: procon
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env.prod}
+    volumes:
+      - postgres_dados:/var/lib/postgresql/data
+      - ./app/backend/db/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U procon -d procon_chatbot"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: app/backend/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 3333
+      FLUXOS_DIR: /app/fluxos
+      CORS_ORIGINS: https://${DOMINIO:?defina DOMINIO no .env.prod}
+      REGISTRO_JSONL: /app/dados/interacoes.jsonl
+      DATABASE_URL: postgresql://procon:${POSTGRES_PASSWORD}@postgres:5432/procon_chatbot
+      JWT_SEGREDO: ${JWT_SEGREDO:?defina JWT_SEGREDO no .env.prod}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?defina ADMIN_EMAIL no .env.prod}
+      ADMIN_SENHA: ${ADMIN_SENHA:?defina ADMIN_SENHA no .env.prod}
+      ADMIN_NOME: ${ADMIN_NOME:-Atendente PROCON}
+      # WhatsApp por QR Code (Baileys). A sessao fica em /app/dados/whatsapp_auth,
+      # dentro do volume "registro", e sobrevive a reinicios.
+      WHATSAPP_MODO: baileys
+      # LLM local: Ollama rodando no proprio PC (Docker Desktop expoe o host em
+      # host.docker.internal). Sem Ollama, o backend cai no motor embarcado.
+      OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:8b}
+      OLLAMA_KEEP_ALIVE: ${OLLAMA_KEEP_ALIVE:-60m}
+    volumes:
+      - registro:/app/dados
+    # So acessivel nesta maquina: a pagina do QR Code (sem autenticacao) fica em
+    # http://localhost:3333/api/whatsapp/qr e e bloqueada no acesso publico.
+    ports:
+      - "127.0.0.1:3333:3333"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: app/frontend/Dockerfile
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    depends_on:
+      - frontend
+    environment:
+      DOMINIO: ${DOMINIO}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_dados:/data
+      - caddy_config:/config
+    restart: unless-stopped
+
+volumes:
+  registro:
+  postgres_dados:
+  caddy_dados:
+  caddy_config:

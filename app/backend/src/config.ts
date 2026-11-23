@@ -57,4 +57,10 @@ export const config = {
   adminNome: process.env.ADMIN_NOME ?? 'Atendente PROCON',
   ollamaUrl: process.env.OLLAMA_URL ?? 'http://localhost:11434',
   ollamaModelo: process.env.OLLAMA_MODEL ?? 'llama3.2:3b',
+  /** Tempo maximo das classificacoes (menu e opcoes). */
+  ollamaTimeoutMs: Number(process.env.OLLAMA_TIMEOUT_MS ?? 12000),
+  /** Tempo maximo da reescrita da orientacao, que gera um texto mais longo. */
+  ollamaTimeoutExplicacaoMs: Number(process.env.OLLAMA_TIMEOUT_EXPLICACAO_MS ?? 30000),
+  /** Quanto o Ollama mantem o modelo na memoria ("60m", "-1" = sempre). */
+  ollamaKeepAlive: process.env.OLLAMA_KEEP_ALIVE ?? '60m',
 };
