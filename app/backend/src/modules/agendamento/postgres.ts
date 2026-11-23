@@ -1,4 +1,4 @@
-import type { Pool } from '../../../node_modules/@types/pg/index.js';
+import type { Pool } from 'pg';
 
 import {
   mensagemHorarioOcupado,
@@ -47,6 +47,12 @@ export class RepositorioAgendamentosPostgres implements RepositorioAgendamentos 
   constructor(private readonly pool: Pool) { }
 
   async listarHorarios(data: string): Promise<HorarioSlot[]> {
+    const [anoStr = '0', mesStr = '1', diaStr = '1'] = data.split('-');
+    const diaDaSemana = new Date(Number(anoStr), Number(mesStr) - 1, Number(diaStr)).getDay();
+    if (diaDaSemana === 0 || diaDaSemana === 6) {
+      return HORARIOS_PADRAO.map((horario) => ({ horario, disponivel: false }));
+    }
+
     const resultado = await this.pool.query<{ horario: string }>(
       `SELECT horario FROM agendamentos WHERE data = $1 AND status = 'agendado'`,
       [data],
@@ -56,6 +62,12 @@ export class RepositorioAgendamentosPostgres implements RepositorioAgendamentos 
   }
 
   async criar(input: CriarAgendamentoInput): Promise<Agendamento> {
+    const [anoStr = '0', mesStr = '1', diaStr = '1'] = input.data.split('-');
+    const diaDaSemana = new Date(Number(anoStr), Number(mesStr) - 1, Number(diaStr)).getDay();
+    if (diaDaSemana === 0 || diaDaSemana === 6) {
+      throw new Error('O PROCON de Jacareí não realiza atendimentos aos sábados e domingos.');
+    }
+
     const dataFormatada = input.data.replace(/-/g, '');
     const sufixo = Math.floor(1000 + Math.random() * 9000);
     const protocolo = `PROCON-${dataFormatada}-${sufixo}`;
