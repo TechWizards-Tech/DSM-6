@@ -11,6 +11,7 @@ import {
   type UsuarioPainel,
 } from '../../lib/painelApi';
 import { buscarHorarios, type HorarioSlot } from '../../services/agendamentoService';
+import { JanelaUsuarios } from './JanelaUsuarios';
 
 interface Props {
   token: string;
@@ -99,6 +100,7 @@ export function ListaAgendamentos({ token, usuario, aoSair, aoExpirar }: Props) 
   const [sucesso, setSucesso] = useState<string | null>(null);
   const [emAcao, setEmAcao] = useState<string | null>(null);
   const [remarcando, setRemarcando] = useState<AgendamentoPainel | null>(null);
+  const [janelaUsuarios, setJanelaUsuarios] = useState(false);
 
   const tratarFalha = useCallback(
     (falha: unknown) => {
@@ -206,6 +208,16 @@ export function ListaAgendamentos({ token, usuario, aoSair, aoExpirar }: Props) 
             >
               ← Ir para o Chatbot
             </a>
+            {usuario.papel === 'admin' && (
+              <button
+                className="botao botao--fantasma"
+                type="button"
+                onClick={() => setJanelaUsuarios(true)}
+              >
+                <IconeUsuarios />
+                Usuários
+              </button>
+            )}
             <span className="painel__avatar" aria-hidden="true">
               {iniciais(usuario.nome)}
             </span>
@@ -441,6 +453,14 @@ export function ListaAgendamentos({ token, usuario, aoSair, aoExpirar }: Props) 
           ))}
         </section>
       </main>
+
+      {janelaUsuarios && usuario.papel === 'admin' && (
+        <JanelaUsuarios
+          token={token}
+          aoFechar={() => setJanelaUsuarios(false)}
+          aoExpirar={aoExpirar}
+        />
+      )}
     </div>
   );
 }
@@ -487,6 +507,14 @@ const IconeAlerta = () => (
   <Icone>
     <circle cx="12" cy="12" r="10" />
     <path d="M12 8v4M12 16h.01" />
+  </Icone>
+);
+
+const IconeUsuarios = () => (
+  <Icone>
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
   </Icone>
 );
 

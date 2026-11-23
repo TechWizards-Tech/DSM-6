@@ -61,6 +61,7 @@ CREATE TABLE IF NOT EXISTS usuarios_admin (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email           TEXT NOT NULL UNIQUE,
     nome            TEXT NOT NULL,
+    papel           TEXT NOT NULL DEFAULT 'atendente' CHECK (papel IN ('admin', 'atendente')),
     senha_hash      TEXT NOT NULL,
     criado_em       TIMESTAMPTZ NOT NULL DEFAULT now()
 );

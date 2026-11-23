@@ -15,10 +15,24 @@ export interface AgendamentoPainel {
   criadoEm: string;
 }
 
+export type Papel = 'admin' | 'atendente';
+
 export interface UsuarioPainel {
   id: string;
   email: string;
   nome: string;
+  papel: Papel;
+}
+
+export interface UsuarioListado extends UsuarioPainel {
+  criadoEm: string;
+}
+
+export interface NovoUsuario {
+  nome: string;
+  email: string;
+  senha: string;
+  papel: Papel;
 }
 
 export interface FiltroAgendamentos {
@@ -68,3 +82,18 @@ export const confirmarAtendimento = (token: string, id: string) => acao(token, i
 export const cancelarAgendamento = (token: string, id: string) => acao(token, id, 'cancelar');
 export const remarcarAgendamento = (token: string, id: string, data: string, horario: string) =>
   acao(token, id, 'remarcar', { data, horario });
+
+export async function listarUsuarios(token: string): Promise<UsuarioListado[]> {
+  const { usuarios } = await requisitar<{ usuarios: UsuarioListado[] }>(
+    '/admin/usuarios',
+    comToken(token),
+  );
+  return usuarios;
+}
+
+export function criarUsuario(token: string, dados: NovoUsuario) {
+  return requisitar<UsuarioListado>(
+    '/admin/usuarios',
+    comToken(token, { method: 'POST', body: JSON.stringify(dados) }),
+  );
+}

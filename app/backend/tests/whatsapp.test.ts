@@ -441,8 +441,8 @@ describe('WhatsApp - Twilio Sandbox', () => {
       await enviar('123.456.789-00');
       expect(cliente.ultima).toContain('Para qual *data* você gostaria de agendar?');
 
-      // 8. Envia Data futura em dia util (ex: 2026-10-20, terça-feira)
-      await enviar('2026-10-20');
+      // 8. Envia Data futura em dia util (ex: 2099-10-20, terça-feira)
+      await enviar('2099-10-20');
       expect(cliente.ultima).toContain('Horários disponíveis para');
       expect(cliente.ultima).toContain('*1.* 08:00');
 
@@ -458,10 +458,36 @@ describe('WhatsApp - Twilio Sandbox', () => {
       const ag = lista.find((item) => item.nome === 'Maria Eduarda');
       expect(ag).toBeDefined();
       expect(ag?.cpf).toBe('123.456.789-00');
-      expect(ag?.data).toBe('2026-10-20');
+      expect(ag?.data).toBe('2099-10-20');
       expect(ag?.horario).toBe('08:00');
       expect(ag?.usuario).toBe(TELEFONE);
       expect(ag?.status).toBe('agendado');
+    });
+
+    it('entende datas em linguagem natural e recusa passado e fim de semana', async () => {
+      const { cliente, enviar } = montar();
+      for (const passo of ['oi', '1', '1', '1', '1', '1', 'Maria Eduarda', '123.456.789-00']) {
+        await enviar(passo);
+      }
+      expect(cliente.ultima).toContain('amanhã');
+
+      await enviar('10/01/2020');
+      expect(cliente.ultima).toContain('já passou');
+
+      await enviar('31/02/2099');
+      expect(cliente.ultima).toContain('não existe');
+
+      await enviar('blablabla');
+      expect(cliente.ultima).toContain('Não consegui entender a data');
+
+      // 2099-10-18 e domingo
+      await enviar('18/10/2099');
+      expect(cliente.ultima).toContain('domingo');
+      expect(cliente.ultima).toContain('19/10/2099');
+
+      // "amanhã" e entendido; cai em sexta/sabado conforme o dia em que o teste roda.
+      await enviar('amanhã');
+      expect(cliente.ultima).toMatch(/Horários disponíveis para|não atende aos sábados e domingos/);
     });
 
     it('permite cancelar o agendamento em andamento a qualquer momento digitando cancelar', async () => {

@@ -17,7 +17,13 @@ import {
   ErroRegraAgendamento,
   remarcarAgendamento,
 } from '../modules/agendamento/gerenciamento.js';
-import type { ServicoAutenticacao, UsuarioAutenticado } from '../modules/auth/index.js';
+import {
+  ErroCadastroUsuario,
+  ErroUsuarioDuplicado,
+  type Papel,
+  type ServicoAutenticacao,
+  type UsuarioAutenticado,
+} from '../modules/auth/index.js';
 
 interface Dependencias {
   autenticacao: ServicoAutenticacao;
@@ -34,6 +40,16 @@ export function exigirAutenticacao(autenticacao: ServicoAutenticacao) {
       return res.status(401).json({ erro: 'Sessao invalida ou expirada. Faca login novamente.' });
     }
     req.usuarioAdmin = usuario;
+    next();
+  };
+}
+
+/** Deixa passar so quem tem o papel exigido; use depois de `exigirAutenticacao`. */
+export function exigirPapel(papel: Papel) {
+  return (req: RequisicaoAutenticada, res: Response, next: NextFunction) => {
+    if (req.usuarioAdmin?.papel !== papel) {
+      return res.status(403).json({ erro: 'Voce nao tem permissao para esta acao.' });
+    }
     next();
   };
 }
@@ -71,6 +87,34 @@ export function criarRotasPainel({ autenticacao, agendamentos }: Dependencias): 
 
   admin.get('/eu', (req: RequisicaoAutenticada, res) => {
     res.json({ usuario: req.usuarioAdmin });
+  });
+
+  admin.get('/usuarios', exigirPapel('admin'), async (_req, res, next) => {
+    try {
+      res.json({ usuarios: await autenticacao.listarUsuarios() });
+    } catch (erro) {
+      next(erro);
+    }
+  });
+
+  admin.post('/usuarios', exigirPapel('admin'), async (req, res, next) => {
+    try {
+      const { nome, email, senha, papel } = req.body ?? {};
+      if (typeof nome !== 'string' || typeof email !== 'string' || typeof senha !== 'string') {
+        return res.status(400).json({ erro: 'Informe nome, e-mail e senha.' });
+      }
+      const usuario = await autenticacao.criarUsuario({
+        nome,
+        email,
+        senha,
+        papel: papel ?? 'atendente',
+      });
+      res.status(201).json(usuario);
+    } catch (erro) {
+      if (erro instanceof ErroCadastroUsuario) return res.status(400).json({ erro: erro.message });
+      if (erro instanceof ErroUsuarioDuplicado) return res.status(409).json({ erro: erro.message });
+      next(erro);
+    }
   });
 
   admin.get('/agendamentos', async (req, res, next) => {

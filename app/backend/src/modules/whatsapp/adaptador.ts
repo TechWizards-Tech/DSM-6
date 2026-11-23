@@ -12,6 +12,14 @@ import { normalizar, type RepositorioFluxos } from '../fluxos/repositorio.js';
 import type { RepositorioAgendamentos } from '../agendamento/index.js';
 import type { ClienteWhatsApp } from './cliente.js';
 import { formatarTurno } from './formatador.js';
+import {
+  diaDaSemana,
+  hojeSaoPaulo,
+  interpretarData,
+  nomeDiaSemana,
+  proximoDiaUtilBr,
+  proximoDiaUtilIso,
+} from '../agendamento/datas.js';
 
 /** Depois desse tempo sem mensagens, o proximo "oi" abre uma conversa nova. */
 export const INATIVIDADE_PADRAO_MS = 30 * 60 * 1000;
@@ -264,26 +272,36 @@ export class AdaptadorWhatsApp {
       estado.cpf = cpfFormatado;
       estado.etapa = 'aguardando_data';
 
-      const proximoDia = obterProximoDiaUtil();
+      const proximoDia = proximoDiaUtilBr();
       return [
-        `CPF registrado: *${cpfFormatado}*.\n\nPara qual *data* você gostaria de agendar?\n_(Atendimentos de segunda a sexta-feira)_\n\nDigite a data no formato *DD/MM/AAAA* (exemplo: *${proximoDia}*):`,
+        `CPF registrado: *${cpfFormatado}*.\n\nPara qual *data* você gostaria de agendar?\n_(Atendimentos de segunda a sexta-feira)_\n\nDigite a data no formato *DD/MM/AAAA* (exemplo: *${proximoDia}*) ou algo como *amanhã*, *segunda* ou *dia 25*:`,
       ];
     }
 
     if (estado.etapa === 'aguardando_data') {
-      const dataIso = normalizarData(textoLimpo);
-      if (!dataIso) {
+      const hoje = hojeSaoPaulo();
+      const interpretada = interpretarData(textoLimpo, hoje);
+      if (interpretada.tipo === 'invalida') {
         return [
-          `⚠️ Formato de data não reconhecido.\n\nPor favor, digite a data no formato *DD/MM/AAAA* (exemplo: *${obterProximoDiaUtil()}*):`,
+          `⚠️ Essa data não existe no calendário.\n\nPor favor, digite outra (exemplo: *${proximoDiaUtilBr(hoje)}* ou *amanhã*):`,
         ];
       }
-
-      const [ano, mes, dia] = dataIso.split('-').map(Number);
-      const dataObj = new Date(ano!, mes! - 1, dia!);
-      const diaSemana = dataObj.getDay();
-      if (diaSemana === 0 || diaSemana === 6) {
+      if (interpretada.tipo === 'desconhecida') {
         return [
-          '⚠️ O PROCON Jacareí não realiza atendimentos aos sábados e domingos.\n\nPor favor, escolha uma data de *segunda a sexta-feira* (DD/MM/AAAA):',
+          `⚠️ Não consegui entender a data.\n\nVocê pode digitar *DD/MM/AAAA* (exemplo: *${proximoDiaUtilBr(hoje)}*) ou algo como *amanhã*, *segunda*, *dia 25*:`,
+        ];
+      }
+      if (interpretada.tipo === 'passado') {
+        return [
+          `⚠️ A data *${formatarDataBr(interpretada.iso)}* já passou.\n\nPor favor, informe uma data a partir de hoje (exemplo: *${proximoDiaUtilBr(hoje)}*):`,
+        ];
+      }
+      const dataIso = interpretada.iso;
+      const diaSemana = diaDaSemana(dataIso);
+      if (diaSemana === 0 || diaSemana === 6) {
+        const sugestao = formatarDataBr(proximoDiaUtilIso(dataIso));
+        return [
+          `⚠️ *${formatarDataBr(dataIso)}* é ${nomeDiaSemana(dataIso)} e o PROCON Jacareí não atende aos sábados e domingos.\n\nPor favor, escolha uma data de *segunda a sexta-feira* (sugestão: *${sugestao}*):`,
         ];
       }
 
@@ -506,15 +524,7 @@ export function gerarTwiml(mensagens: string[]): string {
 }
 
 export function obterProximoDiaUtil(): string {
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  while (d.getDay() === 0 || d.getDay() === 6) {
-    d.setDate(d.getDate() + 1);
-  }
-  const dia = String(d.getDate()).padStart(2, '0');
-  const mes = String(d.getMonth() + 1).padStart(2, '0');
-  const ano = d.getFullYear();
-  return `${dia}/${mes}/${ano}`;
+  return proximoDiaUtilBr();
 }
 
 export function normalizarData(texto: string): string | undefined {

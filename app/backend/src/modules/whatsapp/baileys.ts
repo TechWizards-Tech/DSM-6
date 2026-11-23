@@ -14,7 +14,6 @@ import makeWASocket, {
 import { existsSync, mkdirSync, rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 import QRCode from 'qrcode';
-// @ts-expect-error qrcode-terminal nao possui tipos ESM estritos
 import qrcodeTerminal from 'qrcode-terminal';
 import { mascararTelefone, type AdaptadorWhatsApp } from './adaptador.js';
 import type { ClienteWhatsApp } from './cliente.js';
