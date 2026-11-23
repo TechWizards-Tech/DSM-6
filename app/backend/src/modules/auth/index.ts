@@ -14,23 +14,53 @@ const scryptAsync = promisify(scrypt) as (
   opcoes?: { maxmem?: number; cost?: number; blockSize?: number; parallelization?: number },
 ) => Promise<Buffer>;
 
+/** `admin` gerencia usuarios do painel; `atendente` so cuida dos agendamentos. */
+export const PAPEIS = ['admin', 'atendente'] as const;
+export type Papel = (typeof PAPEIS)[number];
+
+export function ehPapel(valor: unknown): valor is Papel {
+  return typeof valor === 'string' && (PAPEIS as readonly string[]).includes(valor);
+}
+
 export interface UsuarioAdmin {
   id: string;
   email: string;
   nome: string;
+  papel: Papel;
   senhaHash: string;
   criadoEm: string;
 }
+
+/** Usuario sem o hash da senha: o unico formato que sai pela API. */
+export type UsuarioPublico = Omit<UsuarioAdmin, 'senhaHash'>;
 
 export interface CriarUsuarioAdminInput {
   email: string;
   nome: string;
   senhaHash: string;
+  papel: Papel;
 }
 
 export interface RepositorioUsuariosAdmin {
   buscarPorEmail(email: string): Promise<UsuarioAdmin | undefined>;
+  listar(): Promise<UsuarioAdmin[]>;
   criar(input: CriarUsuarioAdminInput): Promise<UsuarioAdmin>;
+  atualizarPapel(email: string, papel: Papel): Promise<void>;
+}
+
+export class ErroUsuarioDuplicado extends Error {
+  constructor(email: string) {
+    super(`Ja existe um usuario com o e-mail ${email}.`);
+    this.name = 'ErroUsuarioDuplicado';
+  }
+}
+
+/** Dados invalidos ao cadastrar um usuario (vira HTTP 400). */
+export class ErroCadastroUsuario extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ErroCadastroUsuario';
+  }
 }
 
 export class RepositorioUsuariosAdminMemoria implements RepositorioUsuariosAdmin {
@@ -42,16 +72,26 @@ export class RepositorioUsuariosAdminMemoria implements RepositorioUsuariosAdmin
 
   async criar(input: CriarUsuarioAdminInput): Promise<UsuarioAdmin> {
     const email = normalizarEmail(input.email);
-    if (this.usuarios.has(email)) throw new Error(`Ja existe um usuario com o e-mail ${email}.`);
+    if (this.usuarios.has(email)) throw new ErroUsuarioDuplicado(email);
     const usuario: UsuarioAdmin = {
       id: randomUUID(),
       email,
       nome: input.nome,
+      papel: input.papel,
       senhaHash: input.senhaHash,
       criadoEm: new Date().toISOString(),
     };
     this.usuarios.set(email, usuario);
     return usuario;
+  }
+
+  async listar(): Promise<UsuarioAdmin[]> {
+    return [...this.usuarios.values()].sort((a, b) => a.criadoEm.localeCompare(b.criadoEm));
+  }
+
+  async atualizarPapel(email: string, papel: Papel): Promise<void> {
+    const usuario = this.usuarios.get(normalizarEmail(email));
+    if (usuario) usuario.papel = papel;
   }
 }
 
@@ -81,14 +121,31 @@ export interface UsuarioAutenticado {
   id: string;
   email: string;
   nome: string;
+  papel: Papel;
 }
 
 interface PayloadToken {
   sub: string;
   email: string;
   nome: string;
+  papel?: Papel;
   iat: number;
   exp: number;
+}
+
+export const SENHA_MIN = 8;
+const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export interface NovoUsuarioInput {
+  email: string;
+  nome: string;
+  senha: string;
+  papel: Papel;
+}
+
+function publico(usuario: UsuarioAdmin): UsuarioPublico {
+  const { senhaHash: _senhaHash, ...resto } = usuario;
+  return resto;
 }
 
 function base64url(dados: Buffer | string): string {
@@ -110,8 +167,13 @@ export class ServicoAutenticacao {
   ): Promise<{ token: string; usuario: UsuarioAutenticado } | undefined> {
     const usuario = await this.usuarios.buscarPorEmail(normalizarEmail(email));
     if (!usuario || !(await verificarSenha(senha, usuario.senhaHash))) return undefined;
-    const publico = { id: usuario.id, email: usuario.email, nome: usuario.nome };
-    return { token: this.emitirToken(publico), usuario: publico };
+    const dados: UsuarioAutenticado = {
+      id: usuario.id,
+      email: usuario.email,
+      nome: usuario.nome,
+      papel: usuario.papel,
+    };
+    return { token: this.emitirToken(dados), usuario: dados };
   }
 
   emitirToken(usuario: UsuarioAutenticado): string {
@@ -120,6 +182,7 @@ export class ServicoAutenticacao {
       sub: usuario.id,
       email: usuario.email,
       nome: usuario.nome,
+      papel: usuario.papel,
       iat: agora,
       exp: agora + this.validadeSegundos,
     };
@@ -143,16 +206,59 @@ export class ServicoAutenticacao {
       if (typeof payload.exp !== 'number' || payload.exp <= Math.floor(Date.now() / 1000)) {
         return undefined;
       }
-      return { id: payload.sub, email: payload.email, nome: payload.nome };
+      // Token antigo, emitido antes dos papeis existirem, vale como o menos privilegiado.
+      const papel: Papel = ehPapel(payload.papel) ? payload.papel : 'atendente';
+      return { id: payload.sub, email: payload.email, nome: payload.nome, papel };
     } catch {
       return undefined;
     }
   }
 
-  /** Cria o primeiro funcionario a partir das variaveis de ambiente, se ainda nao existir. */
+  /**
+   * Cria o primeiro funcionario a partir das variaveis de ambiente, se ainda nao existir.
+   * Se ja existir, so garante o papel `admin`: a senha e o nome nunca sao sobrescritos.
+   */
   async garantirAdminInicial(email: string, senha: string, nome = 'Administrador'): Promise<void> {
-    if (await this.usuarios.buscarPorEmail(email)) return;
-    await this.usuarios.criar({ email, nome, senhaHash: await gerarHashSenha(senha) });
+    const existente = await this.usuarios.buscarPorEmail(email);
+    if (existente) {
+      if (existente.papel !== 'admin') await this.usuarios.atualizarPapel(email, 'admin');
+      return;
+    }
+    await this.usuarios.criar({
+      email,
+      nome,
+      papel: 'admin',
+      senhaHash: await gerarHashSenha(senha),
+    });
+  }
+
+  async listarUsuarios(): Promise<UsuarioPublico[]> {
+    return (await this.usuarios.listar()).map(publico);
+  }
+
+  /** Cadastra um funcionario novo. Lanca `ErroCadastroUsuario` ou `ErroUsuarioDuplicado`. */
+  async criarUsuario(entrada: NovoUsuarioInput): Promise<UsuarioPublico> {
+    const nome = entrada.nome.trim();
+    const email = normalizarEmail(entrada.email);
+    if (nome.length < 2 || nome.length > 100) {
+      throw new ErroCadastroUsuario('Informe o nome (de 2 a 100 caracteres).');
+    }
+    if (email.length > 254 || !REGEX_EMAIL.test(email)) {
+      throw new ErroCadastroUsuario('Informe um e-mail valido.');
+    }
+    if (entrada.senha.length < SENHA_MIN || entrada.senha.length > 128) {
+      throw new ErroCadastroUsuario(`A senha deve ter de ${SENHA_MIN} a 128 caracteres.`);
+    }
+    if (!ehPapel(entrada.papel)) {
+      throw new ErroCadastroUsuario(`Papel invalido. Use: ${PAPEIS.join(', ')}.`);
+    }
+    const criado = await this.usuarios.criar({
+      email,
+      nome,
+      papel: entrada.papel,
+      senhaHash: await gerarHashSenha(entrada.senha),
+    });
+    return publico(criado);
   }
 
   private assinar(conteudo: string): string {

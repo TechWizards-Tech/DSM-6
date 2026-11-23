@@ -1,0 +1,16 @@
+# HTTPS automatico (Let's Encrypt) para {$DOMINIO}.
+# Exige que as portas 80 e 443 cheguem ate esta maquina.
+{$DOMINIO} {
+	# A pagina de pareamento do WhatsApp (QR Code) nao tem autenticacao no backend,
+	# entao o acesso externo e protegido aqui por usuario e senha (HTTP Basic Auth).
+	#   usuario: procon   senha: procon2026
+	# Para trocar a senha, gere um novo hash e substitua o valor abaixo:
+	#   docker run --rm caddy:2-alpine caddy hash-password --plaintext "NOVA_SENHA"
+	@qr path /api/whatsapp/qr /api/whatsapp/qr/*
+	basic_auth @qr {
+		procon $2a$14$OZBKlYZ4cD4zY6JNlDBwQeB4Ijt9FV8jYPOwh4t/tkw1HVizTd4wW
+	}
+
+	encode gzip
+	reverse_proxy frontend:80
+}

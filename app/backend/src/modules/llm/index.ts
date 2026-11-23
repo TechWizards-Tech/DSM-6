@@ -73,8 +73,81 @@ export interface OpcoesOllama {
   modelo?: string;
   /** Tempo limite em milissegundos para nao travar o atendimento em tempo real (RNF02) */
   timeoutMs?: number;
+  /** Tempo limite maior para a reescrita da orientacao (resposta longa). Padrao: 30000. */
+  timeoutExplicacaoMs?: number;
+  /**
+   * Quanto tempo o Ollama mantem o modelo na memoria depois de cada chamada
+   * (ex.: "60m"; "-1" = sempre). Sem isso o padrao do Ollama e 5 minutos, e a
+   * primeira resposta depois de uma pausa paga o carregamento do modelo.
+   */
+  keepAlive?: string;
+  /** Forca ligar/desligar o modo de raciocinio. Padrao: desligado em Qwen3/DeepSeek-R1. */
+  semRaciocinio?: boolean;
   /** Injecao de fetch para testes automatizados */
   fetchFn?: typeof fetch;
+}
+
+/** Opcoes de uma chamada ao Ollama. */
+interface OpcoesGeracao {
+  timeoutMs?: number;
+  /** Limite de tokens gerados (`num_predict`). */
+  maxTokens?: number;
+  /** JSON Schema que restringe a saida (structured outputs do Ollama). */
+  formato?: object;
+}
+
+interface ResultadoGeracao {
+  texto: string;
+  /** false quando o modelo parou por limite de tokens, ou seja, a resposta esta cortada. */
+  completo: boolean;
+}
+
+/** Modelos que raciocinam antes de responder e precisam de `think: false` neste uso. */
+const MODELOS_COM_RACIOCINIO = /^(qwen3|deepseek-r1)/i;
+
+const REGEX_BLOCO_RACIOCINIO = /<think>[\s\S]*?<\/think>/gi;
+
+/** Numeros, datas, valores e artigos: sequencias de digitos, com . , / - entre elas. */
+const REGEX_NUMERO = /\d+(?:[.,/-]\d+)*/g;
+
+function tokensNumericos(texto: string): Set<string> {
+  // Marcadores de lista ("1. ", "2) ") nao sao fatos: o modelo pode criar ou remover.
+  const semMarcadores = texto.replace(/^\s*\d{1,2}[.)]\s+/gm, '');
+  const conjunto = new Set<string>();
+  for (const token of semMarcadores.match(REGEX_NUMERO) ?? []) {
+    conjunto.add(token.replace(/\D/g, '').replace(/^0+(?=\d)/, ''));
+  }
+  return conjunto;
+}
+
+/**
+ * Compara os numeros (prazos, valores, datas, artigos de lei, telefones) do texto
+ * oficial com os da reescrita da LLM. Devolve o que sumiu ou foi inventado; lista
+ * vazia = os fatos numericos se mantiveram. E conservador de proposito: na duvida,
+ * a reescrita e descartada e vale o texto do PROCON (RP05).
+ */
+export function encontrarFatosAlterados(original: string, reescrito: string): string[] {
+  const doOriginal = tokensNumericos(original);
+  const daReescrita = tokensNumericos(reescrito);
+  const problemas: string[] = [];
+  for (const n of doOriginal) if (!daReescrita.has(n)) problemas.push(`faltou ${n}`);
+  for (const n of daReescrita) if (!doOriginal.has(n)) problemas.push(`inventado ${n}`);
+  return problemas;
+}
+
+function segundosDesde(inicio: number): string {
+  return ((Date.now() - inicio) / 1000).toFixed(1);
+}
+
+/** Le um campo de uma resposta JSON do modelo; undefined se nao for JSON valido. */
+function lerCampoJson(texto: string | undefined, campo: string): string | undefined {
+  if (!texto) return undefined;
+  try {
+    const valor = (JSON.parse(texto) as Record<string, unknown>)[campo];
+    return typeof valor === 'string' ? valor : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 export const PROMPT_SISTEMA_EXPLICACAO = [
@@ -481,6 +554,9 @@ export class ProvedorLlmOllama implements ProvedorLlm {
   private readonly urlBase: string;
   private modelo: string;
   private readonly timeoutMs: number;
+  private readonly timeoutExplicacaoMs: number;
+  private readonly keepAlive: string | number;
+  private readonly semRaciocinio?: boolean;
   private readonly fetchFn: typeof fetch;
   /** Quando `fetchFn` customizado e injetado (testes unitarios), testa o comportamento puro HTTP. */
   private readonly modoTesteEstrito: boolean;
@@ -489,6 +565,10 @@ export class ProvedorLlmOllama implements ProvedorLlm {
     this.urlBase = (opcoes.urlBase ?? 'http://localhost:11434').replace(/\/+$/, '');
     this.modelo = opcoes.modelo ?? 'llama3.2:3b';
     this.timeoutMs = opcoes.timeoutMs ?? 12000;
+    this.timeoutExplicacaoMs = opcoes.timeoutExplicacaoMs ?? 30000;
+    const keepAlive = (opcoes.keepAlive ?? '60m').trim();
+    this.keepAlive = /^-?\d+$/.test(keepAlive) ? Number(keepAlive) : keepAlive;
+    this.semRaciocinio = opcoes.semRaciocinio;
     this.fetchFn = opcoes.fetchFn ?? fetch;
     this.modoTesteEstrito = Boolean(opcoes.fetchFn);
   }
@@ -501,14 +581,27 @@ export class ProvedorLlmOllama implements ProvedorLlm {
     const prompt = `Orientação oficial do PROCON:\n"""\n${textoOriginal}\n"""\n\nReescreva a orientação acima de forma clara, acolhedora e fácil de entender, mantendo todos os fatos e instruções originais:`;
 
     try {
-      const resposta = await this.gerar(PROMPT_SISTEMA_EXPLICACAO, prompt);
-      const textoLimpo = resposta?.trim();
+      const inicio = Date.now();
+      const resposta = await this.gerar(PROMPT_SISTEMA_EXPLICACAO, prompt, {
+        timeoutMs: this.timeoutExplicacaoMs,
+        maxTokens: 800,
+      });
+      const textoLimpo = resposta?.texto.trim();
 
-      if (textoLimpo && textoLimpo.length >= 20) {
-        return {
-          texto: textoLimpo,
-          geradoPorLlm: true,
-        };
+      if (resposta && textoLimpo && textoLimpo.length >= 20) {
+        const alteracoes = resposta.completo
+          ? encontrarFatosAlterados(textoOriginal, textoLimpo)
+          : ['resposta cortada por limite de tokens'];
+        if (alteracoes.length === 0) {
+          console.log(`[llm] Reescrita aceita (modelo ${this.modelo}, ${segundosDesde(inicio)} s).`);
+          return {
+            texto: textoLimpo,
+            geradoPorLlm: true,
+          };
+        }
+        console.warn(
+          `[llm] Reescrita descartada (${alteracoes.join(', ')}); usando o texto do PROCON estruturado.`,
+        );
       }
     } catch (erro) {
       if (this.modoTesteEstrito) {
@@ -548,22 +641,32 @@ export class ProvedorLlmOllama implements ProvedorLlm {
     const sistema = [
       'Você é um classificador de triagem do PROCON de Jacareí-SP.',
       'Analise a mensagem do cidadão e escolha qual dos fluxos abaixo corresponde ao problema relatado.',
-      'Responda APENAS com o identificador exato do fluxo (ex.: garantia-produto) ou com a palavra "nenhum" caso não tenha relação com nenhum item.',
+      'Responda em JSON no formato {"fluxo": "<identificador exato do fluxo>"}, ou {"fluxo": "nenhum"} caso não tenha relação com nenhum item.',
       'Não escreva nenhuma explicação adicional.',
     ].join('\n');
+    const formato = {
+      type: 'object',
+      properties: { fluxo: { type: 'string', enum: [...itensMenu.map((i) => i.fluxo), 'nenhum'] } },
+      required: ['fluxo'],
+    };
 
     const prompt = `Fluxos disponíveis:\n${catalogoFormatado}\n\nMensagem do cidadão: "${relato}"\n\nIdentificador do fluxo:`;
 
     try {
-      const resposta = await this.gerar(sistema, prompt);
+      const inicio = Date.now();
+      const resposta = await this.gerar(sistema, prompt, { maxTokens: 40, formato });
       if (resposta) {
-        const token = resposta
+        const bruto = lerCampoJson(resposta.texto, 'fluxo') ?? resposta.texto;
+        const token = bruto
           .trim()
           .toLowerCase()
           .replace(/[^a-z0-9\-]/g, '');
 
         const encontrado = itensMenu.find((item) => item.fluxo.toLowerCase() === token);
-        if (encontrado) return encontrado.fluxo;
+        if (encontrado) {
+          console.log(`[llm] Fluxo "${encontrado.fluxo}" identificado pelo modelo (${segundosDesde(inicio)} s).`);
+          return encontrado.fluxo;
+        }
         if (this.modoTesteEstrito) return undefined;
       }
     } catch {
@@ -589,41 +692,91 @@ export class ProvedorLlmOllama implements ProvedorLlm {
     const sistema = [
       'Você é o classificador de respostas do chatbot do PROCON de Jacareí-SP.',
       'Dado a pergunta feita pelo bot e a resposta livre do cidadão, escolha qual das opções abaixo representa o que o cidadão respondeu.',
-      'Responda APENAS com o id exato da opção (ex.: sim) ou "nenhuma" se não for possível identificar.',
+      'Responda em JSON no formato {"opcao": "<id exato da opção>"}, ou {"opcao": "nenhuma"} se não for possível identificar.',
       'Não explique nada.',
     ].join('\n');
+    const formato = {
+      type: 'object',
+      properties: { opcao: { type: 'string', enum: [...opcoes.map((o) => o.id), 'nenhuma'] } },
+      required: ['opcao'],
+    };
 
     const prompt = `Pergunta do bot: "${pergunta}"\n\nOpções disponíveis:\n${listaOpcoes}\n\nResposta do cidadão: "${relato}"\n\nId da opção escolhida:`;
 
     try {
-      const resposta = await this.gerar(sistema, prompt);
+      const inicio = Date.now();
+      const resposta = await this.gerar(sistema, prompt, { maxTokens: 40, formato });
       if (!resposta) return undefined;
 
-      const token = resposta
+      const token = (lerCampoJson(resposta.texto, 'opcao') ?? resposta.texto)
         .trim()
         .toLowerCase()
         .replace(/[^a-z0-9_\-]/g, '');
 
       const encontrada = opcoes.find((o) => o.id.toLowerCase() === token);
+      if (encontrada) {
+        console.log(`[llm] Opção "${encontrada.id}" identificada pelo modelo (${segundosDesde(inicio)} s).`);
+      }
       return encontrada?.id;
     } catch {
       return undefined;
     }
   }
 
-  private async gerar(system: string, prompt: string): Promise<string | undefined> {
+  /**
+   * Carrega o modelo na memoria sem gerar texto (prompt vazio), para a primeira
+   * resposta de verdade nao pagar o tempo de carregamento. Devolve se o Ollama respondeu.
+   */
+  async aquecer(timeoutMs = 120000): Promise<boolean> {
     const controlador = new AbortController();
-    const timer = setTimeout(() => controlador.abort(), this.timeoutMs);
+    const timer = setTimeout(() => controlador.abort(), timeoutMs);
+    try {
+      const chamar = (modelo: string) =>
+        this.fetchFn(`${this.urlBase}/api/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: modelo, keep_alive: this.keepAlive }),
+          signal: controlador.signal,
+        });
+
+      let resposta = await chamar(this.modelo);
+      if (resposta.status === 404) {
+        const alternativo = await this.descobrirModeloInstalado(controlador.signal);
+        if (alternativo && alternativo !== this.modelo) {
+          this.modelo = alternativo;
+          resposta = await chamar(this.modelo);
+        }
+      }
+      return resposta.ok;
+    } catch {
+      return false;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  /** Modelo em uso (pode mudar se o configurado nao estiver instalado). */
+  get modeloEmUso(): string {
+    return this.modelo;
+  }
+
+  private async gerar(
+    system: string,
+    prompt: string,
+    opcoes: OpcoesGeracao = {},
+  ): Promise<ResultadoGeracao | undefined> {
+    const controlador = new AbortController();
+    const timer = setTimeout(() => controlador.abort(), opcoes.timeoutMs ?? this.timeoutMs);
 
     try {
-      let resposta = await this.chamarApiGenerate(this.modelo, system, prompt, controlador.signal);
+      let resposta = await this.chamarApiGenerate(this.modelo, system, prompt, opcoes, controlador.signal);
 
       if (resposta.status === 404 && !this.modoTesteEstrito) {
         const modeloAlternativo = await this.descobrirModeloInstalado(controlador.signal);
         if (modeloAlternativo && modeloAlternativo !== this.modelo) {
           console.log(`[llm] Usando modelo instalado no Ollama: "${modeloAlternativo}".`);
           this.modelo = modeloAlternativo;
-          resposta = await this.chamarApiGenerate(this.modelo, system, prompt, controlador.signal);
+          resposta = await this.chamarApiGenerate(this.modelo, system, prompt, opcoes, controlador.signal);
         }
       }
 
@@ -631,8 +784,13 @@ export class ProvedorLlmOllama implements ProvedorLlm {
         throw new Error(`Ollama retornou HTTP ${resposta.status}`);
       }
 
-      const dados = (await resposta.json()) as { response?: unknown };
-      return typeof dados.response === 'string' ? dados.response : undefined;
+      const dados = (await resposta.json()) as { response?: unknown; done_reason?: unknown };
+      if (typeof dados.response !== 'string') return undefined;
+      return {
+        // Modelos que raciocinam podem devolver o bloco <think>...</think> no texto.
+        texto: dados.response.replace(REGEX_BLOCO_RACIOCINIO, '').trim(),
+        completo: dados.done_reason !== 'length',
+      };
     } finally {
       clearTimeout(timer);
     }
@@ -642,8 +800,10 @@ export class ProvedorLlmOllama implements ProvedorLlm {
     modelo: string,
     system: string,
     prompt: string,
+    opcoes: OpcoesGeracao,
     signal: AbortSignal,
   ): Promise<Response> {
+    const desligarRaciocinio = this.semRaciocinio ?? MODELOS_COM_RACIOCINIO.test(modelo);
     return this.fetchFn(`${this.urlBase}/api/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -652,8 +812,12 @@ export class ProvedorLlmOllama implements ProvedorLlm {
         system,
         prompt,
         stream: false,
+        keep_alive: this.keepAlive,
+        ...(desligarRaciocinio ? { think: false } : {}),
+        ...(opcoes.formato ? { format: opcoes.formato } : {}),
         options: {
           temperature: 0.2,
+          ...(opcoes.maxTokens ? { num_predict: opcoes.maxTokens } : {}),
         },
       }),
       signal,

@@ -4,6 +4,7 @@
  * ou remarcados; "atendido" e "cancelado" sao estados finais.
  */
 import { HORARIOS_PADRAO, type Agendamento, type RepositorioAgendamentos } from './index.js';
+import { hojeSaoPaulo } from './datas.js';
 
 export class AgendamentoNaoEncontrado extends Error {
   constructor(id: string) {
@@ -23,10 +24,7 @@ export class ErroRegraAgendamento extends Error {
 const FORMATO_DATA = /^\d{4}-\d{2}-\d{2}$/;
 
 function hojeLocal(): string {
-  const agora = new Date();
-  const mes = String(agora.getMonth() + 1).padStart(2, '0');
-  const dia = String(agora.getDate()).padStart(2, '0');
-  return `${agora.getFullYear()}-${mes}-${dia}`;
+  return hojeSaoPaulo();
 }
 
 async function buscarAtivo(repo: RepositorioAgendamentos, id: string): Promise<Agendamento> {

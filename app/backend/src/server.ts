@@ -6,10 +6,37 @@ import { ConectorBaileys } from './modules/whatsapp/baileys.js';
 import { ClienteCloudApi, ClienteTwilio, type ClienteWhatsApp } from './modules/whatsapp/cliente.js';
 import { lerConfigWhatsApp } from './modules/whatsapp/config.js';
 
+const PAUSA_ENTRE_TENTATIVAS_MS = 30_000;
+const MAX_TENTATIVAS_AQUECIMENTO = 10;
+
+/**
+ * Carrega o modelo na memoria em segundo plano. No Windows o Ollama pode subir
+ * depois do backend, entao tenta de novo por alguns minutos. O log diz a verdade:
+ * a mensagem de "configurado" acima so mostra a variavel, nao que o Ollama responde.
+ */
+async function aquecerOllama(llm: ProvedorLlmOllama): Promise<void> {
+  for (let tentativa = 1; tentativa <= MAX_TENTATIVAS_AQUECIMENTO; tentativa++) {
+    if (await llm.aquecer()) {
+      console.log(`[llm] Ollama respondeu e o modelo "${llm.modeloEmUso}" esta carregado na memoria.`);
+      return;
+    }
+    await new Promise((resolver) => setTimeout(resolver, PAUSA_ENTRE_TENTATIVAS_MS));
+  }
+  console.warn(
+    '[llm] Ollama nao respondeu. As orientacoes usam o motor linguistico embarcado ate ele ficar disponivel.',
+  );
+}
+
 try {
   const configWhatsApp = lerConfigWhatsApp();
   const provedorLlm = config.ollamaUrl
-    ? new ProvedorLlmOllama({ urlBase: config.ollamaUrl, modelo: config.ollamaModelo })
+    ? new ProvedorLlmOllama({
+        urlBase: config.ollamaUrl,
+        modelo: config.ollamaModelo,
+        timeoutMs: config.ollamaTimeoutMs,
+        timeoutExplicacaoMs: config.ollamaTimeoutExplicacaoMs,
+        keepAlive: config.ollamaKeepAlive,
+      })
     : new ProvedorLlmDesativado();
 
   let clienteWhatsApp: ClienteWhatsApp | undefined;
@@ -67,7 +94,8 @@ try {
       console.log('Banco de dados: memoria local');
     }
     if (config.ollamaUrl) {
-      console.log(`LLM Local (Ollama): ativo em ${config.ollamaUrl} (modelo: ${config.ollamaModelo})`);
+      console.log(`LLM Local (Ollama): configurado em ${config.ollamaUrl} (modelo: ${config.ollamaModelo})`);
+      if (provedorLlm instanceof ProvedorLlmOllama) void aquecerOllama(provedorLlm);
     } else {
       console.log('LLM Local (Ollama): desligado (defina OLLAMA_URL para ativar)');
     }
@@ -96,4 +124,3 @@ try {
   }
   throw erro;
 }
-
