@@ -37,7 +37,7 @@ GitHub Projects: Acompanhe o roadmap, tarefas em andamento e o progresso do dese
 |--------|--------|---------|--------|
 | Sprint 01 | 10/08/2026 | 14/09/2026 | ✅ |
 | Sprint 02 | 15/09/2026 | 19/10/2026 | ✅ |
-| Sprint 03 | 20/10/2026 | 23/11/2026 | 🔄 |
+| Sprint 03 | 20/10/2026 | 23/11/2026 | ✅ |
 
 # PRODUCT BACKLOG
 
@@ -149,6 +149,8 @@ A Sprint 2 teve como foco evoluir o chatbot de protótipo de teste para um atend
 Na Sprint 3, o foco será finalizar o sistema, realizar os testes e preparar
 a entrega do projeto.
 
+![Burndown Sprint 3](./burndown%20sprint3.png)
+
 ### Atividades
 
 - Desenvolvimento do painel web
@@ -161,6 +163,10 @@ a entrega do projeto.
 - Deploy
 - Documentação
 - Validação com o PROCON
+
+## Retrospectiva — Sprint 3
+
+A Sprint 3 teve como foco finalizar o sistema, realizar os testes e preparar a entrega final do projeto. Foram concluídos o painel web de gerenciamento dos agendamentos, a adequação à LGPD e à segurança, o registro das interações em banco de dados, a utilização da LLM para reformular as respostas, os testes de integração, o CI/CD, o deploy e a documentação, além da validação com o PROCON. Os pontos de atenção levantados na retrospectiva da Sprint 2 foram tratados: o CI/CD passou a executar os testes automatizados a cada Pull Request, as revisões de código tornaram-se prática do time e os itens que haviam ficado parciais (LLM e registro das interações) foram concluídos. A comunicação da equipe se manteve ao longo da sprint e as tarefas foram acompanhadas pelo quadro do GitHub Projects, o que permitiu ajustar prioridades conforme o prazo de entrega se aproximava. Ao longo das três sprints, o time evoluiu de um protótipo de teste para uma solução completa, que orienta o cidadão pelo WhatsApp, registra as interações e permite o agendamento presencial, com gestão dos atendimentos pelo PROCON. Como aprendizado do projeto, destacam-se a importância de alinhar os requisitos antes de iniciar o desenvolvimento, de acompanhar o trabalho com estimativas, Pull Requests e revisão de código, e de automatizar os testes desde cedo.
 
 # ARQUITETURA
 
@@ -334,6 +340,10 @@ zera as conversas.
 Entregue: integração com o WhatsApp (RF01), banco de dados PostgreSQL configurado com Docker, respostas orientadoras com resumo do caso e próximos passos (RF04), agendamento presencial pelo WhatsApp (RF07), tratamento de erros e entradas inválidas e avisos sobre o caráter orientativo das respostas (RNF04). No agendamento, o cidadão informa nome, CPF, data e horário, e o sistema valida os dados, avisa quando o horário já está ocupado e gera um protocolo de confirmação. Também foi desenvolvida a versão inicial do painel web, com login de administrador, listagem dos agendamentos, filtros por data e situação e ações de confirmar, remarcar e cancelar (RF08).
 
 Entregue parcialmente: o registro das interações em banco de dados (RF06) teve a persistência iniciada, e o módulo de LLM (RF05) existe como abstração, mas ainda não foi integrado. Esses itens seguem para a Sprint 3, junto com a finalização do painel web, a adequação à LGPD e segurança (RNF03), os testes de integração, o CI/CD (RNF08), o deploy, a documentação final (RNF07) e a validação com o PROCON.
+
+## O que a Sprint 3 entrega
+
+A Sprint 3 teve como foco finalizar o sistema e preparar a entrega do projeto. Foram concluídos o painel web de gerenciamento dos agendamentos (RF08), com login de administrador, listagem, filtros por data e situação e ações de confirmar, remarcar e cancelar, e a adequação à LGPD e à segurança (RNF03). Foram finalizados também os itens que haviam ficado parciais na Sprint 2: o registro das interações em banco de dados (RF06) e a utilização da LLM para explicação das respostas (RF05), com o aviso ao usuário quando houver auxílio de LLM (RNF05). Na parte de qualidade e entrega, foram ampliados os testes automatizados e implementados os testes de integração, o CI/CD com execução dos testes a cada Pull Request (RNF08), a configuração com Docker (RNF06), o deploy e a documentação de instalação e requisitos (RNF07). Por fim, o sistema passou pela validação com o PROCON.
 
 # EQUIPE
 
