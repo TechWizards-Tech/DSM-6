@@ -97,3 +97,22 @@ export function criarUsuario(token: string, dados: NovoUsuario) {
     comToken(token, { method: 'POST', body: JSON.stringify(dados) }),
   );
 }
+
+export interface EstatisticaFluxoPainel {
+  fluxoId: string;
+  titulo: string;
+  vezesEscolhido: number;
+  orientacoesEntregues: number;
+}
+
+export interface EstatisticasFluxos {
+  conversasIniciadas: number;
+  orientacoesEntregues: number;
+  entradasInvalidas: number;
+  fluxosMaisUtilizados: EstatisticaFluxoPainel[];
+}
+
+export function obterEstatisticas(): Promise<EstatisticasFluxos> {
+  return requisitar<EstatisticasFluxos>('/registros/estatisticas');
+}
+

@@ -11,6 +11,7 @@ import {
   type UsuarioPainel,
 } from '../../lib/painelApi';
 import { buscarHorarios, type HorarioSlot } from '../../services/agendamentoService';
+import { JanelaEstatisticas } from './JanelaEstatisticas';
 import { JanelaUsuarios } from './JanelaUsuarios';
 
 interface Props {
@@ -100,7 +101,8 @@ export function ListaAgendamentos({ token, usuario, aoSair, aoExpirar }: Props) 
   const [sucesso, setSucesso] = useState<string | null>(null);
   const [emAcao, setEmAcao] = useState<string | null>(null);
   const [remarcando, setRemarcando] = useState<AgendamentoPainel | null>(null);
-  const [janelaUsuarios, setJanelaUsuarios] = useState(false);
+  const [abaAtiva, setAbaAtiva] = useState<'agendamentos' | 'estatisticas' | 'usuarios'>('agendamentos');
+  const [menuConfigAberto, setMenuConfigAberto] = useState(false);
 
   const tratarFalha = useCallback(
     (falha: unknown) => {
@@ -201,23 +203,6 @@ export function ListaAgendamentos({ token, usuario, aoSair, aoExpirar }: Props) 
             </div>
           </div>
           <div className="painel__usuario">
-            <a
-              href="/"
-              className="botao botao--fantasma"
-              style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-            >
-              ← Ir para o Chatbot
-            </a>
-            {usuario.papel === 'admin' && (
-              <button
-                className="botao botao--fantasma"
-                type="button"
-                onClick={() => setJanelaUsuarios(true)}
-              >
-                <IconeUsuarios />
-                Usuários
-              </button>
-            )}
             <span className="painel__avatar" aria-hidden="true">
               {iniciais(usuario.nome)}
             </span>
@@ -230,8 +215,66 @@ export function ListaAgendamentos({ token, usuario, aoSair, aoExpirar }: Props) 
         </div>
       </header>
 
-      <main className="painel">
-        <div className="painel__cabecalho">
+      <div className="painel-layout">
+        <aside className="painel-menu-lateral" aria-label="Menu do painel">
+          <span className="painel-menu-lateral__titulo">Menu</span>
+          <ul className="painel-menu-lateral__lista">
+            <li>
+              <button
+                type="button"
+                className={`painel-menu-lateral__item${abaAtiva === 'agendamentos' ? ' painel-menu-lateral__item--ativo' : ''}`}
+                onClick={() => setAbaAtiva('agendamentos')}
+              >
+                <IconeCalendario />
+                Agendamentos
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                className={`painel-menu-lateral__item${abaAtiva === 'estatisticas' ? ' painel-menu-lateral__item--ativo' : ''}`}
+                onClick={() => setAbaAtiva('estatisticas')}
+              >
+                <IconeGrafico />
+                Estatísticas
+              </button>
+            </li>
+            {usuario.papel === 'admin' && (
+              <li>
+                <button
+                  type="button"
+                  className={`painel-menu-lateral__item${menuConfigAberto || abaAtiva === 'usuarios' ? ' painel-menu-lateral__item--expandido' : ''}`}
+                  onClick={() => setMenuConfigAberto((aberto) => !aberto)}
+                  aria-expanded={menuConfigAberto}
+                >
+                  <IconeConfiguracoes />
+                  Configurações
+                </button>
+                {(menuConfigAberto || abaAtiva === 'usuarios') && (
+                  <ul className="painel-menu-lateral__sublista">
+                    <li>
+                      <button
+                        type="button"
+                        className={`painel-menu-lateral__subitem${abaAtiva === 'usuarios' ? ' painel-menu-lateral__item--ativo' : ''}`}
+                        onClick={() => setAbaAtiva('usuarios')}
+                      >
+                        Configurar novo usuário
+                      </button>
+                    </li>
+                  </ul>
+                )}
+              </li>
+            )}
+          </ul>
+        </aside>
+
+        {abaAtiva === 'estatisticas' ? (
+          <JanelaEstatisticas />
+        ) : abaAtiva === 'usuarios' && usuario.papel === 'admin' ? (
+          <JanelaUsuarios token={token} aoExpirar={aoExpirar} />
+        ) : (
+        <main className="painel">
+          <div className="painel__cabecalho">
           <div>
             <h1 className="painel__titulo">Agendamentos presenciais</h1>
             <p className="painel__subtitulo">
@@ -453,14 +496,8 @@ export function ListaAgendamentos({ token, usuario, aoSair, aoExpirar }: Props) 
           ))}
         </section>
       </main>
-
-      {janelaUsuarios && usuario.papel === 'admin' && (
-        <JanelaUsuarios
-          token={token}
-          aoFechar={() => setJanelaUsuarios(false)}
-          aoExpirar={aoExpirar}
-        />
-      )}
+        )}
+      </div>
     </div>
   );
 }
@@ -510,11 +547,16 @@ const IconeAlerta = () => (
   </Icone>
 );
 
-const IconeUsuarios = () => (
+const IconeGrafico = () => (
   <Icone>
-    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-    <circle cx="9" cy="7" r="4" />
-    <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+    <path d="M18 20V10M12 20V4M6 20v-6" />
+  </Icone>
+);
+
+const IconeConfiguracoes = () => (
+  <Icone>
+    <circle cx="12" cy="12" r="3" />
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
   </Icone>
 );
 

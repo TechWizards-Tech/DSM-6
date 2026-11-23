@@ -10,7 +10,7 @@ import {
 
 interface Props {
   token: string;
-  aoFechar: () => void;
+  aoFechar?: () => void;
   aoExpirar: (motivo: string) => void;
 }
 
@@ -31,7 +31,7 @@ function formatarCriacao(iso: string): string {
   return Number.isNaN(data.getTime()) ? '' : data.toLocaleDateString('pt-BR');
 }
 
-export function JanelaUsuarios({ token, aoFechar, aoExpirar }: Props) {
+export function JanelaUsuarios({ token, aoExpirar }: Props) {
   const [usuarios, setUsuarios] = useState<UsuarioListado[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [nome, setNome] = useState('');
@@ -43,9 +43,6 @@ export function JanelaUsuarios({ token, aoFechar, aoExpirar }: Props) {
   const [erro, setErro] = useState<string | null>(null);
   const [sucesso, setSucesso] = useState<string | null>(null);
   const campoNome = useRef<HTMLInputElement>(null);
-  // Ref para o efeito abaixo nao reexecutar (e roubar o foco) quando o pai renderiza de novo.
-  const fecharRef = useRef(aoFechar);
-  fecharRef.current = aoFechar;
 
   const tratarFalha = useCallback(
     (falha: unknown) => {
@@ -72,21 +69,6 @@ export function JanelaUsuarios({ token, aoFechar, aoExpirar }: Props) {
   useEffect(() => {
     void carregar();
   }, [carregar]);
-
-  useEffect(() => {
-    campoNome.current?.focus();
-    // Trava a rolagem da pagina enquanto a janela esta aberta.
-    const overflowAnterior = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    function aoTeclar(evento: KeyboardEvent) {
-      if (evento.key === 'Escape') fecharRef.current();
-    }
-    window.addEventListener('keydown', aoTeclar);
-    return () => {
-      document.body.style.overflow = overflowAnterior;
-      window.removeEventListener('keydown', aoTeclar);
-    };
-  }, []);
 
   const senhaCurta = senha.length > 0 && senha.length < SENHA_MIN;
   const formularioValido =
@@ -116,21 +98,28 @@ export function JanelaUsuarios({ token, aoFechar, aoExpirar }: Props) {
   }
 
   return (
-    <div
-      className="janela-fundo"
-      onMouseDown={(evento) => {
-        if (evento.target === evento.currentTarget) aoFechar();
-      }}
-    >
-      <div className="janela" role="dialog" aria-modal="true" aria-labelledby="janela-usuarios-titulo">
-        <header className="janela__cabecalho">
-          <h2 id="janela-usuarios-titulo">Usuários do painel</h2>
-          <button className="janela__fechar" type="button" aria-label="Fechar janela" onClick={aoFechar}>
-            ×
-          </button>
-        </header>
+    <main className="painel">
+      <div className="painel__cabecalho">
+        <div>
+          <h1 className="painel__titulo">Configurar novo usuário</h1>
+          <p className="painel__subtitulo">
+            Gerenciamento de acessos e permissões do Painel Administrativo
+          </p>
+        </div>
+        <dl className="painel__resumo" aria-label="Resumo de usuários">
+          <div className="resumo resumo--agendado">
+            <dt>Cadastrados</dt>
+            <dd>{carregando ? '–' : usuarios.length}</dd>
+          </div>
+        </dl>
+      </div>
 
-        <div className="janela__corpo">
+      <section
+        className="painel__filtros"
+        style={{ display: 'block', marginTop: '24px' }}
+        aria-label="Formulário de novo usuário"
+      >
+        <div className="janela__corpo" style={{ padding: 0 }}>
           <form className="janela__form" onSubmit={enviar} noValidate>
             <h3>Novo usuário</h3>
 
@@ -221,9 +210,6 @@ export function JanelaUsuarios({ token, aoFechar, aoExpirar }: Props) {
             )}
 
             <div className="janela__acoes">
-              <button className="botao botao--fantasma" type="button" onClick={aoFechar}>
-                Fechar
-              </button>
               <button
                 className="botao botao--primario"
                 type="submit"
@@ -253,7 +239,7 @@ export function JanelaUsuarios({ token, aoFechar, aoExpirar }: Props) {
             </ul>
           </section>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
