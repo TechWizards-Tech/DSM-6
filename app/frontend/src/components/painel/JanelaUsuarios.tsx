@@ -2,15 +2,18 @@ import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 
 import { ErroApi } from '../../lib/api';
 import {
+  atualizarUsuario,
   criarUsuario,
+  excluirUsuario,
   listarUsuarios,
   type Papel,
   type UsuarioListado,
+  type UsuarioPainel,
 } from '../../lib/painelApi';
 
 interface Props {
   token: string;
-  aoFechar: () => void;
+  usuarioLogado: UsuarioPainel;
   aoExpirar: (motivo: string) => void;
 }
 
@@ -31,11 +34,20 @@ function formatarCriacao(iso: string): string {
   return Number.isNaN(data.getTime()) ? '' : data.toLocaleDateString('pt-BR');
 }
 
-export function JanelaUsuarios({ token, aoFechar, aoExpirar }: Props) {
+export function JanelaUsuarios({ token, usuarioLogado, aoExpirar }: Props) {
+  const ehAdmin = usuarioLogado.papel === 'admin';
   const [usuarios, setUsuarios] = useState<UsuarioListado[]>([]);
-  const [carregando, setCarregando] = useState(true);
-  const [nome, setNome] = useState('');
-  const [email, setEmail] = useState('');
+  const [carregando, setCarregando] = useState(ehAdmin);
+  const [editando, setEditando] = useState<UsuarioListado | null>(
+    ehAdmin
+      ? null
+      : {
+          ...usuarioLogado,
+          criadoEm: '',
+        },
+  );
+  const [nome, setNome] = useState(ehAdmin ? '' : usuarioLogado.nome);
+  const [email, setEmail] = useState(ehAdmin ? '' : usuarioLogado.email);
   const [senha, setSenha] = useState('');
   const [papel, setPapel] = useState<Papel>('atendente');
   const [mostrarSenha, setMostrarSenha] = useState(false);
@@ -43,9 +55,6 @@ export function JanelaUsuarios({ token, aoFechar, aoExpirar }: Props) {
   const [erro, setErro] = useState<string | null>(null);
   const [sucesso, setSucesso] = useState<string | null>(null);
   const campoNome = useRef<HTMLInputElement>(null);
-  // Ref para o efeito abaixo nao reexecutar (e roubar o foco) quando o pai renderiza de novo.
-  const fecharRef = useRef(aoFechar);
-  fecharRef.current = aoFechar;
 
   const tratarFalha = useCallback(
     (falha: unknown) => {
@@ -59,6 +68,7 @@ export function JanelaUsuarios({ token, aoFechar, aoExpirar }: Props) {
   );
 
   const carregar = useCallback(async () => {
+    if (!ehAdmin) return;
     setCarregando(true);
     try {
       setUsuarios(await listarUsuarios(token));
@@ -67,30 +77,54 @@ export function JanelaUsuarios({ token, aoFechar, aoExpirar }: Props) {
     } finally {
       setCarregando(false);
     }
-  }, [token, tratarFalha]);
+  }, [ehAdmin, token, tratarFalha]);
 
   useEffect(() => {
     void carregar();
   }, [carregar]);
 
-  useEffect(() => {
+  function iniciarEdicao(alvo: UsuarioListado) {
+    setEditando(alvo);
+    setNome(alvo.nome);
+    setEmail(alvo.email);
+    setSenha('');
+    setPapel(alvo.papel);
+    setMostrarSenha(false);
+    setErro(null);
+    setSucesso(null);
     campoNome.current?.focus();
-    // Trava a rolagem da pagina enquanto a janela esta aberta.
-    const overflowAnterior = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    function aoTeclar(evento: KeyboardEvent) {
-      if (evento.key === 'Escape') fecharRef.current();
+  }
+
+  function cancelarEdicao() {
+    setEditando(null);
+    setNome('');
+    setEmail('');
+    setSenha('');
+    setPapel('atendente');
+    setMostrarSenha(false);
+    setErro(null);
+  }
+
+  async function remover(alvo: UsuarioListado) {
+    if (!window.confirm(`Deseja realmente excluir o usuário "${alvo.nome}" (${alvo.email})?`)) {
+      return;
     }
-    window.addEventListener('keydown', aoTeclar);
-    return () => {
-      document.body.style.overflow = overflowAnterior;
-      window.removeEventListener('keydown', aoTeclar);
-    };
-  }, []);
+    setErro(null);
+    setSucesso(null);
+    try {
+      await excluirUsuario(token, alvo.id);
+      if (editando?.id === alvo.id) cancelarEdicao();
+      setSucesso(`Usuário ${alvo.nome} foi removido.`);
+      await carregar();
+    } catch (falha) {
+      tratarFalha(falha);
+    }
+  }
 
   const senhaCurta = senha.length > 0 && senha.length < SENHA_MIN;
-  const formularioValido =
-    nome.trim().length >= 2 && email.includes('@') && senha.length >= SENHA_MIN;
+  const formularioValido = editando
+    ? nome.trim().length >= 2 && (senha.length === 0 || senha.length >= SENHA_MIN)
+    : nome.trim().length >= 2 && email.includes('@') && senha.length >= SENHA_MIN;
 
   async function enviar(evento: FormEvent) {
     evento.preventDefault();
@@ -99,15 +133,35 @@ export function JanelaUsuarios({ token, aoFechar, aoExpirar }: Props) {
     setErro(null);
     setSucesso(null);
     try {
-      const criado = await criarUsuario(token, { nome: nome.trim(), email: email.trim(), senha, papel });
-      setSucesso(`${criado.nome} foi cadastrado(a) como ${ROTULO_PAPEL[criado.papel].toLowerCase()}.`);
-      setNome('');
-      setEmail('');
-      setSenha('');
-      setPapel('atendente');
-      setMostrarSenha(false);
-      campoNome.current?.focus();
-      await carregar();
+      if (editando) {
+        const atualizado = await atualizarUsuario(token, editando.id, {
+          nome: nome.trim(),
+          senha: senha.length > 0 ? senha : undefined,
+          papel: ehAdmin ? papel : undefined,
+        });
+        setSucesso(`Dados de ${atualizado.nome} atualizados com sucesso.`);
+        setSenha('');
+        setMostrarSenha(false);
+        if (ehAdmin) {
+          cancelarEdicao();
+          await carregar();
+        }
+      } else {
+        const criado = await criarUsuario(token, {
+          nome: nome.trim(),
+          email: email.trim(),
+          senha,
+          papel,
+        });
+        setSucesso(`${criado.nome} foi cadastrado(a) como ${ROTULO_PAPEL[criado.papel].toLowerCase()}.`);
+        setNome('');
+        setEmail('');
+        setSenha('');
+        setPapel('atendente');
+        setMostrarSenha(false);
+        campoNome.current?.focus();
+        await carregar();
+      }
     } catch (falha) {
       tratarFalha(falha);
     } finally {
@@ -116,23 +170,48 @@ export function JanelaUsuarios({ token, aoFechar, aoExpirar }: Props) {
   }
 
   return (
-    <div
-      className="janela-fundo"
-      onMouseDown={(evento) => {
-        if (evento.target === evento.currentTarget) aoFechar();
-      }}
-    >
-      <div className="janela" role="dialog" aria-modal="true" aria-labelledby="janela-usuarios-titulo">
-        <header className="janela__cabecalho">
-          <h2 id="janela-usuarios-titulo">Usuários do painel</h2>
-          <button className="janela__fechar" type="button" aria-label="Fechar janela" onClick={aoFechar}>
-            ×
-          </button>
-        </header>
+    <main className="painel">
+      <div className="painel__cabecalho">
+        <div>
+          <h1 className="painel__titulo">
+            {ehAdmin ? 'Configurar usuários' : 'Configurações da minha conta'}
+          </h1>
+          <p className="painel__subtitulo">
+            {ehAdmin
+              ? 'Gerenciamento de acessos, criação, edição e exclusão de perfis do Painel'
+              : 'Atualize o seu nome de exibição ou altere a sua senha de acesso'}
+          </p>
+        </div>
+        {ehAdmin && (
+          <dl className="painel__resumo" aria-label="Resumo de usuários">
+            <div className="resumo resumo--agendado">
+              <dt>Cadastrados</dt>
+              <dd>{carregando ? '–' : usuarios.length}</dd>
+            </div>
+          </dl>
+        )}
+      </div>
 
-        <div className="janela__corpo">
+      <section
+        className="painel__filtros"
+        style={{ display: 'block', marginTop: '24px' }}
+        aria-label="Formulário de usuário"
+      >
+        <div
+          className="janela__corpo"
+          style={{
+            padding: 0,
+            gridTemplateColumns: ehAdmin ? undefined : 'minmax(0, 480px)',
+          }}
+        >
           <form className="janela__form" onSubmit={enviar} noValidate>
-            <h3>Novo usuário</h3>
+            <h3>
+              {editando
+                ? ehAdmin
+                  ? `Editar usuário (${editando.email})`
+                  : 'Meus dados'
+                : 'Novo usuário'}
+            </h3>
 
             <label className="campo">
               <span className="campo__rotulo">Nome</span>
@@ -155,12 +234,15 @@ export function JanelaUsuarios({ token, aoFechar, aoExpirar }: Props) {
                 autoComplete="off"
                 maxLength={254}
                 value={email}
+                disabled={Boolean(editando)}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </label>
 
             <label className="campo">
-              <span className="campo__rotulo">Senha inicial</span>
+              <span className="campo__rotulo">
+                {editando ? 'Nova senha (deixe em branco para manter a atual)' : 'Senha inicial'}
+              </span>
               <span className="janela__senha">
                 <input
                   className="campo__input"
@@ -187,27 +269,29 @@ export function JanelaUsuarios({ token, aoFechar, aoExpirar }: Props) {
               </span>
             </label>
 
-            <fieldset className="janela__papeis">
-              <legend className="campo__rotulo">Papel</legend>
-              {(Object.keys(ROTULO_PAPEL) as Papel[]).map((opcao) => (
-                <label
-                  key={opcao}
-                  className={`janela__papel${papel === opcao ? ' janela__papel--ativo' : ''}`}
-                >
-                  <input
-                    type="radio"
-                    name="papel"
-                    value={opcao}
-                    checked={papel === opcao}
-                    onChange={() => setPapel(opcao)}
-                  />
-                  <span>
-                    <strong>{ROTULO_PAPEL[opcao]}</strong>
-                    <small>{DESCRICAO_PAPEL[opcao]}</small>
-                  </span>
-                </label>
-              ))}
-            </fieldset>
+            {ehAdmin && (
+              <fieldset className="janela__papeis">
+                <legend className="campo__rotulo">Papel</legend>
+                {(Object.keys(ROTULO_PAPEL) as Papel[]).map((opcao) => (
+                  <label
+                    key={opcao}
+                    className={`janela__papel${papel === opcao ? ' janela__papel--ativo' : ''}`}
+                  >
+                    <input
+                      type="radio"
+                      name="papel"
+                      value={opcao}
+                      checked={papel === opcao}
+                      onChange={() => setPapel(opcao)}
+                    />
+                    <span>
+                      <strong>{ROTULO_PAPEL[opcao]}</strong>
+                      <small>{DESCRICAO_PAPEL[opcao]}</small>
+                    </span>
+                  </label>
+                ))}
+              </fieldset>
+            )}
 
             {erro && (
               <p className="janela__aviso janela__aviso--erro" role="alert">
@@ -221,39 +305,79 @@ export function JanelaUsuarios({ token, aoFechar, aoExpirar }: Props) {
             )}
 
             <div className="janela__acoes">
-              <button className="botao botao--fantasma" type="button" onClick={aoFechar}>
-                Fechar
-              </button>
+              {ehAdmin && editando && (
+                <button
+                  className="botao botao--fantasma"
+                  type="button"
+                  onClick={cancelarEdicao}
+                  disabled={salvando}
+                >
+                  Cancelar edição
+                </button>
+              )}
               <button
                 className="botao botao--primario"
                 type="submit"
                 disabled={!formularioValido || salvando}
               >
-                {salvando ? 'Salvando...' : 'Criar usuário'}
+                {salvando
+                  ? 'Salvando...'
+                  : editando
+                    ? 'Salvar alterações'
+                    : 'Criar usuário'}
               </button>
             </div>
           </form>
 
-          <section className="janela__lista" aria-label="Usuários cadastrados" aria-busy={carregando}>
-            <h3>Cadastrados{!carregando && ` (${usuarios.length})`}</h3>
-            {carregando && usuarios.length === 0 && <p className="janela__dica">Carregando...</p>}
-            <ul>
-              {usuarios.map((u) => (
-                <li key={u.id}>
-                  <div>
-                    <strong>{u.nome}</strong>
-                    <span>{u.email}</span>
-                  </div>
-                  <div className="janela__lateral">
-                    <span className={`janela__selo janela__selo--${u.papel}`}>{ROTULO_PAPEL[u.papel]}</span>
-                    <small>{formatarCriacao(u.criadoEm)}</small>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </section>
+          {ehAdmin && (
+            <section className="janela__lista" aria-label="Usuários cadastrados" aria-busy={carregando}>
+              <h3>Cadastrados{!carregando && ` (${usuarios.length})`}</h3>
+              {carregando && usuarios.length === 0 && <p className="janela__dica">Carregando...</p>}
+              <ul>
+                {usuarios.map((u) => {
+                  const ehProprio = u.id === usuarioLogado.id;
+                  return (
+                    <li key={u.id}>
+                      <div>
+                        <strong>
+                          {u.nome} {ehProprio ? '(você)' : ''}
+                        </strong>
+                        <span>{u.email}</span>
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                          <button
+                            type="button"
+                            className="botao botao--fantasma"
+                            style={{ padding: '4px 10px', fontSize: '0.78rem' }}
+                            onClick={() => iniciarEdicao(u)}
+                          >
+                            Editar
+                          </button>
+                          {!ehProprio && (
+                            <button
+                              type="button"
+                              className="botao botao--perigo"
+                              style={{ padding: '4px 10px', fontSize: '0.78rem' }}
+                              onClick={() => remover(u)}
+                            >
+                              Excluir
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <div className="janela__lateral">
+                        <span className={`janela__selo janela__selo--${u.papel}`}>
+                          {ROTULO_PAPEL[u.papel]}
+                        </span>
+                        <small>{formatarCriacao(u.criadoEm)}</small>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          )}
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

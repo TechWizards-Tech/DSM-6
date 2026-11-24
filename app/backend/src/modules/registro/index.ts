@@ -9,7 +9,7 @@
  * entrar, basta uma implementacao de `RepositorioInteracoes` que escreva na
  * tabela correspondente.
  */
-import { appendFileSync, mkdirSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 
 export type TipoEvento =
@@ -44,7 +44,22 @@ export class RepositorioInteracoesMemoria implements RepositorioInteracoes {
 
   /** @param arquivoJsonl caminho opcional para espelhar os eventos em disco. */
   constructor(private readonly arquivoJsonl?: string) {
-    if (arquivoJsonl) mkdirSync(dirname(arquivoJsonl), { recursive: true });
+    if (arquivoJsonl) {
+      mkdirSync(dirname(arquivoJsonl), { recursive: true });
+      if (existsSync(arquivoJsonl)) {
+        try {
+          const linhas = readFileSync(arquivoJsonl, 'utf-8')
+            .split('\n')
+            .map((l) => l.trim())
+            .filter(Boolean);
+          for (const linha of linhas) {
+            this.interacoes.push(JSON.parse(linha) as Interacao);
+          }
+        } catch (erro) {
+          console.warn('[registro] falha ao carregar interacoes existentes:', erro);
+        }
+      }
+    }
   }
 
   async registrar(dados: Omit<Interacao, 'id' | 'em'>): Promise<void> {

@@ -798,7 +798,7 @@ button {
   gap: 16px;
   align-items: center;
   justify-content: space-between;
-  width: min(1120px, 100%);
+  width: min(1320px, 100%);
   margin: 0 auto;
   padding: 12px 22px;
 }
@@ -1823,3 +1823,128 @@ button {
     display: none;
   }
 }
+
+/* ------------------------------------------- menu lateral de opcoes do painel */
+
+.painel-layout {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+  width: min(1320px, 100%);
+  margin: 0 auto;
+  padding: 28px 22px 56px;
+}
+
+.painel-layout > .painel {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.painel-menu-lateral {
+  position: sticky;
+  top: 78px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 12px;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra-bolha);
+}
+
+.painel-menu-lateral__titulo {
+  padding: 0 10px;
+  color: var(--texto-3);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.painel-menu-lateral__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.painel-menu-lateral__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  border-radius: var(--raio-campo);
+  color: var(--texto-2);
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.painel-menu-lateral__item:hover {
+  background: var(--conversa);
+  color: var(--marca-forte);
+}
+
+.painel-menu-lateral__item--ativo {
+  background: var(--marca-tenue);
+  color: var(--marca-forte);
+}
+
+.painel-menu-lateral__sublista {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 4px 0 4px 22px;
+  padding: 0 0 0 10px;
+  border-left: 2px solid var(--borda-2);
+  list-style: none;
+}
+
+.painel-menu-lateral__subitem {
+  width: 100%;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-radius: var(--raio-campo);
+  color: var(--texto-2);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.painel-menu-lateral__subitem:hover {
+  background: var(--marca-tenue);
+  color: var(--marca-forte);
+}
+
+.painel-menu-lateral__divisor {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--borda);
+}
+
+@media (max-width: 900px) {
+  .painel-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .painel-menu-lateral {
+    position: static;
+  }
+}
+

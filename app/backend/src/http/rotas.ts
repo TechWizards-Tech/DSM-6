@@ -129,12 +129,30 @@ export function criarRotas({ motor, fluxos, sessoes, interacoes, agendamentos }:
   rotas.get('/registros/estatisticas', async (_req, res, next) => {
     try {
       const estatisticas = calcularEstatisticas(await interacoes.listar());
+      const porId = new Map(
+        estatisticas.fluxosMaisUtilizados.map((item) => [item.fluxoId, item]),
+      );
+
+      const todosOsFluxos = fluxos.itensMenu.map((item) => {
+        const registrado = porId.get(item.fluxo);
+        return {
+          fluxoId: item.fluxo,
+          titulo: fluxos.buscarFluxo(item.fluxo)?.titulo ?? item.rotulo,
+          vezesEscolhido: registrado?.vezesEscolhido ?? 0,
+          orientacoesEntregues: registrado?.orientacoesEntregues ?? 0,
+        };
+      });
+
+      todosOsFluxos.sort(
+        (a, b) =>
+          b.vezesEscolhido - a.vezesEscolhido ||
+          b.orientacoesEntregues - a.orientacoesEntregues ||
+          a.fluxoId.localeCompare(b.fluxoId),
+      );
+
       res.json({
         ...estatisticas,
-        fluxosMaisUtilizados: estatisticas.fluxosMaisUtilizados.map((item) => ({
-          ...item,
-          titulo: fluxos.buscarFluxo(item.fluxoId)?.titulo ?? item.fluxoId,
-        })),
+        fluxosMaisUtilizados: todosOsFluxos,
       });
     } catch (erro) {
       next(erro);

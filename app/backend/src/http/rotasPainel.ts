@@ -117,6 +117,53 @@ export function criarRotasPainel({ autenticacao, agendamentos }: Dependencias): 
     }
   });
 
+  admin.patch('/usuarios/:id', async (req: RequisicaoAutenticada, res, next) => {
+    try {
+      const logado = req.usuarioAdmin;
+      const idAlvo = req.params.id;
+      if (!logado || !idAlvo) return res.status(401).json({ erro: 'Nao autenticado.' });
+
+      const ehAdmin = logado.papel === 'admin';
+      const ehPropriaConta = logado.id === idAlvo;
+
+      if (!ehAdmin && !ehPropriaConta) {
+        return res.status(403).json({ erro: 'Voce nao tem permissao para editar este usuario.' });
+      }
+
+      const { nome, senha, papel } = req.body ?? {};
+      if (!ehAdmin && papel !== undefined && papel !== logado.papel) {
+        return res.status(403).json({ erro: 'Apenas administradores podem alterar o papel do usuario.' });
+      }
+
+      const atualizado = await autenticacao.atualizarUsuario(idAlvo, {
+        nome: typeof nome === 'string' ? nome : undefined,
+        senha: typeof senha === 'string' ? senha : undefined,
+        papel: ehAdmin && typeof papel === 'string' ? (papel as Papel) : undefined,
+      });
+
+      if (!atualizado) return res.status(404).json({ erro: 'Usuario nao encontrado.' });
+      res.json(atualizado);
+    } catch (erro) {
+      if (erro instanceof ErroCadastroUsuario) return res.status(400).json({ erro: erro.message });
+      next(erro);
+    }
+  });
+
+  admin.delete('/usuarios/:id', exigirPapel('admin'), async (req: RequisicaoAutenticada, res, next) => {
+    try {
+      const idAlvo = req.params.id;
+      if (!idAlvo) return res.status(400).json({ erro: 'Informe o usuario.' });
+      if (req.usuarioAdmin?.id === idAlvo) {
+        return res.status(400).json({ erro: 'Voce nao pode excluir a sua propria conta em uso.' });
+      }
+      const removido = await autenticacao.removerUsuario(idAlvo);
+      if (!removido) return res.status(404).json({ erro: 'Usuario nao encontrado.' });
+      res.status(204).end();
+    } catch (erro) {
+      next(erro);
+    }
+  });
+
   admin.get('/agendamentos', async (req, res, next) => {
     try {
       const data = typeof req.query.data === 'string' ? req.query.data.trim() : '';

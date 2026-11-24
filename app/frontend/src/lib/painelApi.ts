@@ -97,3 +97,61 @@ export function criarUsuario(token: string, dados: NovoUsuario) {
     comToken(token, { method: 'POST', body: JSON.stringify(dados) }),
   );
 }
+
+export interface AtualizarUsuarioInput {
+  nome?: string;
+  senha?: string;
+  papel?: Papel;
+}
+
+export function atualizarUsuario(token: string, id: string, dados: AtualizarUsuarioInput) {
+  return requisitar<UsuarioListado>(
+    `/admin/usuarios/${encodeURIComponent(id)}`,
+    comToken(token, { method: 'PATCH', body: JSON.stringify(dados) }),
+  );
+}
+
+export function excluirUsuario(token: string, id: string) {
+  return requisitar<undefined>(
+    `/admin/usuarios/${encodeURIComponent(id)}`,
+    comToken(token, { method: 'DELETE' }),
+  );
+}
+
+export interface EstatisticaFluxoPainel {
+  fluxoId: string;
+  titulo: string;
+  vezesEscolhido: number;
+  orientacoesEntregues: number;
+}
+
+export interface EstatisticasFluxos {
+  conversasIniciadas: number;
+  orientacoesEntregues: number;
+  entradasInvalidas: number;
+  fluxosMaisUtilizados: EstatisticaFluxoPainel[];
+}
+
+export function obterEstatisticas(): Promise<EstatisticasFluxos> {
+  return requisitar<EstatisticasFluxos>('/registros/estatisticas');
+}
+
+export interface InteracaoRegistrada {
+  id: string;
+  sessaoId: string;
+  usuario: string;
+  evento: string;
+  fluxoId?: string;
+  noId?: string;
+  opcaoId?: string;
+  encaminhamento?: string;
+  detalhe?: string;
+  em: string;
+}
+
+export async function listarInteracoes(): Promise<InteracaoRegistrada[]> {
+  const { interacoes } = await requisitar<{ interacoes: InteracaoRegistrada[] }>('/registros');
+  return interacoes;
+}
+
+

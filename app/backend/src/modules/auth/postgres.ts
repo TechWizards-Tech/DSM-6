@@ -4,6 +4,7 @@ import {
   ErroUsuarioDuplicado,
   ehPapel,
   normalizarEmail,
+  type AtualizarUsuarioAdminInput,
   type CriarUsuarioAdminInput,
   type Papel,
   type RepositorioUsuariosAdmin,
@@ -106,5 +107,48 @@ export class RepositorioUsuariosAdminPostgres implements RepositorioUsuariosAdmi
       normalizarEmail(email),
       papel,
     ]);
+  }
+
+  async buscarPorId(id: string): Promise<UsuarioAdmin | undefined> {
+    await this.garantirEsquema();
+    const resultado = await this.pool.query<LinhaUsuarioAdmin>(
+      `SELECT ${COLUNAS} FROM usuarios_admin WHERE id = $1`,
+      [id],
+    );
+    return resultado.rows[0] ? paraUsuario(resultado.rows[0]) : undefined;
+  }
+
+  async atualizar(id: string, input: AtualizarUsuarioAdminInput): Promise<UsuarioAdmin | undefined> {
+    await this.garantirEsquema();
+    const campos: string[] = [];
+    const valores: string[] = [];
+
+    if (input.nome !== undefined) {
+      valores.push(input.nome);
+      campos.push(`nome = $${valores.length}`);
+    }
+    if (input.senhaHash !== undefined) {
+      valores.push(input.senhaHash);
+      campos.push(`senha_hash = $${valores.length}`);
+    }
+    if (input.papel !== undefined) {
+      valores.push(input.papel);
+      campos.push(`papel = $${valores.length}`);
+    }
+
+    if (campos.length === 0) return this.buscarPorId(id);
+
+    valores.push(id);
+    const resultado = await this.pool.query<LinhaUsuarioAdmin>(
+      `UPDATE usuarios_admin SET ${campos.join(', ')} WHERE id = $${valores.length} RETURNING ${COLUNAS}`,
+      valores,
+    );
+    return resultado.rows[0] ? paraUsuario(resultado.rows[0]) : undefined;
+  }
+
+  async remover(id: string): Promise<boolean> {
+    await this.garantirEsquema();
+    const resultado = await this.pool.query('DELETE FROM usuarios_admin WHERE id = $1', [id]);
+    return (resultado.rowCount ?? 0) > 0;
   }
 }

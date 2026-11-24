@@ -41,11 +41,20 @@ export interface CriarUsuarioAdminInput {
   papel: Papel;
 }
 
+export interface AtualizarUsuarioAdminInput {
+  nome?: string;
+  senhaHash?: string;
+  papel?: Papel;
+}
+
 export interface RepositorioUsuariosAdmin {
   buscarPorEmail(email: string): Promise<UsuarioAdmin | undefined>;
+  buscarPorId?(id: string): Promise<UsuarioAdmin | undefined>;
   listar(): Promise<UsuarioAdmin[]>;
   criar(input: CriarUsuarioAdminInput): Promise<UsuarioAdmin>;
   atualizarPapel(email: string, papel: Papel): Promise<void>;
+  atualizar?(id: string, input: AtualizarUsuarioAdminInput): Promise<UsuarioAdmin | undefined>;
+  remover?(id: string): Promise<boolean>;
 }
 
 export class ErroUsuarioDuplicado extends Error {
@@ -92,6 +101,28 @@ export class RepositorioUsuariosAdminMemoria implements RepositorioUsuariosAdmin
   async atualizarPapel(email: string, papel: Papel): Promise<void> {
     const usuario = this.usuarios.get(normalizarEmail(email));
     if (usuario) usuario.papel = papel;
+  }
+
+  async buscarPorId(id: string): Promise<UsuarioAdmin | undefined> {
+    for (const usuario of this.usuarios.values()) {
+      if (usuario.id === id) return usuario;
+    }
+    return undefined;
+  }
+
+  async atualizar(id: string, input: AtualizarUsuarioAdminInput): Promise<UsuarioAdmin | undefined> {
+    const usuario = await this.buscarPorId(id);
+    if (!usuario) return undefined;
+    if (input.nome !== undefined) usuario.nome = input.nome;
+    if (input.senhaHash !== undefined) usuario.senhaHash = input.senhaHash;
+    if (input.papel !== undefined) usuario.papel = input.papel;
+    return usuario;
+  }
+
+  async remover(id: string): Promise<boolean> {
+    const usuario = await this.buscarPorId(id);
+    if (!usuario) return false;
+    return this.usuarios.delete(usuario.email);
   }
 }
 
@@ -259,6 +290,44 @@ export class ServicoAutenticacao {
       senhaHash: await gerarHashSenha(entrada.senha),
     });
     return publico(criado);
+  }
+
+  async atualizarUsuario(
+    id: string,
+    entrada: { nome?: string; senha?: string; papel?: Papel },
+  ): Promise<UsuarioPublico | undefined> {
+    const atualizacao: AtualizarUsuarioAdminInput = {};
+
+    if (entrada.nome !== undefined) {
+      const nome = entrada.nome.trim();
+      if (nome.length < 2 || nome.length > 100) {
+        throw new ErroCadastroUsuario('Informe o nome (de 2 a 100 caracteres).');
+      }
+      atualizacao.nome = nome;
+    }
+
+    if (entrada.senha !== undefined && entrada.senha !== '') {
+      if (entrada.senha.length < SENHA_MIN || entrada.senha.length > 128) {
+        throw new ErroCadastroUsuario(`A senha deve ter de ${SENHA_MIN} a 128 caracteres.`);
+      }
+      atualizacao.senhaHash = await gerarHashSenha(entrada.senha);
+    }
+
+    if (entrada.papel !== undefined) {
+      if (!ehPapel(entrada.papel)) {
+        throw new ErroCadastroUsuario(`Papel invalido. Use: ${PAPEIS.join(', ')}.`);
+      }
+      atualizacao.papel = entrada.papel;
+    }
+
+    if (!this.usuarios.atualizar) return undefined;
+    const atualizado = await this.usuarios.atualizar(id, atualizacao);
+    return atualizado ? publico(atualizado) : undefined;
+  }
+
+  async removerUsuario(id: string): Promise<boolean> {
+    if (!this.usuarios.remover) return false;
+    return this.usuarios.remover(id);
   }
 
   private assinar(conteudo: string): string {
